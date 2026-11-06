@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retail Bloomberg Terminal</title>
+    <style>
+        :root {
+            --bg-color: #0b0e14;
+            --panel-bg: #151922;
+            --border-color: #262b38;
+            --text-main: #e1e6ed;
+            --text-sub: #8b949e;
+            --accent-green: #00c853;
+            --accent-red: #ff3d00;
+            --accent-blue: #2979ff;
+        }
+        body {
+            margin: 0; padding: 15px;
+            background-color: var(--bg-color); color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+        }
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px;
+        }
+        .brand-title { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; color: #fff; }
+        .brand-title span { color: var(--accent-blue); }
+        .status-badge {
+            background-color: rgba(0, 200, 83, 0.15); color: var(--accent-green);
+            padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;
+            border: 1px solid var(--accent-green);
+        }
+        .grid-container { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 900px) { .grid-container { grid-template-columns: 2fr 1fr; } }
+        .card { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; }
+        .card-header {
+            font-size: 1rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px;
+            text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;
+        }
+        .ticker-bar { display: flex; gap: 15px; flex-wrap: wrap; }
+        .ticker-item { background: #1c2230; padding: 10px 15px; border-radius: 4px; min-width: 140px; }
+        .ticker-symbol { font-size: 0.85rem; color: var(--text-sub); }
+        .ticker-price { font-size: 1.2rem; font-weight: 700; margin: 4px 0; }
+        .positive { color: var(--accent-green); }
+        .negative { color: var(--accent-red); }
+        .news-item { border-bottom: 1px solid var(--border-color); padding: 10px 0; }
+        .news-tag { display: inline-block; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; border-radius: 3px; margin-right: 6px; }
+        .tag-bullish { background: rgba(0, 200, 83, 0.2); color: var(--accent-green); }
+        .tag-bearish { background: rgba(255, 61, 0, 0.2); color: var(--accent-red); }
+        .news-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+        .news-bullets { font-size: 0.85rem; color: var(--text-sub); padding-left: 18px; margin: 4px 0 0 0; }
+        .premarket-list { list-style: none; padding: 0; margin: 0; font-size: 0.85rem; }
+        .premarket-list li { padding: 8px 0; border-bottom: 1px dashed var(--border-color); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand-title">RETAIL <span>BLOOMBERG</span></div>
+        <div class="status-badge">● LIVE MARKET DOCK</div>
+    </header>
+    <div class="card" style="margin-bottom: 15px;">
+        <div class="card-header">Institutional Equity Ticker</div>
+        <div class="ticker-bar">
+            <div class="ticker-item">
+                <div class="ticker-symbol">NIFTY 50</div>
+                <div class="ticker-price positive" id="nifty-price">--</div>
+                <div id="nifty-change" style="font-size:0.8rem;">--</div>
+            </div>
+        </div>
+    </div>
+    <div class="grid-container">
+        <div class="card">
+            <div class="card-header">AI News Intelligence</div>
+            <div id="news-container">
+                <div class="news-item">
+                    <div><span class="news-tag tag-bullish">BULLISH</span><span class="news-title">Reliance Retail Q3 Surge</span></div>
+                    <ul class="news-bullets">
+                        <li>Revenue up 18% YoY driven by strong digital and grocery demand.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Daily Premarket Report</div>
+            <ul class="premarket-list">
+                <li><strong>GIFT Nifty:</strong> Flat setup (+14 pts).</li>
+                <li><strong>FII / DII Flow:</strong> Net Buy +₹840 Cr.</li>
+                <li><strong>Key Levels:</strong> Support 24,150 | Resistance 24,450.</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        async function fetchPrices() {
+            try {
+                const res = await fetch('/api/quote/%5ENSEI');
+                if(!res.ok) return;
+                const data = await res.json();
+                if(data.price) {
+                    document.getElementById('nifty-price').innerText = data.price.toLocaleString();
+                    const changeEl = document.getElementById('nifty-change');
+                    changeEl.innerText = `${data.change >= 0 ? '+' : ''}${data.change} (${data.pctChange}%)`;
+                    changeEl.className = data.change >= 0 ? 'positive' : 'negative';
+                }
+            } catch (e) { console.log("Waiting...", e); }
+        }
+        fetchPrices();
+        setInterval(fetchPrices, 10000);
+    </script>
+</body>
+  </html>
+  
