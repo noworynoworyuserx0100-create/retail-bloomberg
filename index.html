@@ -3,110 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retail Bloomberg Terminal</title>
+    <title>Retail Bloomberg Terminal - Pro</title>
     <style>
         :root {
-            --bg-color: #0b0e14;
-            --panel-bg: #151922;
-            --border-color: #262b38;
-            --text-main: #e1e6ed;
+            --bg-color: #07090e;
+            --panel-bg: #10141d;
+            --border-color: #1e2532;
+            --text-main: #f0f3f6;
             --text-sub: #8b949e;
             --accent-green: #00c853;
             --accent-red: #ff3d00;
             --accent-blue: #2979ff;
+            --accent-orange: #ffab00;
         }
+
         body {
-            margin: 0; padding: 15px;
-            background-color: var(--bg-color); color: var(--text-main);
+            margin: 0;
+            padding: 10px;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+            font-size: 13px;
         }
+
         header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
         }
-        .brand-title { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; color: #fff; }
+
+        .brand-title {
+            font-size: 1.2rem;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: #fff;
+        }
+
         .brand-title span { color: var(--accent-blue); }
-        .status-badge {
-            background-color: rgba(0, 200, 83, 0.15); color: var(--accent-green);
-            padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;
-            border: 1px solid var(--accent-green);
+
+        .terminal-nav {
+            display: flex;
+            gap: 10px;
         }
-        .grid-container { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        @media (min-width: 900px) { .grid-container { grid-template-columns: 2fr 1fr; } }
-        .card { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; }
-        .card-header {
-            font-size: 1rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px;
-            text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;
+
+        .nav-btn {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-sub);
+            padding: 5px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: 600;
         }
-        .ticker-bar { display: flex; gap: 15px; flex-wrap: wrap; }
-        .ticker-item { background: #1c2230; padding: 10px 15px; border-radius: 4px; min-width: 140px; }
-        .ticker-symbol { font-size: 0.85rem; color: var(--text-sub); }
-        .ticker-price { font-size: 1.2rem; font-weight: 700; margin: 4px 0; }
+
+        .nav-btn.active {
+            background: var(--accent-blue);
+            color: #fff;
+            border-color: var(--accent-blue);
+        }
+
+        /* Ticker Header Bar */
+        .market-ticker-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .ticker-box {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+            border-radius: 4px;
+        }
+
+        .ticker-symbol { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; }
+        .ticker-price { font-size: 1.1rem; font-weight: 800; margin: 2px 0; }
         .positive { color: var(--accent-green); }
         .negative { color: var(--accent-red); }
-        .news-item { border-bottom: 1px solid var(--border-color); padding: 10px 0; }
-        .news-tag { display: inline-block; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; border-radius: 3px; margin-right: 6px; }
-        .tag-bullish { background: rgba(0, 200, 83, 0.2); color: var(--accent-green); }
-        .tag-bearish { background: rgba(255, 61, 0, 0.2); color: var(--accent-red); }
-        .news-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
-        .news-bullets { font-size: 0.85rem; color: var(--text-sub); padding-left: 18px; margin: 4px 0 0 0; }
-        .premarket-list { list-style: none; padding: 0; margin: 0; font-size: 0.85rem; }
-        .premarket-list li { padding: 8px 0; border-bottom: 1px dashed var(--border-color); }
+
+        /* Dashboard Grid Layout */
+        .terminal-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        @media (min-width: 1024px) {
+            .terminal-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .terminal-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 12px;
+        }
+
+        .card-header {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--accent-orange);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* News & Premarket List */
+        .news-row {
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 0;
+        }
+        .news-row:last-child { border-bottom: none; }
+        .badge {
+            font-size: 0.65rem; padding: 2px 5px; border-radius: 2px; font-weight: bold; margin-right: 5px;
+        }
+        .bg-bull { background: rgba(0, 200, 83, 0.2); color: var(--accent-green); }
+        .bg-bear { background: rgba(255, 61, 0, 0.2); color: var(--accent-red); }
+
+        .metric-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .metric-table th, .metric-table td {
+            text-align: left;
+            padding: 6px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .metric-table th { color: var(--text-sub); }
     </style>
 </head>
 <body>
+
     <header>
-        <div class="brand-title">RETAIL <span>BLOOMBERG</span></div>
-        <div class="status-badge">● LIVE MARKET DOCK</div>
+        <div class="brand-title">RETAIL <span>BLOOMBERG</span> <span style="font-size:0.7rem; color:var(--text-sub);">PRO v2.0</span></div>
+        <div class="terminal-nav">
+            <button class="nav-btn active">Terminal</button>
+            <button class="nav-btn">Options Chain</button>
+            <button class="nav-btn">AI Intel</button>
+        </div>
     </header>
-    <div class="card" style="margin-bottom: 15px;">
-        <div class="card-header">Institutional Equity Ticker</div>
-        <div class="ticker-bar">
-            <div class="ticker-item">
-                <div class="ticker-symbol">NIFTY 50</div>
-                <div class="ticker-price positive" id="nifty-price">--</div>
-                <div id="nifty-change" style="font-size:0.8rem;">--</div>
-            </div>
+
+    <!-- Multi-Asset Ticker Bar -->
+    <div class="market-ticker-bar">
+        <div class="ticker-box">
+            <div class="ticker-symbol">NIFTY 50</div>
+            <div class="ticker-price positive" id="nifty-price">Loading...</div>
+            <div id="nifty-change" style="font-size:0.75rem;">--</div>
+        </div>
+        <div class="ticker-box">
+            <div class="ticker-symbol">RELIANCE</div>
+            <div class="ticker-price positive" id="rel-price">Loading...</div>
+            <div id="rel-change" style="font-size:0.75rem;">--</div>
+        </div>
+        <div class="ticker-box">
+            <div class="ticker-symbol">TCS</div>
+            <div class="ticker-price negative" id="tcs-price">Loading...</div>
+            <div id="tcs-change" style="font-size:0.75rem;">--</div>
+        </div>
+        <div class="ticker-box">
+            <div class="ticker-symbol">INFY</div>
+            <div class="ticker-price positive" id="infy-price">Loading...</div>
+            <div id="infy-change" style="font-size:0.75rem;">--</div>
         </div>
     </div>
-    <div class="grid-container">
-        <div class="card">
-            <div class="card-header">AI News Intelligence</div>
-            <div id="news-container">
-                <div class="news-item">
-                    <div><span class="news-tag tag-bullish">BULLISH</span><span class="news-title">Reliance Retail Q3 Surge</span></div>
-                    <ul class="news-bullets">
-                        <li>Revenue up 18% YoY driven by strong digital and grocery demand.</li>
-                    </ul>
+
+    <!-- Main Terminal Workspaces -->
+    <div class="terminal-grid">
+        <!-- Left Panel: AI News & Analytics -->
+        <div class="terminal-card">
+            <div class="card-header">
+                <span>AI News Sentiment Intelligence</span>
+                <span>LIVE FEED</span>
+            </div>
+            <div id="news-box">
+                <div class="news-row">
+                    <div><span class="badge bg-bull">BULLISH</span><strong>RBI Policy Stance Remains Accommodative for Growth</strong></div>
+                    <div style="color: var(--text-sub); margin-top: 3px;">Liquidity deficit narrows down; banking sector margins projected stable for Q4.</div>
+                </div>
+                <div class="news-row">
+                    <div><span class="badge bg-bull">BULLISH</span><strong>FII Institutional Inflows Surge in Heavyweight Equities</strong></div>
+                    <div style="color: var(--text-sub); margin-top: 3px;">Capital rotation observed towards index majors following global macroeconomic signals.</div>
+                </div>
+                <div class="news-row">
+                    <div><span class="badge bg-bear">BEARISH</span><strong>IT Sector Faces Short-Term Margin Headwinds</strong></div>
+                    <div style="color: var(--text-sub); margin-top: 3px;">Client discretionary spending delays impacting near-term deal conversion velocity.</div>
                 </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header">Daily Premarket Report</div>
-            <ul class="premarket-list">
-                <li><strong>GIFT Nifty:</strong> Flat setup (+14 pts).</li>
-                <li><strong>FII / DII Flow:</strong> Net Buy +₹840 Cr.</li>
-                <li><strong>Key Levels:</strong> Support 24,150 | Resistance 24,450.</li>
-            </ul>
+
+        <!-- Right Panel: Premarket & Derivatives Data -->
+        <div class="terminal-card">
+            <div class="card-header">
+                <span>Premarket & Derivatives Metrics</span>
+            </div>
+            <table class="metric-table">
+                <tr><th>Indicator</th><th>Value / Signal</th></tr>
+                <tr><td>GIFT Nifty</td><td class="positive">24,380 (+42 pts)</td></tr>
+                <tr><td>FII Net Flow</td><td class="positive">+₹1,420 Cr</td></tr>
+                <tr><td>DII Net Flow</td><td class="negative">-₹610 Cr</td></tr>
+                <tr><td>PCR (Nifty)</td><td>1.15 (Bullish Bias)</td></tr>
+                <tr><td>Max Pain</td><td>24,300 Strike</td></tr>
+                <tr><td>VIX Volatility</td><td>12.45 (-3.2%)</td></tr>
+            </table>
         </div>
     </div>
+
     <script>
-        async function fetchPrices() {
+        async function fetchStock(symbol, priceId, changeId) {
             try {
-                const res = await fetch('/api/quote/%5ENSEI');
+                const res = await fetch(`/api/quote/${symbol}`);
                 if(!res.ok) return;
                 const data = await res.json();
                 if(data.price) {
-                    document.getElementById('nifty-price').innerText = data.price.toLocaleString();
-                    const changeEl = document.getElementById('nifty-change');
-                    changeEl.innerText = `${data.change >= 0 ? '+' : ''}${data.change} (${data.pctChange}%)`;
-                    changeEl.className = data.change >= 0 ? 'positive' : 'negative';
+                    document.getElementById(priceId).innerText = data.price.toLocaleString();
+                    const el = document.getElementById(changeId);
+                    el.innerText = `${data.change >= 0 ? '+' : ''}${data.change} (${data.pctChange}%)`;
+                    el.className = data.change >= 0 ? 'positive' : 'negative';
                 }
-            } catch (e) { console.log("Waiting...", e); }
+            } catch(e) { console.log(e); }
         }
-        fetchPrices();
-        setInterval(fetchPrices, 10000);
+
+        function updateAllQuotes() {
+            fetchStock('%5ENSEI', 'nifty-price', 'nifty-change');
+            fetchStock('RELIANCE.NS', 'rel-price', 'rel-change');
+            fetchStock('TCS.NS', 'tcs-price', 'tcs-change');
+            fetchStock('INFY.NS', 'infy-price', 'infy-change');
+        }
+
+        updateAllQuotes();
+        setInterval(updateAllQuotes, 10000);
     </script>
 </body>
-  </html>
-  
+</html>
