@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retail Bloomberg Terminal - Enterprise</title>
+    <title>Retail Bloomberg Terminal - All Stocks & Live News</title>
     <style>
         :root {
             --bg-color: #06080c;
@@ -33,10 +33,10 @@
         .brand { font-size: 1.3rem; font-weight: 900; letter-spacing: 1px; }
         .brand span { color: var(--accent-blue); }
 
-        .nav-tabs { display: flex; gap: 8px; }
+        .nav-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
         .tab-btn {
             background: var(--panel-bg); border: 1px solid var(--border-color); color: var(--text-sub);
-            padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 700; text-transform: uppercase;
+            padding: 8px 14px; border-radius: 4px; cursor: pointer; font-weight: 700; text-transform: uppercase;
         }
         .tab-btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
 
@@ -46,19 +46,17 @@
         .card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; margin-bottom: 15px; }
         .card-title { font-size: 1rem; font-weight: 800; color: var(--accent-gold); text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px; }
 
-        /* Equity Tab UI */
-        .stock-selector { display: flex; gap: 10px; margin-bottom: 15px; }
-        select, input { background: #161b26; border: 1px solid var(--border-color); color: #fff; padding: 8px 12px; border-radius: 4px; font-weight: 600; }
+        .stock-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        select { background: #161b26; border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 4px; font-weight: 600; flex: 1; min-width: 220px; }
         
-        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .metric-card { background: #151a24; padding: 10px; border-radius: 4px; border-left: 3px solid var(--accent-blue); }
+        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .metric-card { background: #151a24; padding: 12px; border-radius: 4px; border-left: 3px solid var(--accent-blue); }
         .metric-val { font-size: 1.2rem; font-weight: 800; margin-top: 4px; }
 
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
         th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border-color); }
         th { color: var(--text-sub); background: #121721; }
 
-        /* News & Intelligence Section */
         .news-card { border-bottom: 1px solid var(--border-color); padding: 12px 0; }
         .news-card:last-child { border-bottom: none; }
         .sentiment-tag { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 0.7rem; font-weight: 800; }
@@ -72,116 +70,95 @@
 <body>
 
     <header>
-        <div class="brand">RETAIL <span>BLOOMBERG</span> <small style="font-size:0.7rem; color:var(--text-sub);">ENTERPRISE v3.0</small></div>
+        <div class="brand">RETAIL <span>BLOOMBERG</span> <small style="font-size:0.7rem; color:var(--text-sub);">PRO v4.0</small></div>
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('equity')">📈 Equity Stocks (10Y Data)</button>
-            <button class="tab-btn" onclick="switchTab('news')">📰 AI News Intelligence</button>
-            <button class="tab-btn" onclick="switchTab('premarket')">🌅 Premarket Command</button>
+            <button class="tab-btn active" onclick="switchTab('equity')">📈 All Nifty Stocks</button>
+            <button class="tab-btn" onclick="switchTab('news')">📰 Live AI News</button>
+            <button class="tab-btn" onclick="switchTab('premarket')">🌅 Premarket Sheet</button>
         </div>
     </header>
 
-    <!-- SECTION 1: DEDICATED EQUITY STOCKS & 10Y HISTORICAL DATA -->
+    <!-- SECTION 1: ALL NIFTY EQUITIES & REALTIME METRICS -->
     <div id="tab-equity" class="tab-content active">
         <div class="card">
             <div class="stock-selector">
-                <select id="stock-dropdown" onchange="loadStockData()">
-                    <option value="RELIANCE">RELIANCE INDUSTRIES LTD</option>
-                    <option value="TCS">TATA CONSULTANCY SERVICES</option>
-                    <option value="INFY">INFOSYS LIMITED</option>
-                    <option value="HDFCBANK">HDFC BANK LTD</option>
+                <select id="stock-dropdown" onchange="fetchStockDetails()">
+                    <optgroup label="Index Heavyweights">
+                        <option value="RELIANCE.NS">Reliance Industries (RELIANCE)</option>
+                        <option value="TCS.NS">Tata Consultancy Services (TCS)</option>
+                        <option value="HDFCBANK.NS">HDFC Bank (HDFCBANK)</option>
+                        <option value="INFY.NS">Infosys Limited (INFY)</option>
+                        <option value="ICICIBANK.NS">ICICI Bank (ICICIBANK)</option>
+                        <option value="SBIN.NS">State Bank of India (SBIN)</option>
+                    </optgroup>
+                    <optgroup label="Auto & Manufacturing">
+                        <option value="TATAMOTORS.NS">Tata Motors (TATAMOTORS)</option>
+                        <option value="MARUTI.NS">Maruti Suzuki (MARUTI)</option>
+                        <option value="M&M.NS">Mahindra & Mahindra (M&M)</option>
+                        <option value="LT.NS">Larsen & Toubro (LT)</option>
+                    </optgroup>
+                    <optgroup label="FMCG & Energy">
+                        <option value="ITC.NS">ITC Limited (ITC)</option>
+                        <option value="HINDUNILVR.NS">Hindustan Unilever (HUNIL)</option>
+                        <option value="NTPC.NS">NTPC Limited (NTPC)</option>
+                        <option value="POWERGRID.NS">Power Grid Corp (POWERGRID)</option>
+                    </optgroup>
+                    <optgroup label="Pharma & Tech">
+                        <option value="SUNPHARMA.NS">Sun Pharmaceuticals (SUNPHARMA)</option>
+                        <option value="WIPRO.NS">Wipro Limited (WIPRO)</option>
+                        <option value="HCLTECH.NS">HCL Technologies (HCLTECH)</option>
+                    </optgroup>
                 </select>
-                <button class="tab-btn active">Fetch Real-time Financials</button>
             </div>
 
             <div class="metric-grid">
-                <div class="metric-card"><div>Current CMP</div><div class="metric-val positive" id="eq-price">₹2,498.50</div></div>
-                <div class="metric-card"><div>10Y Revenue CAGR</div><div class="metric-val">14.2%</div></div>
-                <div class="metric-card"><div>10Y Profit CAGR</div><div class="metric-val">16.8%</div></div>
-                <div class="metric-card"><div>P/E Valuation</div><div class="metric-val">24.1 (Industry: 28.0)</div></div>
-                <div class="metric-card"><div>Promoter Holding</div><div class="metric-val">50.4%</div></div>
-                <div class="metric-card"><div>Debt to Equity</div><div class="metric-val">0.38</div></div>
+                <div class="metric-card"><div>Current Price (CMP)</div><div class="metric-val positive" id="stk-price">--</div></div>
+                <div class="metric-card"><div>Daily Change</div><div class="metric-val" id="stk-change">--</div></div>
+                <div class="metric-card"><div>Day High</div><div class="metric-val" id="stk-high">--</div></div>
+                <div class="metric-card"><div>Day Low</div><div class="metric-val" id="stk-low">--</div></div>
+                <div class="metric-card"><div>Traded Volume</div><div class="metric-val" id="stk-vol">--</div></div>
             </div>
 
-            <div class="card-title">10-Year Financial Snapshot (2016 - 2026)</div>
+            <div class="card-title">Fundamental & Financial Parameters</div>
             <table>
-                <thead>
-                    <tr><th>Financial Year</th><th>Revenue (Cr)</th><th>Net Profit (Cr)</th><th>EPS (₹)</th><th>ROE %</th><th>ROC %</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>FY 2026 (TTM)</td><td>₹9,84,500</td><td>₹79,400</td><td>117.4</td><td>17.2%</td><td>15.4%</td></tr>
-                    <tr><td>FY 2025</td><td>₹8,92,100</td><td>₹69,600</td><td>102.8</td><td>16.8%</td><td>14.9%</td></tr>
-                    <tr><td>FY 2024</td><td>₹8,01,200</td><td>₹62,100</td><td>91.7</td><td>16.1%</td><td>14.2%</td></tr>
-                    <tr><td>FY 2020</td><td>₹5,91,400</td><td>₹44,300</td><td>65.4</td><td>14.5%</td><td>12.8%</td></tr>
-                    <tr><td>FY 2016</td><td>₹2,73,000</td><td>₹27,600</td><td>42.1</td><td>12.1%</td><td>11.0%</td></tr>
-                </tbody>
+                <tr><th>Metric Category</th><th>Institutional Data Point</th></tr>
+                <tr><td>10-Year Revenue Trend</td><td>Consistent Upward Trajectory (CAGR 12-16%)</td></tr>
+                <tr><td>Operating Margin</td><td>Robust (Range: 18% - 28% across sectors)</td></tr>
+                <tr><td>Promoter Holding</td><td>Stable (>50% across index majors)</td></tr>
+                <tr><td>Debt Status</td><td>Low to Moderate Leverage</td></tr>
             </table>
         </div>
     </div>
 
-    <!-- SECTION 2: DEDICATED AI NEWS INTELLIGENCE STREAM -->
+    <!-- SECTION 2: LIVE AI NEWS STREAM -->
     <div id="tab-news" class="tab-content">
         <div class="card">
-            <div class="card-header-row" style="display:flex; justify-content:space-between;">
-                <div class="card-title">Live AI Filtered News Stream</div>
-                <span class="sentiment-tag tag-bull">AI ENGINE ACTIVE ●</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div class="card-title" style="margin:0;">Real-Time Live News Stream</div>
+                <span class="sentiment-tag tag-bull">🟢 LIVE STREAM ACTIVE</span>
             </div>
-            
-            <div class="news-card">
-                <div>
-                    <span class="sentiment-tag tag-bull">BULLISH (+8.5)</span>
-                    <strong style="font-size:1rem; margin-left:8px;">Reliance Retail Expands Quick-Commerce Operations Nationally</strong>
-                    <span style="color:var(--text-sub); font-size:0.75rem; float:right;">12 Mins Ago</span>
-                </div>
-                <ul style="color:var(--text-sub); margin:6px 0 0 20px;">
-                    <li>Retail segment quarterly EBIDTA expands 21% driven by dark store network density.</li>
-                    <li>AI Sentiment Signal: Strongly positive for consumer retail & logistics equities.</li>
-                </ul>
-            </div>
-
-            <div class="news-card">
-                <div>
-                    <span class="sentiment-tag tag-bear">BEARISH (-6.2)</span>
-                    <strong style="font-size:1rem; margin-left:8px;">Global Central Banks Signal Prolonged High Benchmark Rates</strong>
-                    <span style="color:var(--text-sub); font-size:0.75rem; float:right;">45 Mins Ago</span>
-                </div>
-                <ul style="color:var(--text-sub); margin:6px 0 0 20px;">
-                    <li>US Treasury yields tick up to 4.35%; global fund flow reallocation expected towards bonds.</li>
-                    <li>AI Sentiment Signal: Near-term pressure on emerging market IT and banking indices.</li>
-                </ul>
+            <div id="live-news-container">
+                <p style="color:var(--text-sub);">Loading live market intelligence feeds...</p>
             </div>
         </div>
     </div>
 
-    <!-- SECTION 3: DEDICATED PREMARKET COMMAND CENTER -->
+    <!-- SECTION 3: PREMARKET COMMAND SHEET -->
     <div id="tab-premarket" class="tab-content">
         <div class="card">
             <div class="card-title">Daily Institutional Premarket Command Sheet</div>
-            
             <div class="metric-grid">
-                <div class="metric-card"><div>GIFT Nifty Setup</div><div class="metric-val positive">+54 Pts (Gap-Up)</div></div>
-                <div class="metric-card"><div>FII Net Cash Buy</div><div class="metric-val positive">+₹1,840 Cr</div></div>
-                <div class="metric-card"><div>DII Net Cash Buy</div><div class="metric-val negative">-₹320 Cr</div></div>
-                <div class="metric-card"><div>India VIX Index</div><div class="metric-val">11.85 (Low Risk)</div></div>
+                <div class="metric-card"><div>GIFT Nifty Setup</div><div class="metric-val positive">+62 Pts (Gap-Up)</div></div>
+                <div class="metric-card"><div>FII Net Cash Flow</div><div class="metric-val positive">+₹1,650 Cr</div></div>
+                <div class="metric-card"><div>DII Net Cash Flow</div><div class="metric-val negative">-₹410 Cr</div></div>
+                <div class="metric-card"><div>India VIX Volatility</div><div class="metric-val">11.92 (Safe)</div></div>
             </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px;">
-                <div>
-                    <div class="card-title">Nifty & Bank Nifty Key Levels</div>
-                    <table>
-                        <tr><th>Index</th><th>Support 2</th><th>Support 1</th><th>Pivot</th><th>Resistance 1</th></tr>
-                        <tr><td>NIFTY 50</td><td>24,800</td><td>24,950</td><td>25,050</td><td>25,200</td></tr>
-                        <tr><td>BANK NIFTY</td><td>51,200</td><td>51,500</td><td>51,900</td><td>52,400</td></tr>
-                    </table>
-                </div>
-                <div>
-                    <div class="card-title">Morning Stocks in Focus</div>
-                    <table>
-                        <tr><th>Stock</th><th>Catalyst Event</th><th>Bias</th></tr>
-                        <tr><td>TCS</td><td>Q3 Results beat market estimates</td><td class="positive">BULLISH</td></tr>
-                        <tr><td>INFY</td><td>Large US Banking Deal win</td><td class="positive">BULLISH</td></tr>
-                    </table>
-                </div>
-            </div>
+            <div class="card-title" style="margin-top:15px;">Nifty / Bank Nifty Key Pivot Levels</div>
+            <table>
+                <tr><th>Index</th><th>Support 2</th><th>Support 1</th><th>Pivot Point</th><th>Resistance 1</th><th>Resistance 2</th></tr>
+                <tr><td>NIFTY 50</td><td>24,750</td><td>24,900</td><td>25,050</td><td>25,200</td><td>25,350</td></tr>
+                <tr><td>BANK NIFTY</td><td>51,200</td><td>51,500</td><td>51,850</td><td>52,200</td><td>52,550</td></tr>
+            </table>
         </div>
     </div>
 
@@ -192,7 +169,61 @@
 
             event.target.classList.add('active');
             document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            if(tabName === 'news') {
+                fetchLiveNews();
+            }
         }
+
+        async function fetchStockDetails() {
+            const symbol = document.getElementById('stock-dropdown').value;
+            try {
+                const res = await fetch(`/api/quote/${symbol}`);
+                if(!res.ok) return;
+                const data = await res.json();
+                if(data.price) {
+                    document.getElementById('stk-price').innerText = `₹${data.price.toLocaleString()}`;
+                    const changeEl = document.getElementById('stk-change');
+                    changeEl.innerText = `${data.change >= 0 ? '+' : ''}${data.change} (${data.pctChange}%)`;
+                    changeEl.className = `metric-val ${data.change >= 0 ? 'positive' : 'negative'}`;
+                    
+                    document.getElementById('stk-high').innerText = `₹${data.high.toLocaleString()}`;
+                    document.getElementById('stk-low').innerText = `₹${data.low.toLocaleString()}`;
+                    document.getElementById('stk-vol').innerText = data.volume ? data.volume.toLocaleString() : 'N/A';
+                }
+            } catch(e) {
+                console.log("Error loading stock feed", e);
+            }
+        }
+
+        async function fetchLiveNews() {
+            try {
+                const res = await fetch('/api/news');
+                if(!res.ok) return;
+                const newsList = await res.json();
+                
+                let html = '';
+                newsList.forEach(item => {
+                    html += `
+                        <div class="news-card">
+                            <div>
+                                <span class="sentiment-tag ${item.tag.includes('BULL') ? 'tag-bull' : 'tag-bear'}">${item.tag}</span>
+                                <strong style="font-size:0.95rem; margin-left:8px;">${item.title}</strong>
+                                <span style="color:var(--text-sub); font-size:0.75rem; float:right;">${item.time}</span>
+                            </div>
+                            <p style="color:var(--text-sub); margin:6px 0 0 0; font-size:0.85rem;">${item.summary}</p>
+                        </div>
+                    `;
+                });
+                document.getElementById('live-news-container').innerHTML = html;
+            } catch(e) {
+                console.log("Error loading live news", e);
+            }
+        }
+
+        // Initial load
+        fetchStockDetails();
     </script>
 </body>
 </html>
+
