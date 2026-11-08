@@ -1,12 +1,17 @@
 import subprocess
 import sys
+import time
 
-# Auto-install missing packages on Render cloud server automatically
-for package in ['pyotp', 'smartapi-python']:
+print("🔍 Checking and installing required trading packages...")
+for pkg_name, pip_name in [('pyotp', 'pyotp'), ('smartapi', 'smartapi-python')]:
     try:
-        __import__(package.split('-')[0])
+        __import__(pkg_name)
+        print(f"✅ {pkg_name} is already available.")
     except ImportError:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        print(f"📦 Installing {pip_name}...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", pip_name])
+
+print("🚀 Dependencies ready. Starting web server...")
 
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import urllib.parse
@@ -18,7 +23,6 @@ from smartapi import SmartConnect
 
 PORT = int(os.environ.get("PORT", 8000))
 
-# Fetching Angel Credentials from Render Environment Variables
 API_KEY = os.environ.get("ANGEL_API_KEY", "")
 CLIENT_ID = os.environ.get("ANGEL_CLIENT_ID", "")
 PIN = os.environ.get("ANGEL_PIN", "")
@@ -52,7 +56,6 @@ class LiveMarketHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         parsed_path = urllib.parse.urlparse(self.path)
         
-        # 1. Direct Angel One Live Quote Endpoint
         if parsed_path.path.startswith('/api/quote/'):
             symbol = parsed_path.path.replace('/api/quote/', '').upper()
             self.send_response(200)
@@ -81,7 +84,6 @@ class LiveMarketHandler(SimpleHTTPRequestHandler):
             except Exception as e:
                 self.wfile.write(json.dumps({"error": str(e)}).encode())
 
-        # 2. Live Market News Endpoint
         elif parsed_path.path == '/api/news':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
