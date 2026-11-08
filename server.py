@@ -11,6 +11,9 @@ for pkg_name, pip_name in [('pyotp', 'pyotp'), ('smartapi', 'smartapi-python')]:
         print(f"📦 Installing {pip_name}...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", pip_name])
 
+# Wait 2 seconds for Python to refresh packages cache
+time.sleep(2)
+
 print("🚀 Dependencies ready. Starting web server...")
 
 from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -110,3 +113,4 @@ server_address = ('', PORT)
 httpd = HTTPServer(server_address, LiveMarketHandler)
 print(f"🚀 Retail Terminal Angel One Engine Running on Port: {PORT}")
 httpd.serve_forever()
+                        
