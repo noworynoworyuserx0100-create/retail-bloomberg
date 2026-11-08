@@ -4,24 +4,29 @@ import urllib.parse
 import json
 import xml.etree.ElementTree as ET
 import os
-import pyotp
-from smartapi import SmartConnect
+
+# Safe import for pyotp (If not installed, it won't crash the server)
+try:
+    import pyotp
+    from smartapi import SmartConnect
+    HAS_SMARTAPI = True
+except ImportError:
+    HAS_SMARTAPI = False
 
 PORT = int(os.environ.get("PORT", 8000))
 
-# Angel One Credentials (Render environment variables nundi automatically theeskuntundi)
 API_KEY = os.environ.get("ANGEL_API_KEY", "")
 CLIENT_ID = os.environ.get("ANGEL_CLIENT_ID", "")
 PIN = os.environ.get("ANGEL_PIN", "")
 TOTP_SECRET = os.environ.get("ANGEL_TOTP", "")
 
-smartApi = SmartConnect(api_key=API_KEY)
+smartApi = SmartConnect(api_key=API_KEY) if HAS_SMARTAPI and API_KEY else None
 session_data = None
 
 def get_angel_session():
     global session_data
-    if not API_KEY or not CLIENT_ID or not PIN:
-        print("⚠️ Angel One Credentials not configured in environment variables.")
+    if not HAS_SMARTAPI or not API_KEY or not CLIENT_ID or not PIN:
+        print("⚠️ Angel One or SmartAPI modules skipped.")
         return False
     try:
         totp = pyotp.TOTP(TOTP_SECRET).now() if TOTP_SECRET else ""
@@ -34,8 +39,8 @@ def get_angel_session():
         print(f"Angel Login Error: {e}")
     return False
 
-# Try initial connection
-get_angel_session()
+if HAS_SMARTAPI:
+    get_angel_session()
 
 class LiveMarketHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -61,7 +66,7 @@ class LiveMarketHandler(SimpleHTTPRequestHandler):
             except Exception as e:
                 self.wfile.write(json.dumps([]).encode())
 
-        # 2. Live Quote Endpoint (Angel One or Yahoo Fallback)
+        # 2. Live Quote Endpoint (Yahoo Real-Time Fallback)
         elif parsed_path.path.startswith('/api/quote/'):
             symbol = parsed_path.path.replace('/api/quote/', '')
             self.send_response(200)
@@ -70,54 +75,27 @@ class LiveMarketHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             
             try:
-                price, high, low, volume = 0, 0, 0, 0
-                
-                # Try fetching from Angel One if session active, else fallback to Yahoo finance live chart
-                if session_data:
-                    try:
-                        # Example token mapping or direct LTP fetch
-                        ltp_res = smartApi.ltpData("NSE", symbol.replace('.NS',''), "2885") # Default token mapping example
-                        if ltp_res and 'data' in ltp_res:
-                            price = ltp_res['data'].get('ltp', 0)
-                    except:
-                        pass
-                
-                # Fallback to Yahoo Finance real-time chart feed if Angel token not mapped yet
-                if price == 0:
-                    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1m&range=1d"
-                    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-                    with urllib.request.urlopen(req) as response:
-                        data = json.loads(response.read().decode())
-                        meta = data['chart']['result'][0]['meta']
-                        price = meta.get('regularMarketPrice', 0)
-                        prev_close = meta.get('chartPreviousClose', price)
-                        change = round(price - prev_close, 2)
-                        pct_change = round((change / prev_close) * 100, 2) if prev_close else 0.0
-                        
-                        payload = {
-                            "symbol": symbol.upper(),
-                            "price": price,
-                            "change": change,
-                            "pctChange": pct_change,
-                            "high": meta.get('regularMarketDayHigh', price),
-                            "low": meta.get('regularMarketDayLow', price),
-                            "volume": meta.get('regularMarketVolume', 0),
-                            "currency": meta.get('currency', 'INR')
-                        }
-                        self.wfile.write(json.dumps(payload).encode())
-                        return
-
-                payload = {
-                    "symbol": symbol.upper(),
-                    "price": price,
-                    "change": 0.0,
-                    "pctChange": 0.0,
-                    "high": high if high else price,
-                    "low": low if low else price,
-                    "volume": volume,
-                    "currency": "INR"
-                }
-                self.wfile.write(json.dumps(payload).encode())
+                url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1m&range=1d"
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req) as response:
+                    data = json.loads(response.read().decode())
+                    meta = data['chart']['result'][0]['meta']
+                    price = meta.get('regularMarketPrice', 0)
+                    prev_close = meta.get('chartPreviousClose', price)
+                    change = round(price - prev_close, 2)
+                    pct_change = round((change / prev_close) * 100, 2) if prev_close else 0.0
+                    
+                    payload = {
+                        "symbol": symbol.upper(),
+                        "price": price,
+                        "change": change,
+                        "pctChange": pct_change,
+                        "high": meta.get('regularMarketDayHigh', price),
+                        "low": meta.get('regularMarketDayLow', price),
+                        "volume": meta.get('regularMarketVolume', 0),
+                        "currency": meta.get('currency', 'INR')
+                    }
+                    self.wfile.write(json.dumps(payload).encode())
             except Exception as e:
                 self.wfile.write(json.dumps({"error": str(e)}).encode())
 
@@ -151,4 +129,3 @@ server_address = ('', PORT)
 httpd = HTTPServer(server_address, LiveMarketHandler)
 print(f"🚀 Retail Bloomberg Engine Running on Port: {PORT}")
 httpd.serve_forever()
-                        
