@@ -3,227 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retail Bloomberg Terminal - All Stocks & Live News</title>
+    <title>RETAIL BLOOMBERG // Institutional Terminal</title>
     <style>
         :root {
-            --bg-color: #06080c;
-            --panel-bg: #0f131c;
-            --border-color: #1b2230;
-            --text-main: #e6edf3;
-            --text-sub: #8b949e;
-            --accent-green: #00e676;
-            --accent-red: #ff3d00;
-            --accent-blue: #2979ff;
-            --accent-gold: #ffc107;
+            --bg-base: #050505;
+            --bg-panel: #0d1117;
+            --border-color: #21262d;
+            --accent-orange: #ff9900;
+            --accent-green: #00ff66;
+            --accent-red: #ff3333;
+            --text-main: #c9d1d9;
+            --text-dim: #8b949e;
+            --font-mono: 'Courier New', Courier, monospace;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            margin: 0; padding: 12px;
-            background-color: var(--bg-color); color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
-            font-size: 13px;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 12px;
+        /* Top Ticker Tape */
+        .ticker-tape {
+            background: #000;
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 15px;
+            font-size: 12px;
+            display: flex;
+            gap: 30px;
+            overflow-x: auto;
+            white-space: nowrap;
         }
-
-        .brand { font-size: 1.3rem; font-weight: 900; letter-spacing: 1px; }
-        .brand span { color: var(--accent-blue); }
-
-        .nav-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-        .tab-btn {
-            background: var(--panel-bg); border: 1px solid var(--border-color); color: var(--text-sub);
-            padding: 8px 14px; border-radius: 4px; cursor: pointer; font-weight: 700; text-transform: uppercase;
-        }
-        .tab-btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        .card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; margin-bottom: 15px; }
-        .card-title { font-size: 1rem; font-weight: 800; color: var(--accent-gold); text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px; }
-
-        .stock-selector { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        select { background: #161b26; border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 4px; font-weight: 600; flex: 1; min-width: 220px; }
-        
-        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .metric-card { background: #151a24; padding: 12px; border-radius: 4px; border-left: 3px solid var(--accent-blue); }
-        .metric-val { font-size: 1.2rem; font-weight: 800; margin-top: 4px; }
-
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
-        th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border-color); }
-        th { color: var(--text-sub); background: #121721; }
-
-        .news-card { border-bottom: 1px solid var(--border-color); padding: 12px 0; }
-        .news-card:last-child { border-bottom: none; }
-        .sentiment-tag { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 0.7rem; font-weight: 800; }
-        .tag-bull { background: rgba(0, 230, 118, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
-        .tag-bear { background: rgba(255, 61, 0, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
-
+        .ticker-item span { margin-left: 8px; font-weight: bold; }
         .positive { color: var(--accent-green); }
         .negative { color: var(--accent-red); }
+
+        /* Header Bar */
+        header {
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 16px; font-weight: bold; color: var(--accent-orange); letter-spacing: 2px; }
+        .system-status { font-size: 11px; color: var(--accent-green); display: flex; align-items: center; gap: 6px; }
+        .pulse-dot { width: 8px; height: 8px; background: var(--accent-green); border-radius: 50%; animation: pulse 1.5s infinite; }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Main Workspace Grid */
+        .workspace {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .panel {
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .panel:last-child { border-right: none; }
+
+        .panel-header {
+            background: #161b22;
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .panel-body {
+            padding: 12px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Search & Watchlist */
+        .search-box {
+            width: 100%;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 12px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+        .search-box:focus { border-color: var(--accent-orange); }
+
+        .watchlist-item {
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-color);
+            margin-bottom: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .watchlist-item:hover { border-color: var(--accent-orange); background: rgba(255,153,0,0.05); }
+
+        /* Center Display Area */
+        .center-display {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-base);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .quote-banner {
+            border: 1px solid var(--border-color);
+            background: var(--bg-panel);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .quote-title { font-size: 20px; font-weight: bold; color: var(--accent-orange); margin-bottom: 10px; }
+        .quote-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 15px; }
+        .metric-card { background: var(--bg-base); padding: 10px; border: 1px solid var(--border-color); }
+        .metric-title { font-size: 10px; color: var(--text-dim); }
+        .metric-value { font-size: 16px; font-weight: bold; margin-top: 4px; }
+
+        /* News Stream */
+        .news-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 11px;
+        }
+        .news-time { color: var(--text-dim); font-size: 10px; margin-bottom: 4px; }
+        .news-title { color: var(--text-main); text-decoration: none; line-height: 1.4; display: block; }
+        .news-title:hover { color: var(--accent-orange); }
+
+        /* Command Line Input Footer */
+        .command-bar {
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border-color);
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .command-prompt { color: var(--accent-orange); font-weight: bold; }
+        .command-input {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            outline: none;
+            flex: 1;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Top Live Ticker Tape -->
+    <div class="ticker-tape">
+        <div class="ticker-item">NIFTY 50: <span class="positive">24,350.25 (+120.40)</span></div>
+        <div class="ticker-item">BANK NIFTY: <span class="positive">51,800.10 (+340.20)</span></div>
+        <div class="ticker-item">RELIANCE: <span class="negative">1,285.50 (-4.20)</span></div>
+        <div class="ticker-item">TCS: <span class="positive">4,120.00 (+45.10)</span></div>
+        <div class="ticker-item">INFY: <span class="positive">1,890.30 (+12.40)</span></div>
+    </div>
+
+    <!-- Header -->
     <header>
-        <div class="brand">RETAIL <span>BLOOMBERG</span> <small style="font-size:0.7rem; color:var(--text-sub);">PRO v4.0</small></div>
-        <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('equity')">📈 All Nifty Stocks</button>
-            <button class="tab-btn" onclick="switchTab('news')">📰 Live AI News</button>
-            <button class="tab-btn" onclick="switchTab('premarket')">🌅 Premarket Sheet</button>
+        <div class="logo">⚡ RETAIL BLOOMBERG TERMINAL [INSTITUTIONAL FEED]</div>
+        <div class="system-status">
+            <div class="pulse-dot"></div>
+            ANGEL ONE 0-LATENCY ACTIVE
         </div>
     </header>
 
-    <!-- SECTION 1: ALL NIFTY EQUITIES & REALTIME METRICS -->
-    <div id="tab-equity" class="tab-content active">
-        <div class="card">
-            <div class="stock-selector">
-                <select id="stock-dropdown" onchange="fetchStockDetails()">
-                    <optgroup label="Index Heavyweights">
-                        <option value="RELIANCE.NS">Reliance Industries (RELIANCE)</option>
-                        <option value="TCS.NS">Tata Consultancy Services (TCS)</option>
-                        <option value="HDFCBANK.NS">HDFC Bank (HDFCBANK)</option>
-                        <option value="INFY.NS">Infosys Limited (INFY)</option>
-                        <option value="ICICIBANK.NS">ICICI Bank (ICICIBANK)</option>
-                        <option value="SBIN.NS">State Bank of India (SBIN)</option>
-                    </optgroup>
-                    <optgroup label="Auto & Manufacturing">
-                        <option value="TATAMOTORS.NS">Tata Motors (TATAMOTORS)</option>
-                        <option value="MARUTI.NS">Maruti Suzuki (MARUTI)</option>
-                        <option value="M&M.NS">Mahindra & Mahindra (M&M)</option>
-                        <option value="LT.NS">Larsen & Toubro (LT)</option>
-                    </optgroup>
-                    <optgroup label="FMCG & Energy">
-                        <option value="ITC.NS">ITC Limited (ITC)</option>
-                        <option value="HINDUNILVR.NS">Hindustan Unilever (HUNIL)</option>
-                        <option value="NTPC.NS">NTPC Limited (NTPC)</option>
-                        <option value="POWERGRID.NS">Power Grid Corp (POWERGRID)</option>
-                    </optgroup>
-                    <optgroup label="Pharma & Tech">
-                        <option value="SUNPHARMA.NS">Sun Pharmaceuticals (SUNPHARMA)</option>
-                        <option value="WIPRO.NS">Wipro Limited (WIPRO)</option>
-                        <option value="HCLTECH.NS">HCL Technologies (HCLTECH)</option>
-                    </optgroup>
-                </select>
+    <!-- Main Workspace -->
+    <div class="workspace">
+        <!-- Left Panel: Watchlist & Search -->
+        <div class="panel">
+            <div class="panel-header">Market Watch / Search</div>
+            <div class="panel-body">
+                <input type="text" id="searchInput" class="search-box" placeholder="Search NSE/BSE symbol (e.g. RELIANCE)..." onkeyup="handleSearch(event)">
+                <div id="watchlistContainer">
+                    <div class="watchlist-item" onclick="loadStock('RELIANCE')">
+                        <span>RELIANCE</span>
+                        <span class="positive">LIVE</span>
+                    </div>
+                    <div class="watchlist-item" onclick="loadStock('TCS')">
+                        <span>TCS</span>
+                        <span class="positive">LIVE</span>
+                    </div>
+                    <div class="watchlist-item" onclick="loadStock('INFY')">
+                        <span>INFY</span>
+                        <span class="positive">LIVE</span>
+                    </div>
+                    <div class="watchlist-item" onclick="loadStock('SBIN')">
+                        <span>SBIN</span>
+                        <span class="positive">LIVE</span>
+                    </div>
+                    <div class="watchlist-item" onclick="loadStock('TATAMOTORS')">
+                        <span>TATAMOTORS</span>
+                        <span class="positive">LIVE</span>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <div class="metric-grid">
-                <div class="metric-card"><div>Current Price (CMP)</div><div class="metric-val positive" id="stk-price">--</div></div>
-                <div class="metric-card"><div>Daily Change</div><div class="metric-val" id="stk-change">--</div></div>
-                <div class="metric-card"><div>Day High</div><div class="metric-val" id="stk-high">--</div></div>
-                <div class="metric-card"><div>Day Low</div><div class="metric-val" id="stk-low">--</div></div>
-                <div class="metric-card"><div>Traded Volume</div><div class="metric-val" id="stk-vol">--</div></div>
+        <!-- Center Panel: Live Terminal Feed & Chart View -->
+        <div class="center-display">
+            <div class="quote-banner">
+                <div class="quote-title" id="displaySymbol">RELIANCE (NSE)</div>
+                <div style="font-size: 28px; font-weight: bold; color: var(--accent-green);" id="displayPrice">₹1,285.50</div>
+                <div class="quote-grid">
+                    <div class="metric-card">
+                        <div class="metric-title">PREV CLOSE</div>
+                        <div class="metric-value" id="displayClose">1,289.70</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">DAY HIGH</div>
+                        <div class="metric-value" id="displayHigh">1,295.00</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">DAY LOW</div>
+                        <div class="metric-value" id="displayLow">1,280.10</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">FEED SOURCE</div>
+                        <div class="metric-value" style="font-size: 11px; color: var(--accent-orange);" id="displaySource">SmartAPI Direct</div>
+                    </div>
+                </div>
             </div>
+            
+            <div style="border: 1px solid var(--border-color); background: var(--bg-panel); flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-dim);">
+                [ REAL-TIME ORDER BOOK & TICK STREAM VISUALIZER ]
+            </div>
+        </div>
 
-            <div class="card-title">Fundamental & Financial Parameters</div>
-            <table>
-                <tr><th>Metric Category</th><th>Institutional Data Point</th></tr>
-                <tr><td>10-Year Revenue Trend</td><td>Consistent Upward Trajectory (CAGR 12-16%)</td></tr>
-                <tr><td>Operating Margin</td><td>Robust (Range: 18% - 28% across sectors)</td></tr>
-                <tr><td>Promoter Holding</td><td>Stable (>50% across index majors)</td></tr>
-                <tr><td>Debt Status</td><td>Low to Moderate Leverage</td></tr>
-            </table>
+        <!-- Right Panel: Institutional News Stream -->
+        <div class="panel">
+            <div class="panel-header">Live Market Intelligence</div>
+            <div class="panel-body" id="newsContainer">
+                <div class="news-item">
+                    <div class="news-time">Loading Feed...</div>
+                    <a href="#" class="news-title">Fetching real-time market wire headlines...</a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- SECTION 2: LIVE AI NEWS STREAM -->
-    <div id="tab-news" class="tab-content">
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <div class="card-title" style="margin:0;">Real-Time Live News Stream</div>
-                <span class="sentiment-tag tag-bull">🟢 LIVE STREAM ACTIVE</span>
-            </div>
-            <div id="live-news-container">
-                <p style="color:var(--text-sub);">Loading live market intelligence feeds...</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECTION 3: PREMARKET COMMAND SHEET -->
-    <div id="tab-premarket" class="tab-content">
-        <div class="card">
-            <div class="card-title">Daily Institutional Premarket Command Sheet</div>
-            <div class="metric-grid">
-                <div class="metric-card"><div>GIFT Nifty Setup</div><div class="metric-val positive">+62 Pts (Gap-Up)</div></div>
-                <div class="metric-card"><div>FII Net Cash Flow</div><div class="metric-val positive">+₹1,650 Cr</div></div>
-                <div class="metric-card"><div>DII Net Cash Flow</div><div class="metric-val negative">-₹410 Cr</div></div>
-                <div class="metric-card"><div>India VIX Volatility</div><div class="metric-val">11.92 (Safe)</div></div>
-            </div>
-            <div class="card-title" style="margin-top:15px;">Nifty / Bank Nifty Key Pivot Levels</div>
-            <table>
-                <tr><th>Index</th><th>Support 2</th><th>Support 1</th><th>Pivot Point</th><th>Resistance 1</th><th>Resistance 2</th></tr>
-                <tr><td>NIFTY 50</td><td>24,750</td><td>24,900</td><td>25,050</td><td>25,200</td><td>25,350</td></tr>
-                <tr><td>BANK NIFTY</td><td>51,200</td><td>51,500</td><td>51,850</td><td>52,200</td><td>52,550</td></tr>
-            </table>
-        </div>
+    <!-- Command Footer -->
+    <div class="command-bar">
+        <span class="command-prompt">BBG></span>
+        <input type="text" class="command-input" placeholder="Type command (e.g., /quote TCS, /news, /clear)...">
     </div>
 
     <script>
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-            event.target.classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-
-            if(tabName === 'news') {
-                fetchLiveNews();
-            }
-        }
-
-        async function fetchStockDetails() {
-            const symbol = document.getElementById('stock-dropdown').value;
+        async function loadStock(symbol) {
+            document.getElementById('displaySymbol').innerText = symbol + " (NSE)";
+            document.getElementById('displayPrice').innerText = "Loading...";
             try {
-                const res = await fetch(`/api/quote/${symbol}`);
-                if(!res.ok) return;
-                const data = await res.json();
+                let res = await fetch('/api/quote/' + symbol);
+                let data = await res.json();
                 if(data.price) {
-                    document.getElementById('stk-price').innerText = `₹${data.price.toLocaleString()}`;
-                    const changeEl = document.getElementById('stk-change');
-                    changeEl.innerText = `${data.change >= 0 ? '+' : ''}${data.change} (${data.pctChange}%)`;
-                    changeEl.className = `metric-val ${data.change >= 0 ? 'positive' : 'negative'}`;
-                    
-                    document.getElementById('stk-high').innerText = `₹${data.high.toLocaleString()}`;
-                    document.getElementById('stk-low').innerText = `₹${data.low.toLocaleString()}`;
-                    document.getElementById('stk-vol').innerText = data.volume ? data.volume.toLocaleString() : 'N/A';
+                    document.getElementById('displayPrice').innerText = "₹" + data.price;
+                    document.getElementById('displayClose').innerText = data.close || "--";
+                    document.getElementById('displayHigh').innerText = data.high || "--";
+                    document.getElementById('displayLow').innerText = data.low || "--";
+                    document.getElementById('displaySource').innerText = data.source || "SmartAPI";
+                } else {
+                    document.getElementById('displayPrice').innerText = "Data Unavailable";
                 }
             } catch(e) {
-                console.log("Error loading stock feed", e);
+                document.getElementById('displayPrice').innerText = "Connection Error";
             }
         }
 
-        async function fetchLiveNews() {
+        async function fetchNews() {
             try {
-                const res = await fetch('/api/news');
-                if(!res.ok) return;
-                const newsList = await res.json();
-                
-                let html = '';
-                newsList.forEach(item => {
-                    html += `
-                        <div class="news-card">
-                            <div>
-                                <span class="sentiment-tag ${item.tag.includes('BULL') ? 'tag-bull' : 'tag-bear'}">${item.tag}</span>
-                                <strong style="font-size:0.95rem; margin-left:8px;">${item.title}</strong>
-                                <span style="color:var(--text-sub); font-size:0.75rem; float:right;">${item.time}</span>
-                            </div>
-                            <p style="color:var(--text-sub); margin:6px 0 0 0; font-size:0.85rem;">${item.summary}</p>
+                let res = await fetch('/api/news');
+                let items = await res.json();
+                let container = document.getElementById('newsContainer');
+                container.innerHTML = "";
+                items.forEach(n => {
+                    container.innerHTML += `
+                        <div class="news-item">
+                            <div class="news-time">${n.time}</div>
+                            <a href="${n.link}" target="_blank" class="news-title">${n.title}</a>
                         </div>
                     `;
                 });
-                document.getElementById('live-news-container').innerHTML = html;
-            } catch(e) {
-                console.log("Error loading live news", e);
+            } catch(e) {}
+        }
+
+        function handleSearch(e) {
+            if(e.key === 'Enter') {
+                let val = document.getElementById('searchInput').value.trim().toUpperCase();
+                if(val) loadStock(val);
             }
         }
 
-        // Initial load
-        fetchStockDetails();
+        // Auto load initial news
+        fetchNews();
     </script>
 </body>
 </html>
-
