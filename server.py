@@ -1,3 +1,13 @@
+import subprocess
+import sys
+
+# Auto-install missing packages on Render cloud server automatically
+for package in ['pyotp', 'smartapi-python']:
+    try:
+        __import__(package.split('-')[0])
+    except ImportError:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import urllib.parse
 import json
@@ -36,7 +46,6 @@ def init_angel_session():
         print(f"❌ Angel API Connection Error: {e}")
     return False
 
-# Trigger initial Angel One live connection
 init_angel_session()
 
 class LiveMarketHandler(SimpleHTTPRequestHandler):
@@ -52,9 +61,7 @@ class LiveMarketHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             
             try:
-                # Direct SmartAPI Call for Live Ticks
                 if smart_connect and session_data:
-                    # Token lookup example (Default mapping format for NSE equity ticks)
                     ltp_res = smart_connect.ltpData("NSE", symbol, "3045") 
                     if ltp_res and ltp_res.get('status') and 'data' in ltp_res:
                         d = ltp_res['data']
@@ -69,7 +76,6 @@ class LiveMarketHandler(SimpleHTTPRequestHandler):
                         self.wfile.write(json.dumps(payload).encode())
                         return
 
-                # If session re-init needed
                 init_angel_session()
                 self.wfile.write(json.dumps({"error": "Connecting to Angel One SmartAPI..."}).encode())
             except Exception as e:
