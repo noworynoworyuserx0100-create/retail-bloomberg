@@ -1,10 +1,11 @@
+
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import urllib.parse
 import json
 import xml.etree.ElementTree as ET
 import os
 import pyotp
-from smartapi import SmartConnect
+from SmartApi import SmartConnect
 
 PORT = int(os.environ.get("PORT", 8000))
 
