@@ -1,5 +1,6 @@
-smartapi-python
-pyotp
-logzero
-websocket-client
-requests
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+smartapi-python==1.5.5
+pyotp==2.9.0
+python-dotenv==1.1.0
+httpx==0.28.1

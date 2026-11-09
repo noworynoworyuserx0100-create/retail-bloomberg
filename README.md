@@ -1,21 +1,36 @@
-# Pulse Terminal — Frontend
+# Pulse Terminal — Angel One Live Market Data MVP
 
-A desktop-first trading terminal frontend prototype.
+This is a separate FastAPI backend scaffold for your existing Pulse Terminal frontend.
+It is **market-data only**: there are no order-placement, modify-order or cancel-order routes.
 
-## Run locally
-1. Install Node.js 20 or newer.
-2. Extract this ZIP and open the project folder in a terminal.
-3. Run `npm install`.
-4. Run `npm run dev`.
-5. Open the local URL printed by Vite (usually http://localhost:5173).
+## Important status
+- This is a starter integration scaffold, not a verified live deployment.
+- It has not been tested with your Angel One account credentials.
+- Verify the current Angel One instrument master and index tokens before relying on subscriptions.
+- Angel One API access is subject to its current terms, quotas and exchange permissions.
+- Do not expose API key, client code, PIN, TOTP secret, JWT or feed token in frontend code or GitHub.
 
-## Included
-- Dashboard, Premarket, Equity, Indices, Options, F&O, Insights and News workspaces
-- Persistent compact news panel with filters and collapse/expand
-- Light/dark theme toggle
-- Responsive layout
-- Interactive chart built with Lightweight Charts
-- Sample data clearly labelled as illustrative
+## Local run
+1. Copy `.env.example` to `.env` and fill the four Angel One values locally.
+2. `pip install -r requirements.txt`
+3. `uvicorn app.main:app --reload --port 8000`
+4. Open `http://localhost:8000/health`
+5. Check `http://localhost:8000/api/v1/market/status`
+6. WebSocket endpoint: `ws://localhost:8000/ws/market`
 
-## Not connected yet
-No live NSE/BSE quotes, broker API, TradingView account, or real news provider is connected. Connect licensed data feeds and news sources in a later backend phase. Sample prices/headlines must not be treated as live market information.
+## Render deployment
+Create a separate Render **Web Service** connected to this repository:
+- Root Directory: `backend` (if this folder is placed inside the existing repo)
+- Build Command: `pip install -r requirements.txt`
+- Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Add `ANGEL_API_KEY`, `ANGEL_CLIENT_CODE`, `ANGEL_PIN`, `ANGEL_TOTP_SECRET` as secret environment variables.
+- Set `ALLOWED_ORIGINS` to the exact frontend origin.
+
+Do not deploy the frontend's existing Static Site settings as the backend service.
+
+## Current MVP limitations
+- The websocket SDK callbacks are used for streaming. Tick packet field names and scaling must be validated against live SDK responses before production.
+- The two index token values in `app/angel.py` are placeholders to verify against the latest Angel One instrument master.
+- The instrument search endpoint is intentionally a placeholder. Next step is to download, validate and index the official Angel One scrip master, then wire exact symbol tokens and exchange types.
+- Historical candle API integration and proper OHLC aggregation are next implementation tasks.
+- Free Render services may sleep/restart and are not suitable for guaranteed continuous market-hours uptime.
