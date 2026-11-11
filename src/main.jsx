@@ -19,7 +19,9 @@ const movers=[['RELIANCE','2,948.50','+18.40','+0.63%'],['HDFCBANK','1,688.20','
 const losers=[['TATASTEEL','142.80','-2.10','-1.45%'],['ONGC','256.40','-4.90','-1.92%'],['BPCL','316.25','-5.30','-1.65%'],['GRASIM','2,698.70','-38.50','-1.41%'],['WIPRO','298.10','-2.60','-0.86%']];
 const global=[['🇺🇸','Dow Jones','44,938.31','+0.41%'],['🇺🇸','S&P 500','6,101.24','+0.47%'],['🇺🇸','Nasdaq','19,862.54','+0.55%'],['🇪🇺','DAX','19,445.36','+0.32%'],['🇯🇵','Nikkei 225','38,420.14','+0.71%'],['🇭🇰','Hang Seng','26,809.14','+0.63%']];
 const sectors=[['IT','+1.38%'],['Banking','+0.68%'],['Auto','+0.54%'],['FMCG','+0.27%'],['Pharma','+0.49%'],['Metal','-0.36%'],['Energy','-0.18%'],['Realty','+0.63%']];
-const fmt=(v)=>Number(v).toLocaleString('en-IN',{maximumFractionDigits:2});function SectorStrip(){
+const fmt=(v)=>Number(v).toLocaleString('en-IN',{maximumFractionDigits:2});
+
+function SectorStrip(){
  return <section className="panel" style={{marginTop:16,padding:16}}>
   <h3>Sector performance</h3>
   <div style={{display:'flex',gap:18,flexWrap:'wrap'}}>
@@ -29,36 +31,240 @@ const fmt=(v)=>Number(v).toLocaleString('en-IN',{maximumFractionDigits:2});funct
   </div>
  </section>;
 }
-function Chart({type='candle'}){const ref=useRef(null);useEffect(()=>{if(!ref.current)return;const chart=createChart(ref.current,{width:ref.current.clientWidth,height:330,layout:{background:{type:ColorType.Solid,color:'#0a1217'},textColor:'#91a2a9',fontFamily:'JetBrains Mono',fontSize:10},grid:{vertLines:{color:'#14232a'},horzLines:{color:'#14232a'}},rightPriceScale:{borderColor:'#263840'},timeScale:{borderColor:'#263840',timeVisible:true,secondsVisible:false},crosshair:{mode:1}});const candle=chart.addSeries(CandlestickSeries,{upColor:'#00d68b',downColor:'#ff6572',borderUpColor:'#00d68b',borderDownColor:'#ff6572',wickUpColor:'#00d68b',wickDownColor:'#ff6572'});let p=24710;const data=Array.from({length:65},(_,i)=>{let o=p;p+=Math.sin(i*.7)*15+(i%7===0?19:-3);let c=p;return{time:`2026-11-${String(9).padStart(2,'0')}T${String(9+Math.floor((i+15)/60)).padStart(2,'0')}:${String((i+15)%60).padStart(2,'0')}:00`,open:o,high:Math.max(o,c)+Math.random()*18,low:Math.min(o,c)-Math.random()*18,close:c}});candle.setData(data.map((d,i)=>({...d,time:Math.floor(new Date(2026,10,9,9,15+i).getTime()/1000)})));const hist=chart.addSeries(HistogramSeries,{priceFormat:{type:'volume'},priceScaleId:'',color:'#00d68b66'});hist.setData(data.map((d,i)=>({time:Math.floor(new Date(2026,10,9,9,15+i).getTime()/1000),value:Math.round(300+Math.random()*1100),color:d.close>=d.open?'#00d68b55':'#ff657255'})));chart.timeScale().fitContent();const ro=new ResizeObserver(()=>chart.applyOptions({width:ref.current.clientWidth}));ro.observe(ref.current);return()=>{ro.disconnect();chart.remove()}},[]);return <div className="chart" ref={ref}/> }
-function App(){const[page,setPage]=useState('Dashboard'),[dark,setDark]=useState(true),[newsOpen,setNewsOpen]=useState(true),[filter,setFilter]=useState('All'),[mover,setMover]=useState('Gainers'),[interval,setInterval]=useState('5m'),[symbol,setSymbol]=useState('NIFTY 50'),[query,setQuery]=useState(''),[searchOpen,setSearchOpen]=useState(false),[mobileMenu,setMobileMenu]=useState(false),[toast,setToast]=useState('');
-const pageDesc={Dashboard:'A clear view of the market, without the noise.',Premarket:'Global cues, early indications and overnight developments.',Equity:'Explore listed companies, market movers and trading activity.',Indices:'Track benchmark and sectoral index performance.',Options:'Options chain, Greeks and volatility workspace.','F&O':'Futures and derivatives market workspace.',Insights:'Market intelligence, signals and research.',News:'Market-moving headlines, curated in one place.'};
-const showToast=(s)=>{setToast(s);setTimeout(()=>setToast(''),2300)};
-const filteredNews=newsData.filter(n=>filter==='All'||n.tag===filter.toUpperCase());
-const activeMovers=mover==='Gainers'?movers:losers;
-const pageTitle=page==='Dashboard'?'Market overview':page==='Premarket'?'Premarket overview':page;
-return <div className={dark?'app dark':'app light'}>
-<header className="topbar"><button className="mobile-menu iconbutton" onClick={()=>setMobileMenu(!mobileMenu)}><Menu/></button><div className="brand"><div className="brandmark"><Activity/></div><div><b>PULSE</b><small>TERMINAL</small></div></div><nav className="topnav">{NAV.map(([n,I])=><button key={n} onClick={()=>setPage(n)} className={page===n?'navitem active':'navitem'}><I size={16}/>{n}</button>)}</nav><div className="topright"><div className="searchbox"><Search size={16}/><input value={query} onFocus={()=>setSearchOpen(true)} onChange={e=>setQuery(e.target.value)} placeholder="Search stocks, indices, news..."/><kbd>⌘ K</kbd>{searchOpen&&query&&<div className="searchresults" onClick={()=>{setSymbol(query.toUpperCase());setSearchOpen(false);showToast('Search selection: '+query)}}>Search for “{query}”</div>}</div><button className="iconbutton" onClick={()=>showToast('No new notifications')}><Bell size={18}/><i/></button><button className="avatar" onClick={()=>showToast('Profile settings coming soon')}>PT</button></div></header>
-<div className="ticker"><span className="livepill"><i/> LIVE</span><b>MARKET NEWS</b><div className="tickerflow"><span>⚡ Global markets assess central-bank signals and bond yields</span><span>• Crude oil and USD/INR in focus before the open</span><span>• Institutional flows: latest exchange disclosures</span></div><button className="iconbutton" onClick={()=>showToast('Ticker settings')}>•••</button></div>
-<div className="layout"><aside className={mobileMenu?'sidebar mobile-show':'sidebar'}><div className="sidecaption">WORKSPACE</div><button className="sidelink selected" onClick={()=>setPage('Dashboard')}><LayoutDashboard/>Dashboard</button>{SIDE.map(([n,I])=><button key={n} className="sidelink" onClick={()=>{setPage(n==='FII / DII'?'Premarket':n==='Watchlist'?'Equity':n==='Trading Journal'?'Insights':'Dashboard');setMobileMenu(false)}}><I/>{n}</button>)}<div className="sidebottom"><button className="sidelink" onClick={()=>setDark(!dark)}>{dark?<Sun/>:<Moon/>}Appearance</button><button className="sidelink" onClick={()=>showToast('Help centre coming soon')}><CircleHelp/>Help & Support</button><div className="statuscard"><i/><div><b>Frontend preview</b><small>Sample data · Not connected</small></div></div></div></aside>
-<main className="main"><div className="heading"><div><div className="eyebrow">MONDAY, 09 NOVEMBER 2026 <span>•</span> INDIA</div><h1>{pageTitle}</h1><p>{pageDesc[page]}</p></div><div className="headingtools"><span className="samplebadge">● SAMPLE DATA</span><button className="smallbutton" onClick={()=>setDark(!dark)}>{dark?<Sun size={15}/>:<Moon size={15}/>} Theme</button></div></div>
-{page==='Dashboard'&&<><div className="indexgrid">{indices.map(([n,v,c,p,pos])=><div className="indexcard" key={n}><label>{n}</label><div className="indexvalue">{v}</div><strong className={pos?'up':'down'}>{c} <small>({p})</small></strong><div className={'sparkline '+(!pos?'red':'')}>{Array.from({length:24},(_,i)=><i key={i} style={{height:(9+((i*17+7)%19))+'px'}}/>)}</div></div>)}</div><div className="dashgrid"><section className="panel chartpanel"><div className="paneltop"><div><h2>Market chart</h2><p>Intraday market movement · illustrative</p></div><div className="symboltabs">{['NIFTY 50','BANKNIFTY','SENSEX'].map(s=><button className={symbol===s?'selected':''} onClick={()=>setSymbol(s)}>{s}</button>)}</div></div><div className="charttoolbar"><div className="intervals">{['1m','3m','5m','15m','30m','1H','4H','D'].map(t=><button className={interval===t?'selected':''} onClick={()=>setInterval(t)}>{t}</button>)}</div><span>Indicators　⌁　Fullscreen ↗</span></div><Chart/></section><section className="panel newsmini"><NewsPanel filter={filter} setFilter={setFilter} filteredNews={filteredNews} compact/></section><section className="panel breadth"><h3>Market breadth <small>(NSE)</small></h3><div className="breadthbar"><i/></div><div className="breadthnums"><b className="up">2,134 <small>Advances</small></b><b className="down">1,087 <small>Declines</small></b></div></section><section className="panel fii"><h3>FII / DII activity <small>(₹ Cr)</small></h3>{[['FII','+1,240','-2,316'],['DII','+318','+4,512']].map(r=><div className="fiiline"><b>{r[0]}</b><strong className="up">{r[1]}</strong><strong className={r[2][0]==='-'?'down':'up'}>{r[2]}</strong></div>)}</section><section className="panel moverpanel"><div className="paneltop"><h3>Top {mover.toLowerCase()} <small>(NIFTY 50)</small></h3><div className="toggle"><button className={mover==='Gainers'?'selected':''} onClick={()=>setMover('Gainers')}>Gainers</button><button className={mover==='Losers'?'selected':''} onClick={()=>setMover('Losers')}>Losers</button></div></div><DataTable rows={activeMovers}/></section></div><SectorStrip/></>}
-{page==='Premarket'&&<Premarket showToast={showToast}/>}
-{page==='Equity'&&<Equity showToast={showToast}/>}
-{page==='Indices'&&<Indices setSymbol={setSymbol} showToast={showToast}/>}
-{page==='Options'&&<Options showToast={showToast}/>}
-{page==='F&O'&&<Derivatives/>}
-{page==='Insights'&&<Insights/>}
-{page==='News'&&<section className="panel newsworkspace"><NewsPanel filter={filter} setFilter={setFilter} filteredNews={filteredNews}/></section>}
-<footer><span>Pulse Terminal <b>•</b> Frontend prototype</span><span>Illustrative sample data · Live feeds not connected</span></footer></main>
-{newsOpen&&<aside className="rightnews"><NewsPanel filter={filter} setFilter={setFilter} filteredNews={filteredNews}/><button className="collapse" onClick={()=>setNewsOpen(false)}><PanelRightClose size={14}/> Collapse news</button></aside>}
-{!newsOpen&&<button className="expandnews" onClick={()=>setNewsOpen(true)}><PanelRightOpen size={16}/> News</button>}
-</div>{toast&&<div className="toast">{toast}</div>}</div>}
-function DataTable({rows}){return <div className="datatable"><div className="tablehead"><span>Symbol</span><span>LTP</span><span>Change</span><span>Change %</span></div>{rows.map(r=><div className="tablerow"><b>{r[0]}</b><span>{r[1]}</span><strong className={r[3][0]==='-'?'down':'up'}>{r[2]}</strong><strong className={r[3][0]==='-'?'down':'up'}>{r[3]}</strong></div>)}</div>}
-function NewsPanel({filter,setFilter,filteredNews,compact=false}){return <><div className="newstitle"><div><Newspaper/><div><h2>Live news <span className="livepill mini"><i/> Live</span></h2><p>Curated market updates</p></div></div><button className="linkbutton" onClick={()=>setFilter('All')}>View all ↗</button></div><div className="newsfilters">{['All','Market','Economy','Policy','Global'].map(f=><button className={filter===f?'selected':''} onClick={()=>setFilter(f)}>{f}</button>)}</div><div className="newsitems">{filteredNews.slice(0,compact?3:12).map(n=><article className="newsitem"><div className={'newsicon '+n.tag.toLowerCase()}>{n.tag==='GLOBAL'?'◎':n.tag==='ECONOMY'?'₹':n.tag==='COMMODITIES'?'◆':n.tag==='POLICY'?'◉':'▥'}</div><div className="newstext"><b>{n.title}</b><p>{n.time} · {n.tag}</p>{!compact&&<small>{n.body}</small>}</div><span className={'impact '+n.impact.toLowerCase()}>{n.impact}</span></article>)}</div></>}
-function Premarket({showToast}){return <><section className="panel premarket"><div className="sectionheading"><div><Sun/><div><h2>Premarket overview</h2><p>Global cues, GIFT Nifty and early market indication</p></div></div><span>As of 08:45 AM IST</span></div><div className="premarketcards">{[['GIFT NIFTY','24,910.00','+71.00','+0.29%'],['DOW FUTURES','45,128.00','+110.00','+0.24%'],['NASDAQ FUTURES','23,456.75','+78.25','+0.33%'],['SGX NIFTY','24,908.50','+69.00','+0.28%']].map(x=><div className="precard"><label>{x[0]}</label><b>{x[1]}</b><strong className="up">{x[2]} {x[3]}</strong></div>)}</div><div className="premarketgrid"><div className="panel inset"><h3>◎　Global markets</h3><DataTable rows={global.map(x=>[x[1],x[2],x[3],x[3]])}/></div><div className="panel inset"><h3>▥　FII / DII activity <small>(₹ Cr)</small></h3><div className="fiiline"><b>Participant</b><b>Net</b><b>Previous</b></div><div className="fiiline"><b>FII</b><strong className="up">+1,240</strong><strong className="down">-2,316</strong></div><div className="fiiline"><b>DII</b><strong className="up">+318</strong><strong className="up">+4,512</strong></div><div className="netflow"><span>Net flow</span><b className="up">+1,558 Cr</b></div></div><div className="panel inset"><h3>◇　Commodities</h3><DataTable rows={[['Gold (XAUUSD)','2,664.50','+0.48%','+0.48%'],['Crude Oil','71.92','-0.62%','-0.62%'],['Natural Gas','2.85','+0.71%','+0.71%'],['Silver','31.46','+0.39%','+0.39%']]}/></div><div className="panel inset"><h3>▤　Major overnight developments</h3>{['Global equities digest central-bank commentary and bond yields.','Asian markets open mixed; currency moves remain in focus.','Crude and precious metals respond to fresh demand signals.','Traders await key economic data and corporate updates.'].map(t=><p className="bullet"><i/>{t}</p>)}</div><div className="panel inset"><div className="paneltop"><h3>⌁　Premarket movers</h3><button className="outlinebutton" onClick={()=>showToast('Losers filter selected')}>Gainers / Losers</button></div><DataTable rows={movers}/></div></div></section></>}
-function Equity({showToast}){return <><div className="indexgrid">{indices.slice(0,4).map(([n,v,c,p,pos])=><div className="indexcard"><label>{n}</label><div className="indexvalue">{v}</div><strong className="up">{c} <small>({p})</small></strong></div>)}</div><section className="panel pagepanel"><div className="paneltop"><div><h2>Equity market</h2><p>NSE & BSE listed companies · sample view</p></div><button className="outlinebutton" onClick={()=>showToast('Filters opened')}> <Filter size={14}/> Filters</button></div><div className="tabrow"><button className="selected">All stocks</button><button>Gainers</button><button>Losers</button><button>Most active</button></div><DataTable rows={[...movers,...losers]}/></section></>}
-function Indices({setSymbol,showToast}){return <section className="panel pagepanel"><div className="paneltop"><div><h2>Indices monitor</h2><p>Benchmark and sectoral index performance</p></div></div><div className="indexlist">{[...indices,...[['NIFTY BANK','56,743.20','+381.10','+0.68%',true],['NIFTY AUTO','23,420.10','+126.40','+0.54%',true],['NIFTY PHARMA','22,180.30','+108.20','+0.49%',true],['NIFTY METAL','9,820.40','-35.60','-0.36%',false]]].map(x=><button onClick={()=>{setSymbol(x[0]);showToast(x[0]+' selected')}}><b>{x[0]}</b><strong>{x[1]}</strong><span className={x[4]?'up':'down'}>{x[2]} ({x[3]})</span><span className="mini-bars">▂▃▅▄▆▅▇</span></button>)}</div></section>}
-function Options({showToast}){return <section className="panel pagepanel"><div className="paneltop"><div><h2>Options chain</h2><p>Illustrative layout · broker/data feed integration pending</p></div><button className="outlinebutton" onClick={()=>showToast('Underlying selector')}>NIFTY 50　⌄</button></div><div className="optionstats">{[['Spot','24,856.75'],['Expiry','Select expiry'],['PCR','1.08'],['Max pain','24,800'],['ATM IV','14.2%']].map(x=><div><small>{x[0]}</small><b>{x[1]}</b></div>)}</div><div className="optiontable"><div className="optionrow head"><span>CALL OI</span><span>CALL LTP</span><span>STRIKE</span><span>PUT LTP</span><span>PUT OI</span></div>{Array.from({length: 9},(_,i)=>{let strike=24800+(i-4)*50;return <div className="optionrow"><span>{fmt(12000+i*1350)}</span><span>{fmt(112-i*8)}</span><b className={i===4?'atm':''}>{strike}</b><span>{fmt(82+i*7)}</span><span>{fmt(14000-i*720)}</span></div>})}</div></section>}
-function Derivatives(){return <section className="panel pagepanel"><h2>Futures & options</h2><p>Derivatives workspace with futures watchlist, rollover, basis, OI and expiry analytics.</p><div className="placeholdercards">{['Futures watchlist','Open interest monitor','Expiry calendar','Basis & rollover'].map(x=><div className="placeholdercard"><Activity/><b>{x}</b><small>Ready for data integration</small></div>)}</div></section>}
-function Insights(){return <section className="panel pagepanel"><h2>Market insights</h2><p>One place for market regime, volatility, flows and event intelligence.</p><div className="placeholdercards">{['Market regime','Volatility monitor','Institutional flows','Event risk calendar'].map(x=><div className="placeholdercard"><Compass/><b>{x}</b><small>Frontend module ready</small></div>)}</div></section>}
+
+function Chart({liveTick, symbol}){
+ const ref=useRef(null), chartRef=useRef(null), candleRef=useRef(null), minuteRef=useRef(null);
+ useEffect(()=>{
+  if(!ref.current)return;
+  const chart=createChart(ref.current,{width:ref.current.clientWidth,height:330,layout:{background:{type:ColorType.Solid,color:'#0a1217'},textColor:'#91a2a9',fontFamily:'JetBrains Mono',fontSize:10},grid:{vertLines:{color:'#14232a'},horzLines:{color:'#14232a'}},rightPriceScale:{borderColor:'#263840'},timeScale:{borderColor:'#263840',timeVisible:true,secondsVisible:false},crosshair:{mode:1}});
+  const candle=chart.addSeries(CandlestickSeries,{upColor:'#00d68b',downColor:'#ff6572',borderUpColor:'#00d68b',borderDownColor:'#ff6572',wickUpColor:'#00d68b',wickDownColor:'#ff6572'});
+  chartRef.current=chart;candleRef.current=candle;
+  const ro=new ResizeObserver(()=>{if(ref.current)chart.applyOptions({width:ref.current.clientWidth})});
+  ro.observe(ref.current);
+  return()=>{ro.disconnect();chart.remove();chartRef.current=null;candleRef.current=null;minuteRef.current=null};
+ },[]);
+ useEffect(()=>{
+  if(!liveTick||!candleRef.current)return;
+  const price=Number(liveTick.price);
+  if(!Number.isFinite(price)||price<=0)return;
+  const stamp=liveTick.received_at?new Date(liveTick.received_at):new Date();
+  const epoch=Math.floor(stamp.getTime()/60000)*60;
+  if(!Number.isFinite(epoch))return;
+  const current=minuteRef.current;
+  if(!current||current.time!==epoch){
+   const next={time:epoch,open:price,high:price,low:price,close:price};
+   minuteRef.current=next;
+   candleRef.current.update(next);
+  }else{
+   const next={...current,high:Math.max(current.high,price),low:Math.min(current.low,price),close:price};
+   minuteRef.current=next;
+   candleRef.current.update(next);
+  }
+ },[liveTick]);
+ return <div className="chart" ref={ref}/>;
+}
+function App(){
+ const [active,setActive]=useState('Dashboard');
+ const [dark,setDark]=useState(true);
+ const [search,setSearch]=useState('');
+ const [feedStatus,setFeedStatus]=useState('Connecting...');
+ const [ticks,setTicks]=useState({});
+ const [selected,setSelected]=useState('NIFTY 50');
+ const [clock,setClock]=useState(new Date());
+ const [sidebar,setSidebar]=useState(true);
+ const [notifications,setNotifications]=useState(false);
+
+ const WS_URL='wss://retail-bloomberg-2.onrender.com/ws/market';
+
+ useEffect(()=>{
+  const timer=setInterval(()=>setClock(new Date()),1000);
+  return()=>clearInterval(timer);
+ },[]);
+
+ useEffect(()=>{
+  let ws, retry, stopped=false;
+  const connect=()=>{
+   if(stopped)return;
+   ws=new WebSocket(WS_URL);
+   ws.onopen=()=>setFeedStatus('WebSocket connected');
+   ws.onmessage=(event)=>{
+    try{
+     const msg=JSON.parse(event.data);
+     if(msg.type==='status'){
+      const status=msg.feed||{};
+      setFeedStatus(status.message|| (status.connected?'Angel One connected':'Feed disconnected'));
+     }
+     if(msg.type==='tick'&&msg.data){
+      const tick=msg.data;
+      const token=String(tick.token||tick.symbol||'').split(':').pop();
+      const price=Number(tick.price);
+      if(!Number.isFinite(price)||price<=0)return;
+      const normalized={...tick,token,price};
+      setTicks(old=>({...old,[token]:normalized}));
+     }
+    }catch(e){
+     console.error('Market message error',e);
+    }
+   };
+   ws.onerror=()=>setFeedStatus('Connection error');
+   ws.onclose=()=>{
+    if(!stopped){
+     setFeedStatus('Reconnecting...');
+     retry=setTimeout(connect,4000);
+    }
+   };
+  };
+  connect();
+  return()=>{
+   stopped=true;
+   clearTimeout(retry);
+   if(ws)ws.close();
+  };
+ },[]);
+
+ const nifty=ticks['99926000'];
+ const banknifty=ticks['99926009'];
+
+ const livePrice=selected==='BANKNIFTY'?banknifty:nifty;
+ const liveTick=selected==='BANKNIFTY'?banknifty:nifty;
+
+ const isConnected=feedStatus.toLowerCase().includes('connected');
+
+ const indexCards=[
+  {name:'NIFTY 50',token:'99926000',tick:nifty},
+  {name:'BANKNIFTY',token:'99926009',tick:banknifty},
+  {name:'SENSEX',token:'',tick:null},
+  {name:'NIFTY IT',token:'',tick:null},
+  {name:'INDIA VIX',token:'',tick:null}
+ ];
+
+ const filteredNews=newsData.filter(item=>
+  item.title.toLowerCase().includes(search.toLowerCase())||
+  item.tag.toLowerCase().includes(search.toLowerCase())
+ );
+
+ return <div className={`app-shell ${dark?'dark':'light'}`}>
+  <aside className={`sidebar ${sidebar?'':'collapsed'}`}>
+   <div className="brand">
+    <div className="brand-mark"><Activity size={22}/></div>
+    {sidebar&&<div><strong>PULSE</strong><span>TERMINAL</span></div>}
+   </div>
+   <div className="side-label">WORKSPACE</div>
+   {NAV.map(([name,Icon])=>
+    <button key={name} className={`nav-item ${active===name?'active':''}`} onClick={()=>setActive(name)}>
+     <Icon size={17}/>{sidebar&&<span>{name}</span>}
+    </button>
+   )}
+   <div className="side-label">TOOLS</div>
+   {SIDE.map(([name,Icon])=>
+    <button key={name} className={`nav-item ${active===name?'active':''}`} onClick={()=>setActive(name)}>
+     <Icon size={17}/>{sidebar&&<span>{name}</span>}
+    </button>
+   )}
+   <div className="sidebar-bottom">
+    <div className="connection-indicator"><span className={isConnected?'dot live':'dot'}></span>{sidebar&&feedStatus}</div>
+    {sidebar&&<small>Pulse Terminal · Market Intelligence</small>}
+   </div>
+  </aside>
+
+  <main className="main-area">
+   <header className="topbar">
+    <div className="top-left">
+     <button className="icon-button" onClick={()=>setSidebar(!sidebar)}><Menu size={18}/></button>
+     <div className="breadcrumb">Workspace <ChevronRight size={13}/> <b>{active}</b></div>
+    </div>
+    <div className="top-right">
+     <div className="market-clock">{clock.toLocaleTimeString('en-IN',{hour12:false})} <span>IST</span></div>
+     <div className="search-box"><Search size={15}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search markets, news..."/></div>
+     <button className="icon-button" onClick={()=>setNotifications(!notifications)}><Bell size={17}/></button>
+     <button className="icon-button" onClick={()=>setDark(!dark)}>{dark?<Sun size={17}/>:<Moon size={17}/>}</button>
+     <div className="avatar">PT</div>
+    </div>
+   </header>
+
+   <div className="market-strip">
+    <div><span className="strip-label">MARKET STATUS</span><b className="market-status">LIVE FEED</b></div>
+    <div><span className="strip-label">CONNECTION</span><b className={isConnected?'positive':'negative'}>{feedStatus}</b></div>
+    <div><span className="strip-label">MARKET</span><b>NSE / BSE</b></div>
+    <div><span className="strip-label">TIME</span><b>{clock.toLocaleTimeString('en-IN',{hour12:false})}</b></div>
+   </div>
+
+   <div className="page-content">
+    <div className="page-heading">
+     <div><div className="eyebrow">MARKET INTELLIGENCE / INDIA</div><h1>{active}</h1><p>Real-time market intelligence, data and insights.</p></div>
+     <div className="heading-actions"><span className={`feed-badge ${isConnected?'connected':''}`}><span className="dot"></span>{feedStatus}</span><button className="outline-button"><CalendarDays size={15}/> Today <ChevronDown size={14}/></button></div>
+    </div>
+
+    {active==='Dashboard'?<>
+     <section className="index-grid">
+      {indexCards.map(item=>{
+       const price=item.tick?.price;
+       return <button key={item.name} className={`index-card ${selected===item.name?'selected':''}`} onClick={()=>{if(item.token)setSelected(item.name)}}>
+        <div className="card-top"><span>{item.name}</span><MoreHorizontal size={16}/></div>
+        <div className="index-price">{price?fmt(price):'—'}</div>
+        <div className="index-change">{price?'Live tick received':'Awaiting verified feed'}</div>
+        <div className="mini-chart"><span className={price?'positive':'muted'}>{price?'LIVE':'NO DATA'}</span></div>
+       </button>;
+      })}
+     </section>
+
+     <div className="section-title"><h2>Market overview</h2><span>Live market data</span></div>
+     <div className="dashboard-grid">
+      <section className="panel chart-panel">
+       <div className="panel-heading">
+        <div><span className="eyebrow">PRICE ACTION</span><h2>{selected}</h2></div>
+        <div className="chart-controls"><span className="timeframe active">1m</span><span className="timeframe">5m</span><span className="timeframe">15m</span><span className="timeframe">1D</span></div>
+       </div>
+       <div className="chart-price">{livePrice?fmt(livePrice.price):'Waiting for live tick'}</div>
+       <div className="chart-subtitle">Live one-minute candles · {selected}</div>
+       <Chart liveTick={liveTick} symbol={selected}/>
+       <div className="chart-footer"><span><i className="legend-up"></i> Bullish</span><span><i className="legend-down"></i> Bearish</span><span>Source: Angel One WebSocket</span></div>
+      </section>
+
+      <section className="panel news-panel">
+       <div className="panel-heading"><div><span className="eyebrow">MARKET PULSE</span><h2>Latest headlines</h2></div><button className="text-button" onClick={()=>setActive('News')}>View all <ChevronRight size={14}/></button></div>
+       <div className="news-list">
+        {filteredNews.slice(0,5).map((item,i)=>
+         <article className="news-item" key={i}>
+          <div className="news-meta"><span>{item.tag}</span><time>{item.time}</time><b className={item.impact==='HIGH'?'impact-high':'impact-medium'}>{item.impact}</b></div>
+          <h3>{item.title}</h3><p>{item.body}</p>
+         </article>
+        )}
+       </div>
+      </section>
+     </div>
+
+     <SectorStrip/>
+
+     <div className="dashboard-grid lower-grid">
+      <section className="panel">
+       <div className="panel-heading"><div><span className="eyebrow">NSE / BSE</span><h2>Top gainers</h2></div><TrendingUp size={18}/></div>
+       {movers.map(row=><div className="stock-row" key={row[0]}><b>{row[0]}</b><span>{row[1]}</span><strong className="positive">{row[3]}</strong></div>)}
+       <div className="demo-note">Illustrative watchlist · Not live market data</div>
+      </section>
+      <section className="panel">
+       <div className="panel-heading"><div><span className="eyebrow">NSE / BSE</span><h2>Top losers</h2></div><TrendingDown size={18}/></div>
+       {losers.map(row=><div className="stock-row" key={row[0]}><b>{row[0]}</b><span>{row[1]}</span><strong className="negative">{row[3]}</strong></div>)}
+       <div className="demo-note">Illustrative watchlist · Not live market data</div>
+      </section>
+      <section className="panel">
+       <div className="panel-heading"><div><span className="eyebrow">GLOBAL MARKETS</span><h2>World indices</h2></div><Globe size={18}/></div>
+       {global.map(row=><div className="stock-row" key={row[1]}><b>{row[0]} {row[1]}</b><span>{row[2]}</span><strong className="positive">{row[3]}</strong></div>)}
+       <div className="demo-note">Illustrative sample data</div>
+      </section>
+     </div>
+    </>:<section className="panel section-placeholder">
+      <div className="placeholder-icon"><Activity size={28}/></div>
+      <h2>{active}</h2>
+      <p>This workspace section is being connected to verified market data.</p>
+      <span className="feed-badge">Live integration in progress</span>
+     </section>}
+
+    <footer className="footer"><span>© 2026 PULSE TERMINAL</span><span>Market intelligence workspace · Data availability depends on feed connection</span></footer>
+   </div>
+  </main>
+ </div>;
+}
+
 createRoot(document.getElementById('root')).render(<App/>);
+   
