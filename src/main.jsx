@@ -36,7 +36,7 @@ function Chart({liveTick, symbol}){
  const chartRef=useRef(null);
  const candleRef=useRef(null);
  const minuteRef=useRef(null);
-
+const [historyStatus,setHistoryStatus]=useState('Loading history...');
  // Create chart
  useEffect(()=>{
   if(!ref.current)return;
@@ -134,16 +134,20 @@ function Chart({liveTick, symbol}){
      .sort((a,b)=>a.time-b.time);
 
     if(candles.length){
+     setHistoryStatus(`${candles.length} candles loaded`);
      candleRef.current.setData(candles);
      minuteRef.current=candles[candles.length-1];
      chartRef.current?.timeScale().fitContent();
-    }
-
+    
+}else{
+ setHistoryStatus('API returned 0 candles');
+   }
     console.log(
      `${symbol}: ${candles.length} historical candles loaded`
     );
 
    }catch(error){
+   setHistoryStatus('ERROR: '+error.message);
     console.error('Historical candle loading failed:',error);
    }
   }
@@ -196,8 +200,14 @@ function Chart({liveTick, symbol}){
   }
 
  },[liveTick,symbol]);
-
- return <div className="chart" ref={ref}/>;
+return (
+ <div>
+  <div style={{color:'#00d68b',fontSize:'12px',marginBottom:'8px'}}>
+   {historyStatus}
+  </div>
+  <div className="chart" ref={ref}/>
+ </div>
+);
 }
 function App(){
  const [active,setActive]=useState('Dashboard');
