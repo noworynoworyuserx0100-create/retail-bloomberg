@@ -216,6 +216,7 @@ function App(){
  const [feedStatus,setFeedStatus]=useState('Connecting...');
  const [ticks,setTicks]=useState({});
  const [selected,setSelected]=useState('NIFTY 50');
+ const [timeframe,setTimeframe]=useState('1m');
  const [clock,setClock]=useState(new Date());
  const [sidebar,setSidebar]=useState(true);
  const [notifications,setNotifications]=useState(false);
@@ -356,8 +357,17 @@ function App(){
       <section className="panel chart-panel">
        <div className="panel-heading">
         <div><span className="eyebrow">PRICE ACTION</span><h2>{selected}</h2></div>
-        <div className="chart-controls"><span className="timeframe active">1m</span><span className="timeframe">5m</span><span className="timeframe">15m</span><span className="timeframe">1D</span></div>
-       </div>
+        <div className="chart-controls">
+  {['1m','5m','15m','1D'].map(tf=>(
+    <button
+      key={tf}
+      className={`timeframe ${timeframe===tf?'active':''}`}
+      onClick={()=>setTimeframe(tf)}
+    >
+      {tf}
+    </button>
+  ))}
+</div>
        <div className="chart-price">{livePrice?fmt(livePrice.price):'Waiting for live tick'}</div>
        <div className="chart-subtitle">Live one-minute candles · {selected}</div>
        <Chart liveTick={liveTick} symbol={selected}/>
