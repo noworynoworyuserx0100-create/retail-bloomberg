@@ -1,3 +1,4 @@
+
 import React,{useEffect,useRef,useState} from 'react';
 import{createRoot}from'react-dom/client';
 import{createChart,ColorType,CandlestickSeries}from'lightweight-charts';
@@ -20,7 +21,29 @@ const movers=[['RELIANCE','2,948.50','+18.40','+0.63%'],['HDFCBANK','1,688.20','
 const losers=[['TATASTEEL','142.80','-2.10','-1.45%'],['ONGC','256.40','-4.90','-1.92%'],['BPCL','316.25','-5.30','-1.65%'],['GRASIM','2,698.70','-38.50','-1.41%'],['WIPRO','298.10','-2.60','-0.86%']];
 const global=[['🇺🇸','Dow Jones','44,938.31','+0.41%'],['🇺🇸','S&P 500','6,101.24','+0.47%'],['🇺🇸','Nasdaq','19,862.54','+0.55%'],['🇪🇺','DAX','19,445.36','+0.32%'],['🇯🇵','Nikkei 225','38,420.14','+0.71%'],['🇭🇰','Hang Seng','26,809.14','+0.63%']];
 const sectors=[['IT','+1.38%'],['Banking','+0.68%'],['Auto','+0.54%'],['FMCG','+0.27%'],['Pharma','+0.49%'],['Metal','-0.36%'],['Energy','-0.18%'],['Realty','+0.63%']];
-const fmt=(v)=>Number(v).toLocaleString('en-IN',{maximumFractionDigits:2});
+
+const fmt=v=>Number(v).toLocaleString('en-IN',{maximumFractionDigits:2});
+
+const TIMEFRAME_CONFIG={
+ '1m':{interval:'ONE_MINUTE',days:5,seconds:60},
+ '5m':{interval:'FIVE_MINUTE',days:5,seconds:300},
+ '15m':{interval:'FIFTEEN_MINUTE',days:5,seconds:900},
+ '1D':{interval:'ONE_DAY',days:30,seconds:86400}
+};
+
+function getCandleTime(date,timeframe){
+ const seconds=Math.floor(date.getTime()/1000);
+ const config=TIMEFRAME_CONFIG[timeframe]||TIMEFRAME_CONFIG['1m'];
+
+ if(timeframe==='1D'){
+  const indiaOffset=19800;
+  return Math.floor((seconds+indiaOffset)/86400)*86400-indiaOffset;
+ }
+
+ const indiaOffset=19800;
+ const sessionStart=33300;
+ return Math.floor((seconds+indiaOffset-sessionStart)/config.seconds)*config.seconds+sessionStart-indiaOffset;
+}
 
 function SectorStrip(){
  return <section className="panel" style={{marginTop:16,padding:16}}>
@@ -33,11 +56,11 @@ function SectorStrip(){
  </section>;
 }
 
-function Chart({liveTick,symbol}){
+function Chart({liveTick,symbol,timeframe}){
  const ref=useRef(null);
  const chartRef=useRef(null);
  const candleRef=useRef(null);
- const minuteRef=useRef(null);
+ const currentCandleRef=useRef(null);
  const [historyStatus,setHistoryStatus]=useState('Loading history...');
 
  useEffect(()=>{
@@ -78,9 +101,7 @@ function Chart({liveTick,symbol}){
   candleRef.current=candle;
 
   const ro=new ResizeObserver(()=>{
-   if(ref.current){
-    chart.applyOptions({width:ref.current.clientWidth});
-   }
+   if(ref.current)chart.applyOptions({width:ref.current.clientWidth});
   });
 
   ro.observe(ref.current);
@@ -90,7 +111,7 @@ function Chart({liveTick,symbol}){
    chart.remove();
    chartRef.current=null;
    candleRef.current=null;
-   minuteRef.current=null;
+   currentCandleRef.current=null;
   };
  },[]);
 
@@ -101,20 +122,45 @@ function Chart({liveTick,symbol}){
    if(!candleRef.current)return;
 
    candleRef.current.setData([]);
-   minuteRef.current=null;
+   currentCandleRef.current=null;
    setHistoryStatus('Loading history...');
 
+   const config=TIMEFRAME_CONFIG[timeframe]||TIMEFRAME_CONFIG['1m'];
+
+   const url=`https://retail-bloomberg-2.onrender.com/api/v1/market/candles?symbol=${encodeURIComponent(symbol)}&interval=${config.interval}&days=${config.days}`;
+
    try{
-    const url=`https://retail-bloomberg-2.onrender.com/api/v1/market/candles?symbol=${encodeURIComponent(symbol)}&interval=ONE_MINUTE&days=5`;
+    let response=null;
 
-    const response=await fetch(url);
+    for(let attempt=0;attempt<3;attempt++){
+     if(cancelled)return;
 
-    if(!response.ok){
-     throw new Error(`Historical API error: ${response.status}`);
+     try{
+      response=await fetch(url);
+      if(response.ok)break;
+
+      if(![502,503,504].includes(response.status)){
+       throw new Error(`Historical API error: ${response.status}`);
+      }
+
+      if(attempt<2){
+       setHistoryStatus(`Server busy. Retry ${attempt+1}/2...`);
+       await new Promise(resolve=>setTimeout(resolve,1500));
+      }
+     }catch(error){
+      if(error.message.startsWith('Historical API error:'))throw error;
+      if(attempt===2)throw error;
+
+      setHistoryStatus(`Connection retry ${attempt+1}/2...`);
+      await new Promise(resolve=>setTimeout(resolve,1500));
+     }
+    }
+
+    if(!response||!response.ok){
+     throw new Error(`Historical API error: ${response?.status||'No response'}`);
     }
 
     const result=await response.json();
-
     if(cancelled)return;
 
     const candles=(result.candles||[])
@@ -134,16 +180,18 @@ function Chart({liveTick,symbol}){
      )
      .sort((a,b)=>a.time-b.time);
 
+    if(cancelled)return;
+
     if(candles.length){
      candleRef.current.setData(candles);
-     minuteRef.current=candles[candles.length-1];
+     currentCandleRef.current=candles[candles.length-1];
      chartRef.current?.timeScale().fitContent();
-     setHistoryStatus(`${candles.length} candles loaded`);
+     setHistoryStatus(`${candles.length} ${timeframe} candles loaded`);
     }else{
      setHistoryStatus('API returned 0 candles');
     }
 
-    console.log(`${symbol}: ${candles.length} historical candles loaded`);
+    console.log(`${symbol} ${timeframe}: ${candles.length} historical candles loaded`);
 
    }catch(error){
     if(!cancelled){
@@ -154,39 +202,26 @@ function Chart({liveTick,symbol}){
   }
 
   loadHistory();
-
   return()=>{cancelled=true};
- },[symbol]);
+ },[symbol,timeframe]);
 
  useEffect(()=>{
   if(!liveTick||!candleRef.current)return;
 
   const price=Number(liveTick.price);
-
   if(!Number.isFinite(price)||price<=0)return;
 
-  const stamp=liveTick.received_at
-   ?new Date(liveTick.received_at)
-   :new Date();
+  const stamp=liveTick.received_at?new Date(liveTick.received_at):new Date();
+  if(!Number.isFinite(stamp.getTime()))return;
 
-  const epoch=Math.floor(stamp.getTime()/60000)*60;
-
+  const epoch=getCandleTime(stamp,timeframe);
+  const current=currentCandleRef.current;
   if(!Number.isFinite(epoch))return;
 
-  const current=minuteRef.current;
-
   if(!current||epoch>current.time){
-   const next={
-    time:epoch,
-    open:price,
-    high:price,
-    low:price,
-    close:price
-   };
-
-   minuteRef.current=next;
+   const next={time:epoch,open:price,high:price,low:price,close:price};
+   currentCandleRef.current=next;
    candleRef.current.update(next);
-
   }else if(epoch===current.time){
    const next={
     ...current,
@@ -194,12 +229,10 @@ function Chart({liveTick,symbol}){
     low:Math.min(current.low,price),
     close:price
    };
-
-   minuteRef.current=next;
+   currentCandleRef.current=next;
    candleRef.current.update(next);
   }
-
- },[liveTick,symbol]);
+ },[liveTick,symbol,timeframe]);
 
  return <div>
   <div style={{color:'#00d68b',fontSize:'12px',marginBottom:'8px'}}>
@@ -252,7 +285,6 @@ function App(){
       const price=Number(tick.price);
 
       if(!Number.isFinite(price)||price<=0)return;
-
       setTicks(old=>({...old,[token]:{...tick,token,price}}));
      }
     }catch(e){
@@ -403,8 +435,8 @@ function App(){
        </div>
 
        <div className="chart-price">{livePrice?fmt(livePrice.price):'Waiting for live tick'}</div>
-       <div className="chart-subtitle">Live one-minute candles · {selected}</div>
-       <Chart liveTick={liveTick} symbol={selected}/>
+       <div className="chart-subtitle">Live {timeframe} candles · {selected}</div>
+       <Chart liveTick={liveTick} symbol={selected} timeframe={timeframe}/>
 
        <div className="chart-footer">
         <span><i className="legend-up"></i> Bullish</span>
