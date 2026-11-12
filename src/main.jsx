@@ -373,9 +373,7 @@ function App(){
        <div className="chart-subtitle">Live one-minute candles · {selected}</div>
        <Chart liveTick={liveTick} symbol={selected}/>
        <div className="chart-footer"><span><i className="legend-up"></i> Bullish</span><span><i className="legend-down"></i> Bearish</span><span>Source: Angel One WebSocket</span></div>
-       </div>
       </section>
-
       <section className="panel news-panel">
        <div className="panel-heading"><div><span className="eyebrow">MARKET PULSE</span><h2>Latest headlines</h2></div><button className="text-button" onClick={()=>setActive('News')}>View all <ChevronRight size={14}/></button></div>
       </div> <div className="news-list">
