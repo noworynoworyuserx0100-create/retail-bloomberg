@@ -428,24 +428,7 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
     </div>
 
     {active==='Dashboard'?<>
-     <section className="index-ticker">
- {indexCards.map(item=>{
-  const price=item.tick?.price;
-  return (
-   <button
-    key={item.name}
-    className={`index-ticker-card ${selected===item.name?'selected':''}`}
-    onClick={()=>{if(item.token)setSelected(item.name)}}
-   >
-    <span>{item.name}</span>
-    <strong>{price?fmt(price):'—'}</strong>
-    <small className={price?'positive':'muted'}>
-     {price?'LIVE':'NO DATA'}
-    </small>
-   </button>
-  );
- })}
-</section>
+     
 
      <div className="section-title"><h2>Market overview</h2><span>Live market data</span></div>
 
