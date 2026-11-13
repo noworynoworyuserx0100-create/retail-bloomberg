@@ -74,7 +74,7 @@ function Chart({liveTick,symbol,timeframe}){
     textColor:'#91a2a9',
     fontFamily:'JetBrains Mono',
     fontSize:10,
-attributionLogo:{show:false}
+
    },
    grid:{
     vertLines:{color:'#14232a'},
