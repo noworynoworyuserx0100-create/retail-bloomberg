@@ -840,3 +840,54 @@ h1 {
     height: 290px !important;
   }
 }
+/* PULSE TERMINAL - FINAL CHART SPACE UPGRADE */
+
+@media (min-width: 1101px) {
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 2.8fr) minmax(220px, 0.65fr);
+    gap: 10px;
+  }
+
+  .dashboard-grid > .panel {
+    padding: 12px;
+  }
+
+  .news-item {
+    padding: 8px 0;
+  }
+
+  .news-item h3 {
+    font-size: 9px;
+    line-height: 1.4;
+  }
+
+  .news-item p {
+    font-size: 8px;
+    line-height: 1.4;
+  }
+
+  .news-meta {
+    font-size: 8px;
+    gap: 6px;
+  }
+
+  .chart {
+    height: 460px !important;
+  }
+
+  .chart-price {
+    font-size: 22px;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  .chart {
+    height: 400px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .chart {
+    height: 290px !important;
+  }
+}
