@@ -414,23 +414,12 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
  })}
 </section>
    <div className="page-content">
-    <div className="page-heading">
-     <div>
-      <div className="eyebrow">MARKET INTELLIGENCE / INDIA</div>
-      <h1>{active}</h1>
-      <p>Real-time market intelligence, data and insights.</p>
-     </div>
-
-     <div className="heading-actions">
-      <span className={`feed-badge ${isConnected?'connected':''}`}><span className="dot"></span>{feedStatus}</span>
-      <button className="outline-button"><CalendarDays size={15}/> Today <ChevronDown size={14}/></button>
-     </div>
-    </div>
+    
 
     {active==='Dashboard'?<>
      
 
-     <div className="section-title"><h2>Market overview</h2><span>Live market data</span></div>
+     
 
      <div className="dashboard-grid">
   
