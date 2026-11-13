@@ -977,4 +977,48 @@ h1 {
     padding: 12px;
   }
 }
+/* Compact index ticker */
+.index-ticker {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 10px 0 14px;
+}
 
+.index-ticker-card {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel);
+  text-align: left;
+}
+
+.index-ticker-card span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.index-ticker-card strong {
+  font: 600 12px 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+
+.index-ticker-card small {
+  font: 9px 'JetBrains Mono', monospace;
+}
+
+.index-ticker-card.selected {
+  border-color: #187653;
+  background: #10251f;
+}
+
+@media (max-width: 760px) {
+  .index-ticker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
