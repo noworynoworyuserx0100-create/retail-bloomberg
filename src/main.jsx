@@ -68,12 +68,13 @@ function Chart({liveTick,symbol,timeframe}){
 
   const chart=createChart(ref.current,{
    width:ref.current.clientWidth,
-   height:330,
+   height:260,
    layout:{
     background:{type:ColorType.Solid,color:'#0a1217'},
     textColor:'#91a2a9',
     fontFamily:'JetBrains Mono',
-    fontSize:10
+    fontSize:10,
+attributionLogo:{show:false}
    },
    grid:{
     vertLines:{color:'#14232a'},
@@ -101,7 +102,12 @@ function Chart({liveTick,symbol,timeframe}){
   candleRef.current=candle;
 
   const ro=new ResizeObserver(()=>{
-   if(ref.current)chart.applyOptions({width:ref.current.clientWidth});
+   if(ref.current){
+ chart.applyOptions({
+  width:ref.current.clientWidth,
+  height:ref.current.clientHeight
+ });
+}
   });
 
   ro.observe(ref.current);
@@ -238,7 +244,7 @@ function Chart({liveTick,symbol,timeframe}){
   <div style={{color:'#00d68b',fontSize:'12px',marginBottom:'8px'}}>
    {historyStatus}
   </div>
-  <div className="chart" ref={ref}/>
+  <div className="chart" ref={ref} style={{height:260}}/>
  </div>;
 }
 
@@ -249,7 +255,8 @@ function App(){
  const [feedStatus,setFeedStatus]=useState('Connecting...');
  const [ticks,setTicks]=useState({});
  const [selected,setSelected]=useState('NIFTY 50');
- const [timeframe,setTimeframe]=useState('1m');
+ const [niftyTimeframe,setNiftyTimeframe]=useState('1m');
+const [bankTimeframe,setBankTimeframe]=useState('1m');
  const [clock,setClock]=useState(new Date());
  const [sidebar,setSidebar]=useState(true);
  const [notifications,setNotifications]=useState(false);
@@ -421,29 +428,61 @@ function App(){
      <div className="section-title"><h2>Market overview</h2><span>Live market data</span></div>
 
      <div className="dashboard-grid">
-      <section className="panel chart-panel">
-       <div className="panel-heading">
-        <div><span className="eyebrow">PRICE ACTION</span><h2>{selected}</h2></div>
+  
+<section className="panel chart-panel">
+ <div className="panel-heading">
+  <div>
+   <span className="eyebrow">PRICE ACTION</span>
+   <h2>Dual Index Charts</h2>
+  </div>
+ </div>
 
-        <div className="chart-controls">
-         {['1m','5m','15m','1D'].map(tf=>(
-          <button key={tf} className={`timeframe ${timeframe===tf?'active':''}`} onClick={()=>setTimeframe(tf)}>
-           {tf}
-          </button>
-         ))}
-        </div>
-       </div>
+ <div style={{
+  display:'grid',
+  gridTemplateColumns:'repeat(2,minmax(0,1fr))',
+  gap:12,
+  marginTop:16
+ }}>
+  <div style={{minWidth:0}}>
+   <div className="panel-heading">
+    <div>
+     <span className="eyebrow">NSE INDEX</span>
+     <h2>NIFTY 50</h2>
+    </div>
+    <div className="chart-controls">
+     {['1m','5m','15m','1D'].map(tf=>(
+      <button key={tf} className={`timeframe ${niftyTimeframe===tf?'active':''}`} onClick={()=>setNiftyTimeframe(tf)}>{tf}</button>
+     ))}
+    </div>
+   </div>
+   <div className="chart-price">{nifty?fmt(nifty.price):'Waiting for live tick'}</div>
+   <div className="chart-subtitle">Live {niftyTimeframe} candles · NIFTY 50</div>
+   <Chart liveTick={nifty} symbol="NIFTY 50" timeframe={niftyTimeframe}/>
+  </div>
 
-       <div className="chart-price">{livePrice?fmt(livePrice.price):'Waiting for live tick'}</div>
-       <div className="chart-subtitle">Live {timeframe} candles · {selected}</div>
-       <Chart liveTick={liveTick} symbol={selected} timeframe={timeframe}/>
+  <div style={{minWidth:0}}>
+   <div className="panel-heading">
+    <div>
+     <span className="eyebrow">NSE INDEX</span>
+     <h2>BANKNIFTY</h2>
+    </div>
+    <div className="chart-controls">
+     {['1m','5m','15m','1D'].map(tf=>(
+      <button key={tf} className={`timeframe ${bankTimeframe===tf?'active':''}`} onClick={()=>setBankTimeframe(tf)}>{tf}</button>
+     ))}
+    </div>
+   </div>
+   <div className="chart-price">{banknifty?fmt(banknifty.price):'Waiting for live tick'}</div>
+   <div className="chart-subtitle">Live {bankTimeframe} candles · BANKNIFTY</div>
+   <Chart liveTick={banknifty} symbol="BANKNIFTY" timeframe={bankTimeframe}/>
+  </div>
+ </div>
 
-       <div className="chart-footer">
-        <span><i className="legend-up"></i> Bullish</span>
-        <span><i className="legend-down"></i> Bearish</span>
-        <span>Source: Angel One WebSocket</span>
-       </div>
-      </section>
+ <div style={{marginTop:12,fontSize:11,color:'#91a2a9'}}>
+  Source: Angel One WebSocket · Independent timeframes
+ </div>
+</section>
+
 
       <section className="panel news-panel">
        <div className="panel-heading">
