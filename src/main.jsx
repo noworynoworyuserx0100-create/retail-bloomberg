@@ -424,7 +424,6 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
      <div className="dashboard-grid">
   
 <section className="panel chart-panel">
- <div className="panel-heading">
 <div style={{
   display:'grid',
   gridTemplateColumns:'repeat(2,minmax(0,1fr))',
