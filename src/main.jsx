@@ -425,17 +425,11 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
   
 <section className="panel chart-panel">
  <div className="panel-heading">
-  <div>
-   <span className="eyebrow">PRICE ACTION</span>
-   <h2>Dual Index Charts</h2>
-  </div>
- </div>
-
- <div style={{
+<div style={{
   display:'grid',
   gridTemplateColumns:'repeat(2,minmax(0,1fr))',
   gap:12,
-  marginTop:16
+  marginTop:0
  }}>
   <div style={{minWidth:0}}>
    <div className="panel-heading">
