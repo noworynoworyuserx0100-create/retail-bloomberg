@@ -1,4 +1,3 @@
-
 import React,{useEffect,useRef,useState} from 'react';
 import{createRoot}from'react-dom/client';
 import{createChart,ColorType,CandlestickSeries}from'lightweight-charts';
@@ -396,7 +395,24 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
     <div><span className="strip-label">MARKET</span><b>NSE / BSE</b></div>
     <div><span className="strip-label">TIME</span><b>{clock.toLocaleTimeString('en-IN',{hour12:false})}</b></div>
    </div>
-
+<section className="index-ticker">
+ {indexCards.map(item=>{
+  const price=item.tick?.price;
+  return (
+   <button
+    key={item.name}
+    className={`index-ticker-card ${selected===item.name?'selected':''}`}
+    onClick={()=>{if(item.token)setSelected(item.name)}}
+   >
+    <span>{item.name}</span>
+    <strong>{price?fmt(price):'—'}</strong>
+    <small className={price?'positive':'muted'}>
+     {price?'LIVE':'NO DATA'}
+    </small>
+   </button>
+  );
+ })}
+</section>
    <div className="page-content">
     <div className="page-heading">
      <div>
@@ -412,18 +428,24 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
     </div>
 
     {active==='Dashboard'?<>
-     <section className="index-grid">
-      {indexCards.map(item=>{
-       const price=item.tick?.price;
-
-       return <button key={item.name} className={`index-card ${selected===item.name?'selected':''}`} onClick={()=>{if(item.token)setSelected(item.name)}}>
-        <div className="card-top"><span>{item.name}</span><MoreHorizontal size={16}/></div>
-        <div className="index-price">{price?fmt(price):'—'}</div>
-        <div className="index-change">{price?'Live tick received':'Awaiting verified feed'}</div>
-        <div className="mini-chart"><span className={price?'positive':'muted'}>{price?'LIVE':'NO DATA'}</span></div>
-       </button>;
-      })}
-     </section>
+     <section className="index-ticker">
+ {indexCards.map(item=>{
+  const price=item.tick?.price;
+  return (
+   <button
+    key={item.name}
+    className={`index-ticker-card ${selected===item.name?'selected':''}`}
+    onClick={()=>{if(item.token)setSelected(item.name)}}
+   >
+    <span>{item.name}</span>
+    <strong>{price?fmt(price):'—'}</strong>
+    <small className={price?'positive':'muted'}>
+     {price?'LIVE':'NO DATA'}
+    </small>
+   </button>
+  );
+ })}
+</section>
 
      <div className="section-title"><h2>Market overview</h2><span>Live market data</span></div>
 
