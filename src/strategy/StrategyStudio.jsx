@@ -20,8 +20,64 @@ plotshape(buySignal, "BUY")
 plotshape(sellSignal, "SELL")`);
   const [status, setStatus] = useState("Ready");
   const [activeTool, setActiveTool] = useState("Indicators");
+  const [levelInstrument, setLevelInstrument] = useState("NIFTY 50");
 
-  const colors = {
+const [previousOHLC, setPreviousOHLC] = useState({
+  open: "",
+  high: "",
+  low: "",
+  close: ""
+});
+
+const [manualLevels, setManualLevels] = useState([]);
+
+const [levelName, setLevelName] = useState("");
+const [levelPrice, setLevelPrice] = useState("");
+const [levelColor, setLevelColor] = useState("#19d69b");
+const [levelStyle, setLevelStyle] = useState("solid");
+
+const [calculatedLevels, setCalculatedLevels] = useState([]);
+const [levelStatus, setLevelStatus] = useState("Waiting for previous-day data");
+
+   const calculateAutoLevels = () => {
+    const O = Number(previousOHLC.open);
+    const H = Number(previousOHLC.high);
+    const L = Number(previousOHLC.low);
+    const C = Number(previousOHLC.close);
+
+    if (
+      !Number.isFinite(O) ||
+      !Number.isFinite(H) ||
+      !Number.isFinite(L) ||
+      !Number.isFinite(C) ||
+      !previousOHLC.open ||
+      !previousOHLC.high ||
+      !previousOHLC.low ||
+      !previousOHLC.close ||
+      H <= L ||
+      H < Math.max(O, C) ||
+      L > Math.min(O, C)
+    ) {
+      setLevelStatus("Invalid OHLC values. Please check your inputs.");
+      setCalculatedLevels([]);
+      return;
+    }
+
+    const P = (H + L + C) / 3;
+
+    const levels = [
+      { name: "Pivot Point", price: P, color: "#f5c451" },
+      { name: "R1", price: 2 * P - L, color: "#19d69b" },
+      { name: "R2", price: P + (H - L), color: "#19d69b" },
+      { name: "R3", price: H + 2 * (P - L), color: "#19d69b" },
+      { name: "S1", price: 2 * P - H, color: "#ff6477" },
+      { name: "S2", price: P - (H - L), color: "#ff6477" },
+      { name: "S3", price: L - 2 * (H - P), color: "#ff6477" }
+    ];
+
+    setCalculatedLevels(levels);
+    setLevelStatus("7 automatic levels calculated successfully");
+  }; const colors = {
     bg: "#080d16",
     panel: "#101827",
     border: "#253248",
