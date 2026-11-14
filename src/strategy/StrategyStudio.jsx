@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-
+import { generateDailyLevels } from "./dailyLevelsEngine";
 export default function StrategyStudio() {
   const [tab, setTab] = useState("editor");
 
@@ -98,10 +98,39 @@ plotshape(sellSignal, "SELL")`);
 
   // TRADITIONAL PIVOT CALCULATION
   const calculateAutoLevels = () => {
-    const O = Number(previousOHLC.open);
-    const H = Number(previousOHLC.high);
-    const L = Number(previousOHLC.low);
-    const C = Number(previousOHLC.close);
+  try {
+    const result = generateDailyLevels(
+      levelInstrument,
+      previousOHLC
+    );
+
+    setCalculatedLevels(
+      result.levels.map((item) => ({
+        ...item,
+        shortName: item.name,
+        color:
+          item.type === "previous-day"
+            ? item.direction === "high"
+              ? colors.blue
+              : "#b17cff"
+            : item.highlighted
+              ? colors.yellow
+              : item.direction === "upside"
+                ? colors.green
+                : colors.red,
+        group: item.type,
+        style: item.highlighted ? "strong" : "normal",
+      }))
+    );
+
+    setLevelStatus(
+      `${result.levels.length} levels calculated for ${levelInstrument}`
+    );
+  } catch (error) {
+    setCalculatedLevels([]);
+    setLevelStatus(error.message);
+  }
+};
 
     const inputs = [
       previousOHLC.open,
