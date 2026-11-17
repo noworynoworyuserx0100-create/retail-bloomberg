@@ -4,6 +4,7 @@ import{createChart,ColorType,CandlestickSeries}from'lightweight-charts';
 import{Activity,Bell,BookOpen,BriefcaseBusiness,CalendarDays,ChartNoAxesCombined,ChevronDown,ChevronRight,Code2,Compass,Filter,Globe,Grid2X2,Layers3,LayoutDashboard,Menu,Moon,MoreHorizontal,Newspaper,Search,SlidersHorizontal,Sun,TrendingDown,TrendingUp,Zap}from'lucide-react';
 import './style.css';
 import StrategyStudio from './strategy/StrategyStudio';
+import { generateDailyLevels } from './strategy/dailyLevelsEngine';
 const NAV=[['Dashboard',LayoutDashboard],['Premarket',Sun],['Equity',Layers3],['Indices',ChartNoAxesCombined],['Options',Grid2X2],['F&O',Zap],['Insights',Compass],['News',Newspaper],['Strategy Studio',Code2]];
 const SIDE=[['Watchlist',SlidersHorizontal],['Heatmap',Grid2X2],['Screener',Filter],['Market Map',Globe],['FII / DII',Activity],['Economy',BriefcaseBusiness],['Calendar',CalendarDays],['Trading Journal',BookOpen]];
 
@@ -303,6 +304,121 @@ function App(){
     manualLevels: []
   }
 });
+ 
+useEffect(() => {
+  let cancelled = false;
+
+  async function loadDailyLevels() {
+    const instruments = ["NIFTY 50", "BANKNIFTY"];
+
+    for (const instrument of instruments) {
+      try {
+        const url =
+          `https://retail-bloomberg-2.onrender.com/api/v1/market/candles?symbol=${encodeURIComponent(instrument)}&interval=ONE_DAY&days=10`;
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`${instrument}: API ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        const candles = (result.candles || [])
+          .map((c) => ({
+            time: Number(c.time),
+            open: Number(c.open),
+            high: Number(c.high),
+            low: Number(c.low),
+            close: Number(c.close)
+          }))
+          .filter((c) =>
+            Number.isFinite(c.time) &&
+            Number.isFinite(c.open) &&
+            Number.isFinite(c.high) &&
+            Number.isFinite(c.low) &&
+            Number.isFinite(c.close)
+          )
+          .sort((a, b) => a.time - b.time);
+
+        if (!candles.length) {
+          throw new Error("No daily candles received");
+        }
+
+        // Use the latest completed NSE session candle.
+        const now = new Date();
+        const indiaTime = new Intl.DateTimeFormat("en-GB", {
+          timeZone: "Asia/Kolkata",
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23"
+        }).format(now);
+
+        const [hour, minute] = indiaTime.split(":").map(Number);
+        const marketClosed = hour > 15 || (hour === 15 && minute >= 30);
+
+        const today = new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Kolkata"
+        }).format(now);
+
+        const lastCandle = candles[candles.length - 1];
+
+        const lastDate = new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Kolkata"
+        }).format(new Date(lastCandle.time * 1000));
+
+        let completedCandles = candles;
+
+        if (lastDate === today && !marketClosed) {
+          completedCandles = candles.slice(0, -1);
+        }
+
+        const previousSession =
+          completedCandles[completedCandles.length - 1];
+
+        if (!previousSession) {
+          throw new Error("Previous completed session not found");
+        }
+
+        const generated = generateDailyLevels(instrument, {
+          open: previousSession.open,
+          high: previousSession.high,
+          low: previousSession.low,
+          close: previousSession.close
+        });
+
+        if (cancelled) return;
+
+        setDashboardLevels((old) => ({
+          ...old,
+          [instrument]: {
+            ...old[instrument],
+            levels: generated.levels
+          }
+        }));
+
+        console.log(
+          `${instrument} levels generated from previous session`,
+          previousSession,
+          generated.levels
+        );
+
+      } catch (error) {
+        console.error("Daily levels error:", instrument, error);
+      }
+    }
+  }
+
+  loadDailyLevels();
+
+  const refresh = setInterval(loadDailyLevels, 5 * 60 * 1000);
+
+  return () => {
+    cancelled = true;
+    clearInterval(refresh);
+  };
+}, []);
+ 
  const [niftyTimeframe,setNiftyTimeframe]=useState('1m');
 const [bankTimeframe,setBankTimeframe]=useState('1m');
  const [clock,setClock]=useState(new Date());
