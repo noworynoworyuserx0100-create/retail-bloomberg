@@ -55,7 +55,13 @@ function SectorStrip(){
  </section>;
 }
 
-function Chart({liveTick,symbol,timeframe}){
+function Chart({
+  liveTick,
+  symbol,
+  timeframe,
+  levels = [],
+  manualLevels = []
+}){
  const ref=useRef(null);
  const chartRef=useRef(null);
  const candleRef=useRef(null);
@@ -119,7 +125,40 @@ function Chart({liveTick,symbol,timeframe}){
    currentCandleRef.current=null;
   };
  },[]);
+ // DAILY LEVELS OVERLAY
+ useEffect(() => {
+  const series = candleRef.current;
+  if (!series) return;
 
+  const allLevels = [...levels, ...manualLevels];
+  const priceLines = [];
+
+  allLevels.forEach((item) => {
+   const price = Number(item.price);
+   if (!Number.isFinite(price) || price <= 0) return;
+
+   const lineStyle =
+    item.style === "dashed" ? 2 :
+    item.style === "dotted" ? 1 : 0;
+
+   const line = series.createPriceLine({
+    price,
+    color: item.color || "#5795ff",
+    lineWidth: item.highlighted ? 3 : 2,
+    lineStyle,
+    axisLabelVisible: true,
+    title: item.shortName || item.name || "Level"
+   });
+
+   priceLines.push(line);
+  });
+
+  return () => {
+   priceLines.forEach((line) => {
+    series.removePriceLine(line);
+   });
+  };
+ }, [levels, manualLevels]);
  useEffect(()=>{
   let cancelled=false;
 
@@ -254,6 +293,16 @@ function App(){
  const [feedStatus,setFeedStatus]=useState('Connecting...');
  const [ticks,setTicks]=useState({});
  const [selected,setSelected]=useState('NIFTY 50');
+ const [dashboardLevels,setDashboardLevels] = useState({
+  "NIFTY 50": {
+    levels: [],
+    manualLevels: []
+  },
+  "BANKNIFTY": {
+    levels: [],
+    manualLevels: []
+  }
+});
  const [niftyTimeframe,setNiftyTimeframe]=useState('1m');
 const [bankTimeframe,setBankTimeframe]=useState('1m');
  const [clock,setClock]=useState(new Date());
@@ -444,7 +493,13 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
    </div>
    <div className="chart-price">{nifty?fmt(nifty.price):'Waiting for live tick'}</div>
    <div className="chart-subtitle">Live {niftyTimeframe} candles · NIFTY 50</div>
-   <Chart liveTick={nifty} symbol="NIFTY 50" timeframe={niftyTimeframe}/>
+   <Chart
+  liveTick={nifty}
+  symbol="NIFTY 50"
+  timeframe={niftyTimeframe}
+  levels={dashboardLevels["NIFTY 50"].levels}
+  manualLevels={dashboardLevels["NIFTY 50"].manualLevels}
+/>
   </div>
 
   <div style={{minWidth:0}}>
@@ -461,7 +516,13 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
    </div>
    <div className="chart-price">{banknifty?fmt(banknifty.price):'Waiting for live tick'}</div>
    <div className="chart-subtitle">Live {bankTimeframe} candles · BANKNIFTY</div>
-   <Chart liveTick={banknifty} symbol="BANKNIFTY" timeframe={bankTimeframe}/>
+   <Chart
+  liveTick={banknifty}
+  symbol="BANKNIFTY"
+  timeframe={bankTimeframe}
+  levels={dashboardLevels["BANKNIFTY"].levels}
+  manualLevels={dashboardLevels["BANKNIFTY"].manualLevels}
+/>
   </div>
  </div>
 
