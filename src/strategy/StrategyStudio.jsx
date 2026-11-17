@@ -1,6 +1,6 @@
-
 import React, { useState } from "react";
 import { generateDailyLevels } from "./dailyLevelsEngine";
+import LevelsChart from "./LevelsChart";
 export default function StrategyStudio() {
   const [tab, setTab] = useState("editor");
 
@@ -826,24 +826,13 @@ plotshape(sellSignal, "SELL")`);
           </span>
         </div>
 
-        <div
-          style={{
-            height: 180,
-            marginTop: 14,
-            background: "#080e19",
-            border: `1px solid ${colors.border}`,
-            borderRadius: 9,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: colors.muted,
-            textAlign: "center",
-            padding: 15,
-            fontSize: 13
-          }}
-        >
-          Chart overlay integration will be connected in the next stage.
-        </div>
+    <div style={{ marginTop: 14 }}>
+  <LevelsChart
+    instrument={levelInstrument}
+    levels={calculatedLevels}
+    manualLevels={manualLevels}
+  />
+</div>   
       </div>
 
       {/* ENGINE STATUS */}
