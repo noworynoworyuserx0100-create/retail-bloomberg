@@ -126,6 +126,7 @@ function Chart({
    currentCandleRef.current=null;
   };
  },[]);
+ 
  // DAILY LEVELS OVERLAY
  useEffect(() => {
   const series = candleRef.current;
@@ -138,17 +139,53 @@ function Chart({
    const price = Number(item.price);
    if (!Number.isFinite(price) || price <= 0) return;
 
-   const lineStyle =
-    item.style === "dashed" ? 2 :
-    item.style === "dotted" ? 1 : 0;
+   const label = String(
+    item.shortName || item.name || "Level"
+   ).toUpperCase();
+
+   const isYesterday =
+    label.includes("YST HIGH") ||
+    label.includes("YST LOW") ||
+    label.includes("YESTERDAY HIGH") ||
+    label.includes("YESTERDAY LOW");
+
+   const isYesterdayHigh =
+    label.includes("YST HIGH") ||
+    label.includes("YESTERDAY HIGH");
+
+   const isYesterdayLow =
+    label.includes("YST LOW") ||
+    label.includes("YESTERDAY LOW");
+
+   const isRound = label.includes("ROUND");
+
+   const lineStyle = isYesterday
+    ? 1
+    : isRound
+    ? 0
+    : item.style === "dashed"
+    ? 2
+    : item.style === "dotted"
+    ? 1
+    : 0;
 
    const line = series.createPriceLine({
     price,
-    color: item.color || "#5795ff",
+    color: isYesterday
+     ? "#ffffff"
+     : isRound
+     ? "#5795ff"
+     : item.color || "#5795ff",
     lineWidth: item.highlighted ? 3 : 2,
     lineStyle,
     axisLabelVisible: true,
-    title: item.shortName || item.name || "Level"
+    title: isYesterday
+     ? isYesterdayHigh
+       ? "YST HIGH"
+       : "YST LOW"
+     : isRound
+     ? ""
+     : item.shortName || item.name || "Level"
    });
 
    priceLines.push(line);
@@ -164,9 +201,9 @@ function Chart({
   let cancelled=false;
 
   async function loadHistory(){
-   if(!candleRef.current)return;
+    if(!candleRef.current)return;
 
-   candleRef.current.setData([]);
+    candleRef.current.setData([]);
    currentCandleRef.current=null;
    setHistoryStatus('Loading history...');
 
