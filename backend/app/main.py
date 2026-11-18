@@ -205,10 +205,12 @@ async def market_socket(websocket: WebSocket):
         state.subscribers.discard(queue)
 
 
+
 @app.post("/api/v1/market/subscribe")
 async def subscribe(payload: dict):
     exchange = str(payload.get("exchange", "NSE")).upper()
     tokens = payload.get("tokens", [])
+    mode = int(payload.get("mode", 1))
 
     if exchange not in {"NSE", "NFO", "BSE", "BFO", "MCX"}:
         raise HTTPException(400, "Unsupported exchange")
@@ -216,17 +218,22 @@ async def subscribe(payload: dict):
     if not isinstance(tokens, list) or not tokens or len(tokens) > 100:
         raise HTTPException(400, "Provide 1-100 instrument tokens")
 
+    if mode not in {1, 2, 3}:
+        raise HTTPException(400, "Mode must be 1, 2 or 3")
+
     angel_feed.subscribe(
         exchange,
         [str(x) for x in tokens],
-        mode=1
+        mode=mode
     )
 
     return {
         "accepted": True,
         "exchange": exchange,
+        "mode": mode,
         "count": len(tokens)
     }
+
 
 
 @app.get("/api/v1/instruments/search")
