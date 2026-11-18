@@ -1022,3 +1022,186 @@ h1 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ==============================
+   OPTION CHAIN - PULSE TERMINAL
+================================ */
+
+.option-chain-panel {
+  width: 100%;
+  min-width: 0;
+  margin: 14px 0;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.option-chain-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.option-chain-subtitle {
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.option-chain-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.option-chain-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
+.option-chain-underlying {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.option-chain-summary {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.option-chain-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin: 14px 0;
+  padding-bottom: 6px;
+}
+
+.option-chain-message {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.option-chain-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.option-chain-table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+
+.option-chain-table th {
+  padding: 11px 9px;
+  color: var(--muted);
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.option-chain-table td {
+  padding: 10px 9px;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.option-chain-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.option-chain-table .ce-heading,
+.option-chain-table .ce-value {
+  color: #25c995;
+}
+
+.option-chain-table .strike-heading,
+.option-chain-table .strike-value {
+  color: #e1e9ec;
+  font-weight: 700;
+}
+
+.option-chain-table .pe-heading,
+.option-chain-table .pe-value {
+  color: #ff7379;
+}
+
+.option-chain-table tr.atm-row {
+  background: rgba(24, 118, 83, 0.13);
+  outline: 1px solid rgba(37, 201, 149, 0.25);
+}
+
+.option-chain-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.option-chain-status .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #78858a;
+}
+
+.option-chain-status .dot.live {
+  background: #25c995;
+  box-shadow: 0 0 7px rgba(37, 201, 149, 0.6);
+}
+
+@media (max-width: 760px) {
+  .option-chain-panel {
+    padding: 12px;
+  }
+
+  .option-chain-heading {
+    align-items: flex-start;
+  }
+
+  .option-chain-toolbar {
+    align-items: flex-start;
+  }
+
+  .option-chain-summary {
+    gap: 8px;
+  }
+
+  .option-chain-table {
+    min-width: 850px;
+  }
+}
+
+@media (max-width: 400px) {
+  .option-chain-panel {
+    padding: 9px;
+  }
+
+  .option-chain-subtitle {
+    font-size: 10px;
+  }
+}
