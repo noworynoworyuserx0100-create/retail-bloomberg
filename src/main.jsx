@@ -492,14 +492,14 @@ function OptionChain({ ticks }) {
  const visibleContracts = contracts.filter(item =>
   visibleStrikes.includes(Number(item.strike))
  );
-
+const visibleTokenKey = visibleContracts
+  .map(item => String(item.token))
+  .join(',');
  // Subscribe to visible CE and PE contracts
  useEffect(() => {
   if (!visibleContracts.length || atmStrike === null) return;
 
-  const tokens = visibleContracts
-   .map(item => String(item.token))
-   .filter(Boolean);
+  const tokens = visibleTokenKey.split(',').filter(Boolean);
 
   if (!tokens.length) return;
 
@@ -525,7 +525,7 @@ function OptionChain({ ticks }) {
     console.error('Option subscription failed:', error);
    });
 
- }, [visibleContracts, atmStrike]);
+ }, [visibleTokenKey, atmStrike]);
 
  const contractMap = {};
  contracts.forEach(item => {
