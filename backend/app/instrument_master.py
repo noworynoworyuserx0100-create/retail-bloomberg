@@ -169,7 +169,7 @@ def get_option_contracts(underlying, expiry=None):
             "strike": strike,
             "option_type": option_type,
             "lot_size": int(float(item.get("lotsize", 0))),
-            "tick_size": item.get("tick_size"),
+            "tick_size": float(item.get("tick_size", 0)) / 100,
         })
 
     contracts.sort(
