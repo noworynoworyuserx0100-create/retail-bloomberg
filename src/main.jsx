@@ -324,6 +324,449 @@ function Chart({
  </div>;
 }
 
+function OptionChain({ ticks }) {
+ const API = 'https://retail-bloomberg-2.onrender.com';
+
+ const [underlying, setUnderlying] = useState('NIFTY');
+ const [expiry, setExpiry] = useState('');
+ const [expiries, setExpiries] = useState([]);
+ const [contracts, setContracts] = useState([]);
+ const [greeks, setGreeks] = useState([]);
+ const [tab, setTab] = useState('chain');
+ const [loading, setLoading] = useState(false);
+ const [message, setMessage] = useState('Loading option chain...');
+ const [greekStatus, setGreekStatus] = useState('');
+
+ const indexToken = underlying === 'NIFTY'
+  ? '99926000'
+  : '99926009';
+
+ const indexTick = ticks[indexToken];
+ const indexPrice = Number(indexTick?.price) || 0;
+
+ // Load available expiries
+ useEffect(() => {
+  let cancelled = false;
+
+  async function loadExpiries() {
+   setExpiry('');
+   setExpiries([]);
+   setContracts([]);
+   setGreeks([]);
+   setMessage('Loading expiries...');
+
+   try {
+    const response = await fetch(
+     `${API}/api/v1/options/expiries?underlying=${underlying}`
+    );
+
+    if (!response.ok) {
+     throw new Error(`Expiry API ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    const list = Array.isArray(result)
+     ? result
+     : result.expiries || [];
+
+    if (cancelled) return;
+
+    const valid = list
+     .map(item => typeof item === 'string' ? item : item.expiry)
+     .filter(Boolean)
+     .sort();
+
+    setExpiries(valid);
+
+    if (valid.length) {
+     setExpiry(valid[0]);
+    } else {
+     setMessage('No expiries available');
+    }
+   } catch (error) {
+    if (!cancelled) {
+     setMessage(error.message);
+    }
+   }
+  }
+
+  loadExpiries();
+
+  return () => {
+   cancelled = true;
+  };
+ }, [underlying]);
+
+ // Load contracts and Greeks for selected expiry
+ useEffect(() => {
+  if (!expiry) return;
+
+  let cancelled = false;
+
+  async function loadChain() {
+   setLoading(true);
+   setContracts([]);
+   setGreeks([]);
+   setMessage('Loading contracts...');
+
+   try {
+    const [contractResponse, greekResponse] = await Promise.all([
+     fetch(
+      `${API}/api/v1/options/contracts?underlying=${underlying}&expiry=${expiry}`
+     ),
+     fetch(
+      `${API}/api/v1/options/greeks?underlying=${underlying}&expiry=${expiry}`
+     )
+    ]);
+
+    if (!contractResponse.ok) {
+     throw new Error(`Contracts API ${contractResponse.status}`);
+    }
+
+    const contractResult = await contractResponse.json();
+    const contractList = Array.isArray(contractResult)
+     ? contractResult
+     : contractResult.contracts || [];
+
+    if (cancelled) return;
+
+    setContracts(contractList);
+    setMessage(
+     contractList.length
+      ? `${contractList.length} contracts loaded`
+      : 'No contracts found'
+    );
+
+    if (greekResponse.ok) {
+     const greekResult = await greekResponse.json();
+     if (!cancelled) {
+      setGreeks(greekResult.greeks || []);
+      setGreekStatus('Greeks available');
+     }
+    } else {
+     setGreekStatus('Greeks unavailable');
+    }
+
+   } catch (error) {
+    if (!cancelled) {
+     setMessage(error.message);
+     setGreekStatus('Greeks unavailable');
+    }
+   } finally {
+    if (!cancelled) setLoading(false);
+   }
+  }
+
+  loadChain();
+
+  return () => {
+   cancelled = true;
+  };
+ }, [underlying, expiry]);
+
+ const strikes = [...new Set(
+  contracts.map(item => Number(item.strike))
+ )].filter(Number.isFinite).sort((a, b) => a - b);
+
+ // Find the nearest strike to the live index price
+ const atmStrike = indexPrice && strikes.length
+  ? strikes.reduce((closest, strike) =>
+     Math.abs(strike - indexPrice) < Math.abs(closest - indexPrice)
+      ? strike
+      : closest
+    , strikes[0])
+  : null;
+
+ const atmIndex = atmStrike === null
+  ? -1
+  : strikes.indexOf(atmStrike);
+
+ const visibleStrikes = atmIndex >= 0
+  ? strikes.slice(
+     Math.max(0, atmIndex - 20),
+     atmIndex + 21
+    )
+  : [];
+
+ const visibleContracts = contracts.filter(item =>
+  visibleStrikes.includes(Number(item.strike))
+ );
+
+ // Subscribe to visible CE and PE contracts
+ useEffect(() => {
+  if (!visibleContracts.length || atmStrike === null) return;
+
+  const tokens = visibleContracts
+   .map(item => String(item.token))
+   .filter(Boolean);
+
+  if (!tokens.length) return;
+
+  fetch(`${API}/api/v1/market/subscribe`, {
+   method: 'POST',
+   headers: { 'Content-Type': 'application/json' },
+   body: JSON.stringify({
+    exchange: 'NFO',
+    tokens,
+    mode: 3
+   })
+  })
+   .then(response => {
+    if (!response.ok) {
+     throw new Error(`Subscription API ${response.status}`);
+    }
+    return response.json();
+   })
+   .then(result => {
+    console.log('Option chain subscription:', result);
+   })
+   .catch(error => {
+    console.error('Option subscription failed:', error);
+   });
+
+ }, [visibleContracts, atmStrike]);
+
+ const contractMap = {};
+ contracts.forEach(item => {
+  contractMap[`${Number(item.strike)}:${item.option_type}`] = item;
+ });
+
+ const greekMap = {};
+ greeks.forEach(item => {
+  greekMap[`${Number(item.strike)}:${item.option_type}`] = item;
+ });
+
+ function getOptionData(strike, type) {
+  const contract = contractMap[`${strike}:${type}`];
+  if (!contract) return null;
+
+  const tick = ticks[String(contract.token)];
+  const raw = tick?.raw || tick || {};
+  const greek = greekMap[`${strike}:${type}`] || {};
+
+  return {
+   ltp: tick?.price ?? null,
+   oi: raw.open_interest ?? raw.openInterest ?? null,
+   volume: raw.volume_trade_for_the_day ?? raw.volume ?? null,
+   iv: greek.iv ?? null,
+   delta: greek.delta ?? null
+  };
+ }
+
+ const number = value =>
+  value === null || value === undefined || !Number.isFinite(Number(value))
+   ? '—'
+   : Number(value).toLocaleString('en-IN', {
+      maximumFractionDigits: 2
+     });
+
+ return (
+  <section className="panel option-chain-panel">
+
+   <div className="option-chain-heading">
+    <div>
+     <span className="eyebrow">DERIVATIVES MARKET</span>
+     <h2>Option Chain</h2>
+     <div className="option-chain-subtitle">
+      Live options market data · Angel One
+     </div>
+    </div>
+
+    <div className="option-chain-status">
+     <span className={indexPrice ? 'dot live' : 'dot'} />
+     {indexPrice ? 'INDEX LIVE' : 'WAITING FOR INDEX'}
+    </div>
+   </div>
+
+   <div className="option-chain-toolbar">
+
+    <div className="option-chain-underlying">
+     {['NIFTY', 'BANKNIFTY'].map(name => (
+      <button
+       key={name}
+       className={underlying === name ? 'active' : ''}
+       onClick={() => setUnderlying(name)}
+      >
+       {name}
+      </button>
+     ))}
+    </div>
+
+    <select
+     value={expiry}
+     onChange={event => setExpiry(event.target.value)}
+     disabled={!expiries.length}
+    >
+     {expiries.map(date => (
+      <option key={date} value={date}>{date}</option>
+     ))}
+    </select>
+
+   </div>
+
+   <div className="option-chain-summary">
+    <div>
+     <span>UNDERLYING</span>
+     <b>{underlying}</b>
+    </div>
+    <div>
+     <span>INDEX LTP</span>
+     <b>{indexPrice ? number(indexPrice) : '—'}</b>
+    </div>
+    <div>
+     <span>ATM STRIKE</span>
+     <b>{atmStrike === null ? '—' : number(atmStrike)}</b>
+    </div>
+    <div>
+     <span>VISIBLE STRIKES</span>
+     <b>{visibleStrikes.length}</b>
+    </div>
+   </div>
+
+   <div className="option-chain-tabs">
+    <button
+     className={tab === 'chain' ? 'active' : ''}
+     onClick={() => setTab('chain')}
+    >
+     Option Chain
+    </button>
+    <button
+     className={tab === 'oi' ? 'active' : ''}
+     onClick={() => setTab('oi')}
+    >
+     OI Analytics
+    </button>
+    <button
+     className={tab === 'greeks' ? 'active' : ''}
+     onClick={() => setTab('greeks')}
+    >
+     Greeks & IV
+    </button>
+    <button
+     className={tab === 'strategy' ? 'active' : ''}
+     onClick={() => setTab('strategy')}
+    >
+     Strategy Builder
+    </button>
+   </div>
+
+   {loading && (
+    <div className="option-chain-message">Loading market data...</div>
+   )}
+
+   {!loading && !contracts.length && (
+    <div className="option-chain-message">{message}</div>
+   )}
+
+   {tab === 'chain' && visibleStrikes.length > 0 && (
+    <div className="option-chain-scroll">
+     <table className="option-chain-table">
+      <thead>
+       <tr>
+        <th colSpan="4" className="ce-heading">CALL OPTIONS (CE)</th>
+        <th className="strike-heading">STRIKE</th>
+        <th colSpan="4" className="pe-heading">PUT OPTIONS (PE)</th>
+       </tr>
+       <tr>
+        <th>LTP</th>
+        <th>OI</th>
+        <th>VOLUME</th>
+        <th>IV</th>
+        <th>PRICE</th>
+        <th>IV</th>
+        <th>VOLUME</th>
+        <th>OI</th>
+        <th>LTP</th>
+       </tr>
+      </thead>
+
+      <tbody>
+       {visibleStrikes.map(strike => {
+        const ce = getOptionData(strike, 'CE');
+        const pe = getOptionData(strike, 'PE');
+        const isATM = strike === atmStrike;
+
+        return (
+         <tr key={strike} className={isATM ? 'atm-row' : ''}>
+          <td className="ce-value">{number(ce?.ltp)}</td>
+          <td>{number(ce?.oi)}</td>
+          <td>{number(ce?.volume)}</td>
+          <td>{number(ce?.iv)}</td>
+
+          <td className="strike-value">
+           {number(strike)}
+           {isATM && <small>ATM</small>}
+          </td>
+
+          <td>{number(pe?.iv)}</td>
+          <td>{number(pe?.volume)}</td>
+          <td>{number(pe?.oi)}</td>
+          <td className="pe-value">{number(pe?.ltp)}</td>
+         </tr>
+        );
+       })}
+      </tbody>
+     </table>
+    </div>
+   )}
+
+   {tab === 'oi' && (
+    <div className="option-chain-message">
+     OI Analytics — live OI values are shown in the option chain.
+     OI change requires a reliable previous-OI baseline.
+    </div>
+   )}
+
+   {tab === 'greeks' && (
+    <div className="option-chain-scroll">
+     <div className="option-chain-message">{greekStatus}</div>
+     <table className="option-chain-table">
+      <thead>
+       <tr>
+        <th>STRIKE</th>
+        <th>TYPE</th>
+        <th>DELTA</th>
+        <th>GAMMA</th>
+        <th>THETA</th>
+        <th>VEGA</th>
+        <th>IV</th>
+       </tr>
+      </thead>
+      <tbody>
+       {greeks
+        .filter(item => visibleStrikes.includes(Number(item.strike)))
+        .map((item, index) => (
+         <tr key={`${item.strike}-${item.option_type}-${index}`}>
+          <td>{number(item.strike)}</td>
+          <td>{item.option_type}</td>
+          <td>{number(item.delta)}</td>
+          <td>{number(item.gamma)}</td>
+          <td>{number(item.theta)}</td>
+          <td>{number(item.vega)}</td>
+          <td>{number(item.iv)}</td>
+         </tr>
+        ))}
+      </tbody>
+     </table>
+    </div>
+   )}
+
+   {tab === 'strategy' && (
+    <div className="option-chain-message">
+     Strategy Builder integration is the next stage.
+    </div>
+   )}
+
+   <div className="option-chain-footer">
+    <span>{message}</span>
+    <span>{greekStatus}</span>
+   </div>
+
+  </section>
+ );
+}
+
 function App(){
  const [active,setActive]=useState('Dashboard');
  const [dark,setDark]=useState(true);
