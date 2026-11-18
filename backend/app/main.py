@@ -9,6 +9,10 @@ from fastapi.concurrency import run_in_threadpool
 
 from . import config, state
 from .angel import angel_feed
+from .instrument_master import (
+    get_available_expiries,
+    get_option_contracts,
+)
 
 
 IST = ZoneInfo("Asia/Kolkata")
@@ -232,3 +236,53 @@ async def search_instruments(q: str):
         "results": [],
         "message": "Instrument master not loaded yet"
     }
+@app.get("/api/v1/options/expiries")
+async def option_expiries(underlying: str = "NIFTY"):
+    try:
+        expiries = await run_in_threadpool(
+            get_available_expiries,
+            underlying
+        )
+
+        return {
+            "underlying": underlying.upper(),
+            "count": len(expiries),
+            "expiries": expiries
+        }
+
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to load option expiries"
+        )
+
+
+@app.get("/api/v1/options/contracts")
+async def option_contracts(
+    underlying: str = "NIFTY",
+    expiry: str = None
+):
+    try:
+        contracts = await run_in_threadpool(
+            get_option_contracts,
+            underlying,
+            expiry
+        )
+
+        return {
+            "underlying": underlying.upper(),
+            "expiry": expiry,
+            "count": len(contracts),
+            "contracts": contracts
+        }
+
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to load option contracts"
+    )
+        
