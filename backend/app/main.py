@@ -431,7 +431,9 @@ async def option_greeks(
             "expiry": expiry,
             "angel_expiry": angel_expiry,
             "count": len(greeks),
-            "greeks": greeks
+"ce_count": ce_count,
+"pe_count": pe_count,
+"greeks": greeks
         }
 
     except HTTPException:
