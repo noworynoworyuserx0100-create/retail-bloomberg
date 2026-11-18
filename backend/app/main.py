@@ -417,7 +417,15 @@ async def option_greeks(
                 item["option_type"] or ""
             )
         )
+        ce_count = sum(
+            1 for item in greeks
+            if item["option_type"] == "CE"
+        )
 
+        pe_count = sum(
+            1 for item in greeks
+            if item["option_type"] == "PE"
+        )
         return {
             "underlying": underlying,
             "expiry": expiry,
