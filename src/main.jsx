@@ -1150,27 +1150,31 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
       </section>
      </div>
 
-     <SectorStrip/>
+          <OptionChain ticks={ticks} />
 
      <div className="dashboard-grid lower-grid">
       <section className="panel">
-       <div className="panel-heading"><div><span className="eyebrow">NSE / BSE</span><h2>Top gainers</h2></div><TrendingUp size={18}/></div>
-       {movers.map(row=><div className="stock-row" key={row[0]}><b>{row[0]}</b><span>{row[1]}</span><strong className="positive">{row[3]}</strong></div>)}
-       <div className="demo-note">Illustrative watchlist · Not live market data</div>
-      </section>
+       <div className="panel-heading">
+        <div>
+         <span className="eyebrow">GLOBAL MARKETS</span>
+         <h2>World indices</h2>
+        </div>
+        <Globe size={18}/>
+       </div>
 
-      <section className="panel">
-       <div className="panel-heading"><div><span className="eyebrow">NSE / BSE</span><h2>Top losers</h2></div><TrendingDown size={18}/></div>
-       {losers.map(row=><div className="stock-row" key={row[0]}><b>{row[0]}</b><span>{row[1]}</span><strong className="negative">{row[3]}</strong></div>)}
-       <div className="demo-note">Illustrative watchlist · Not live market data</div>
-      </section>
+       {global.map(row=>
+        <div className="stock-row" key={row[1]}>
+         <b>{row[0]} {row[1]}</b>
+         <span>{row[2]}</span>
+         <strong className="positive">{row[3]}</strong>
+        </div>
+       )}
 
-      <section className="panel">
-       <div className="panel-heading"><div><span className="eyebrow">GLOBAL MARKETS</span><h2>World indices</h2></div><Globe size={18}/></div>
-       {global.map(row=><div className="stock-row" key={row[1]}><b>{row[0]} {row[1]}</b><span>{row[2]}</span><strong className="positive">{row[3]}</strong></div>)}
        <div className="demo-note">Illustrative sample data</div>
       </section>
      </div>
+
+   
 
     </>:active==='Strategy Studio'?<StrategyStudio/>:<section className="panel section-placeholder">
       <div className="placeholder-icon"><Activity size={28}/></div>
