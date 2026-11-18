@@ -340,3 +340,97 @@ async def option_quotes(tokens: str):
         "quotes": quotes
     }
     
+@app.get("/api/v1/options/greeks")
+async def option_greeks(
+    underlying: str = "NIFTY",
+    expiry: str = None
+):
+    underlying = underlying.strip().upper()
+
+    if underlying not in {"NIFTY", "BANKNIFTY"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Supported underlyings: NIFTY, BANKNIFTY"
+        )
+
+    if not expiry:
+        raise HTTPException(
+            status_code=400,
+            detail="Expiry is required in YYYY-MM-DD format"
+        )
+
+    try:
+        expiry_date = datetime.strptime(expiry, "%Y-%m-%d")
+        angel_expiry = expiry_date.strftime("%d%b%Y").upper()
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid expiry. Use YYYY-MM-DD format"
+        )
+
+    if angel_feed.smart is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Angel One session is not ready"
+        )
+
+    params = {
+        "name": underlying,
+        "expirydate": angel_expiry
+    }
+
+    try:
+        response = await run_in_threadpool(
+            angel_feed.smart.optionGreek,
+            params
+        )
+
+        if not response or not response.get("status"):
+            raise HTTPException(
+                status_code=502,
+                detail="Angel One Greeks request failed"
+            )
+
+        rows = response.get("data") or []
+        greeks = []
+
+        for row in rows:
+            try:
+                greeks.append({
+                    "underlying": row.get("name"),
+                    "expiry": row.get("expiry"),
+                    "strike": float(row["strikePrice"]),
+                    "option_type": row.get("optionType"),
+                    "delta": float(row["delta"]),
+                    "gamma": float(row["gamma"]),
+                    "theta": float(row["theta"]),
+                    "vega": float(row["vega"]),
+                    "iv": float(row["impliedVolatility"]),
+                    "trade_volume": float(row["tradeVolume"])
+                })
+            except (KeyError, TypeError, ValueError):
+                continue
+
+        greeks.sort(
+            key=lambda item: (
+                item["strike"],
+                item["option_type"] or ""
+            )
+        )
+
+        return {
+            "underlying": underlying,
+            "expiry": expiry,
+            "angel_expiry": angel_expiry,
+            "count": len(greeks),
+            "greeks": greeks
+        }
+
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to retrieve option Greeks from Angel One"
+        )
+
