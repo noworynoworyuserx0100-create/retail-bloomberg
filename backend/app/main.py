@@ -292,4 +292,51 @@ async def option_contracts(
             status_code=502,
             detail="Unable to load option contracts"
     )
-        
+    
+@app.get("/api/v1/options/quotes")
+async def option_quotes(tokens: str):
+    token_list = [
+        token.strip()
+        for token in tokens.split(",")
+        if token.strip()
+    ]
+
+    if not token_list or len(token_list) > 100:
+        raise HTTPException(
+            status_code=400,
+            detail="Provide 1-100 option tokens"
+        )
+
+    quotes = []
+
+    for token in token_list:
+        symbol = f"2:{token}"
+        tick = state.latest_ticks.get(symbol)
+
+        if not tick:
+            quotes.append({
+                "token": token,
+                "available": False,
+                "message": "Waiting for live subscription"
+            })
+            continue
+
+        raw = tick.get("raw") or {}
+
+        quotes.append({
+            "token": token,
+            "available": True,
+            "ltp": tick.get("price"),
+            "volume": raw.get("volume_trade_for_the_day"),
+            "oi": raw.get("open_interest"),
+            "buy_quantity": raw.get("total_buy_quantity"),
+            "sell_quantity": raw.get("total_sell_quantity"),
+            "received_at": tick.get("received_at")
+        })
+
+    return {
+        "exchange": "NFO",
+        "count": len(quotes),
+        "quotes": quotes
+    }
+    
