@@ -778,20 +778,61 @@ function OptionChain({ ticks }) {
      </div>
 
      <aside className="oc-side-analytics">
-      <div className="oc-side-card">
+            <div className="oc-side-card">
        <div className="oc-side-title">OI POSITIONING</div>
+
        <div className="oc-side-stat ce-value">
         CALL OI <strong>{fmtCompact(totalCE)}</strong>
        </div>
+
        <div className="oc-side-stat pe-value">
         PUT OI <strong>{fmtCompact(totalPE)}</strong>
        </div>
+
        <div className="oc-side-stat">
         PCR <strong>{fmt(pcr)}</strong>
        </div>
+
        <div className="oc-side-stat">
         MAX PAIN <strong>{fmt(maxPain?.strike)}</strong>
        </div>
+
+       <div className="oc-oi-comparison">
+        <div className="oc-oi-bar">
+         <div
+          className="oc-oi-ce-fill"
+          style={{
+           width: `${totalCE + totalPE > 0
+            ? (totalCE / (totalCE + totalPE)) * 100
+            : 50}%`
+          }}
+         />
+
+         <div
+          className="oc-oi-pe-fill"
+          style={{
+           width: `${totalCE + totalPE > 0
+            ? (totalPE / (totalCE + totalPE)) * 100
+            : 50}%`
+          }}
+         />
+        </div>
+
+        <div className="oc-oi-legend">
+         <span>
+          CALL {totalCE + totalPE > 0
+           ? ((totalCE / (totalCE + totalPE)) * 100).toFixed(1)
+           : '0'}%
+         </span>
+
+         <span>
+          PUT {totalCE + totalPE > 0
+           ? ((totalPE / (totalCE + totalPE)) * 100).toFixed(1)
+           : '0'}%
+         </span>
+        </div>
+       </div>
+
        <div className="oc-side-note">
         Live open interest totals
        </div>
