@@ -1624,3 +1624,53 @@ h1 {
   font-size: 10px;
   color: #94a3b8;
 }
+/* ===== OI SUPPORT / RESISTANCE ZONES ===== */
+
+.oc-strike-zones {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.oc-zone-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 9px;
+  background: #101923;
+  border: 1px solid rgba(148,163,184,.14);
+}
+
+.oc-zone-card span {
+  font-size: 9px;
+  letter-spacing: .8px;
+  color: #94a3b8;
+}
+
+.oc-zone-card strong {
+  font-size: 20px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.oc-zone-card small {
+  font-size: 10px;
+  color: #8394a6;
+}
+
+.resistance-zone {
+  border-left: 3px solid #ea596b;
+}
+
+.resistance-zone strong {
+  color: #ea596b;
+}
+
+.support-zone {
+  border-left: 3px solid #16c784;
+}
+
+.support-zone strong {
+  color: #16c784;
+}
