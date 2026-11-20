@@ -833,9 +833,23 @@ function OptionChain({ ticks }) {
         </div>
        </div>
 
-       <div className="oc-side-note">
-        Live open interest totals
+             <div className="oc-strike-zones">
+        <div className="oc-zone-card resistance-zone">
+         <span>CALL OI RESISTANCE</span>
+         <strong>{ceMaxOI.oi ? fmt(ceMaxOI.strike) : '—'}</strong>
+         <small>Highest Call OI strike</small>
+        </div>
+
+        <div className="oc-zone-card support-zone">
+         <span>PUT OI SUPPORT</span>
+         <strong>{peMaxOI.oi ? fmt(peMaxOI.strike) : '—'}</strong>
+         <small>Highest Put OI strike</small>
+        </div>
        </div>
+
+       <div className="oc-side-note">
+        OI-based potential zones · Not confirmed support/resistance
+       </div> 
       </div>
 
       <div className="oc-side-card">
