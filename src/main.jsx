@@ -704,7 +704,6 @@ function OptionChain({ ticks }) {
    )}
 
    {/* Chain */}
-      {/* Chain */}
    {tab === 'chain' && visibleStrikes.length > 0 && (
     <div className="oc-main-layout">
      <div className="oc-chain-main">
