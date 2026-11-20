@@ -1419,3 +1419,173 @@ h1 {
     gap: 7px;
   }
 }
+/* ===== OPTION CHAIN REFERENCE LAYOUT ===== */
+
+.oc-main-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 225px;
+  gap: 12px;
+  align-items: start;
+  width: 100%;
+}
+
+.oc-chain-main {
+  min-width: 0;
+}
+
+.oc-side-analytics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.oc-side-card {
+  background: #0b121a;
+  border: 1px solid rgba(148,163,184,.15);
+  border-radius: 12px;
+  padding: 14px;
+  min-width: 0;
+}
+
+.oc-side-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: #dce7e9;
+}
+
+.oc-side-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 11px 0;
+  font-size: 12px;
+  color: #a8b7c7;
+}
+
+.oc-side-stat strong {
+  color: #e5edf5;
+  font-size: 13px;
+}
+
+.oc-side-note {
+  color: #788b9d;
+  font-size: 10px;
+  line-height: 1.5;
+  margin-top: 12px;
+}
+
+.oc-main-layout .option-chain-scroll {
+  height: 440px;
+  max-height: 440px;
+  overflow-y: auto;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #263849 #0b1118;
+  overscroll-behavior: contain;
+}
+
+.oc-main-layout .option-chain-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.oc-main-layout .option-chain-table thead th {
+  position: sticky;
+  z-index: 5;
+  background: #101923;
+}
+
+.oc-main-layout .option-chain-table thead tr:first-child th {
+  top: 0;
+  height: 36px;
+}
+
+.oc-main-layout .option-chain-table thead tr:nth-child(2) th {
+  top: 36px;
+  height: 35px;
+}
+
+.oc-main-layout .option-chain-table tbody tr {
+  height: 42px;
+}
+
+.oc-main-layout .option-chain-table td,
+.oc-main-layout .option-chain-table th {
+  padding: 8px 5px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.oc-main-layout .option-chain-table .strike-value {
+  background: #101923;
+  font-weight: 700;
+}
+
+.oc-main-layout .option-chain-table .ce-heading {
+  background: rgba(22,199,132,.10);
+  color: #16c784;
+}
+
+.oc-main-layout .option-chain-table .pe-heading {
+  background: rgba(234,89,107,.10);
+  color: #ea596b;
+}
+
+.oc-main-layout .option-chain-table .strike-heading {
+  background: #121c27;
+}
+
+.oc-main-layout .option-chain-table tr.atm-row td {
+  background: rgba(56,145,255,.10);
+}
+
+.oc-main-layout .option-chain-table tr.atm-row .strike-value {
+  background: #1456a8;
+  color: #fff;
+}
+
+.oc-main-layout .option-chain-controls {
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.oc-main-layout .strike-range-control span {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.oc-main-layout .option-chain-controls button {
+  padding: 6px 9px;
+  font-size: 11px;
+}
+
+.oc-main-layout .data-toggle-control button {
+  padding: 6px 9px;
+  font-size: 11px;
+}
+
+@media(max-width:1000px) {
+  .oc-main-layout {
+    grid-template-columns: minmax(0,1fr);
+  }
+
+  .oc-side-analytics {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:600px) {
+  .oc-side-analytics {
+    grid-template-columns: 1fr;
+  }
+
+  .oc-main-layout .option-chain-scroll {
+    height: 400px;
+    max-height: 400px;
+  }
+}
