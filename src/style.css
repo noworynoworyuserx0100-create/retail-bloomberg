@@ -1205,3 +1205,217 @@ h1 {
     font-size: 10px;
   }
 }
+/* ===== PULSE TERMINAL OPTION CHAIN V2 ===== */
+
+.oc-metric {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid rgba(148,163,184,.13);
+  border-radius: 12px;
+  background: linear-gradient(145deg,#111a24,#0b1118);
+}
+
+.oc-metric > * {
+  margin-bottom: 5px;
+}
+
+.ce-metric {
+  border-left: 2px solid #16c784;
+}
+
+.pe-metric {
+  border-left: 2px solid #ea596b;
+}
+
+.option-chain-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.strike-range-control,
+.data-toggle-control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.option-chain-controls button,
+.option-chain-tabs button {
+  background: #111a24;
+  color: #a8b7c7;
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: 7px;
+  padding: 7px 11px;
+  cursor: pointer;
+}
+
+.option-chain-controls button:hover,
+.option-chain-tabs button:hover {
+  border-color: #36a3ff;
+  color: #fff;
+}
+
+.option-chain-controls button.active,
+.option-chain-tabs button.active {
+  background: rgba(56,145,255,.15);
+  border-color: #3891ff;
+  color: #64b5ff;
+}
+
+.option-chain-controls select {
+  background: #111a24;
+  color: #dce7e9;
+  border: 1px solid rgba(148,163,184,.2);
+  border-radius: 7px;
+  padding: 8px;
+}
+
+.oi-analytics-layout {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.oi-analytics-card {
+  background: #0e1620;
+  border: 1px solid rgba(148,163,184,.13);
+  border-radius: 12px;
+  padding: 15px;
+  min-width: 0;
+}
+
+.oi-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.oi-distribution-title {
+  font-weight: 700;
+  color: #dce7e9;
+  margin-bottom: 10px;
+}
+
+.oi-distribution-row {
+  display: grid;
+  grid-template-columns: 1fr 65px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.oi-ce-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: #16c784;
+  justify-self: end;
+}
+
+.oi-pe-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: #ea596b;
+  justify-self: start;
+}
+
+.option-chain-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.option-chain-table th,
+.option-chain-table td {
+  padding: 9px 7px;
+  border-bottom: 1px solid rgba(148,163,184,.09);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.option-chain-table th {
+  color: #92a4b8;
+  background: #111a24;
+  font-weight: 600;
+}
+
+.option-chain-table td {
+  color: #dce7e9;
+}
+
+.option-chain-table tbody tr:hover {
+  background: rgba(255,255,255,.035);
+}
+
+.option-chain-table .atm-row {
+  background: rgba(56,145,255,.09);
+  border-top: 1px solid rgba(56,145,255,.35);
+  border-bottom: 1px solid rgba(56,145,255,.35);
+}
+
+.option-chain-table .ce-value {
+  color: #16c784;
+}
+
+.option-chain-table .pe-value {
+  color: #ea596b;
+}
+
+.option-chain-table .strike-value {
+  color: #e4edf5;
+  font-weight: 700;
+  text-align: center;
+}
+
+.option-chain-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.option-chain-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 15px 0;
+}
+
+.option-chain-footer {
+  color: #8495a8;
+  font-size: 11px;
+  padding: 12px 0;
+}
+
+.option-chain-message {
+  padding: 20px;
+  text-align: center;
+  color: #91a3b7;
+}
+
+.option-chain-status {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.option-chain-panel {
+  min-width: 0;
+}
+
+@media(max-width:760px) {
+  .oi-analytics-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .option-chain-table th,
+  .option-chain-table td {
+    padding: 7px 5px;
+    font-size: 11px;
+  }
+
+  .option-chain-controls {
+    gap: 7px;
+  }
+}
