@@ -704,83 +704,124 @@ function OptionChain({ ticks }) {
    )}
 
    {/* Chain */}
+      {/* Chain */}
    {tab === 'chain' && visibleStrikes.length > 0 && (
-    <>
-     <div className="option-chain-controls">
-      <div className="strike-range-control">
-       <span>STRIKES</span>
-       {[10,20,30,50].map(value => (
-        <button
-         key={value}
-         className={range === value ? 'active' : ''}
-         onClick={() => setRange(value)}
-        >
-         ±{value}
-        </button>
-       ))}
-      </div>
-
-      <div className="data-toggle-control">
-       {toggleButton(showOI,setShowOI,'OI')}
-       {toggleButton(showVolume,setShowVolume,'Volume')}
-       {toggleButton(showIV,setShowIV,'IV')}
-       {toggleButton(showGreeks,setShowGreeks,'Greeks')}
-      </div>
-     </div>
-
-     <div className="option-chain-scroll">
-      <table className="option-chain-table">
-       <thead>
-        <tr>
-         <th colSpan={showGreeks?5:showIV?4:showVolume?3:showOI?2:1} className="ce-heading">
-          CALL OPTIONS · CE
-         </th>
-         <th className="strike-heading">STRIKE</th>
-         <th colSpan={showGreeks?5:showIV?4:showVolume?3:showOI?2:1} className="pe-heading">
-          PUT OPTIONS · PE
-         </th>
-        </tr>
-        <tr>
-         <th>LTP</th>
-         {showOI && <th>OI</th>}
-         {showVolume && <th>VOL</th>}
-         {showIV && <th>IV</th>}
-         {showGreeks && <th>DELTA</th>}
-         <th>PRICE</th>
-         {showIV && <th>IV</th>}
-         {showVolume && <th>VOL</th>}
-         {showOI && <th>OI</th>}
-         {showGreeks && <th>DELTA</th>}
-         <th>LTP</th>
-        </tr>
-       </thead>
-       <tbody>
-        {rows.map(({strike,ce,pe}) => (
-         <tr key={strike} className={strike === atmStrike ? 'atm-row' : ''}>
-          <td className="ce-value">{fmt(ce?.ltp)}</td>
-          {showOI && <td>{fmtCompact(ce?.oi)}</td>}
-          {showVolume && <td>{fmtCompact(ce?.volume)}</td>}
-          {showIV && <td>{fmt(ce?.iv)}</td>}
-          {showGreeks && <td>{fmt(ce?.delta)}</td>}
-
-          <td className="strike-value">
-           {fmt(strike)}
-           {strike === atmStrike && <small> ATM</small>}
-          </td>
-
-          {showIV && <td>{fmt(pe?.iv)}</td>}
-          {showVolume && <td>{fmtCompact(pe?.volume)}</td>}
-          {showOI && <td>{fmtCompact(pe?.oi)}</td>}
-          {showGreeks && <td>{fmt(pe?.delta)}</td>}
-          <td className="pe-value">{fmt(pe?.ltp)}</td>
-         </tr>
+    <div className="oc-main-layout">
+     <div className="oc-chain-main">
+      <div className="option-chain-controls">
+       <div className="strike-range-control">
+        <span>STRIKES</span>
+        {[10,20,30,50].map(value => (
+         <button
+          key={value}
+          className={range === value ? 'active' : ''}
+          onClick={() => setRange(value)}
+         >
+          ±{value}
+         </button>
         ))}
-       </tbody>
-      </table>
-     </div>
-    </>
-   )}
+       </div>
 
+       <div className="data-toggle-control">
+        {toggleButton(showOI,setShowOI,'OI')}
+        {toggleButton(showVolume,setShowVolume,'Volume')}
+        {toggleButton(showIV,setShowIV,'IV')}
+        {toggleButton(showGreeks,setShowGreeks,'Greeks')}
+       </div>
+      </div>
+
+      <div className="option-chain-scroll">
+       <table className="option-chain-table">
+        <thead>
+         <tr>
+          <th colSpan={showOI + showVolume + showIV + showGreeks + 1} className="ce-heading">CALLS (CE)</th>
+          <th className="strike-heading">STRIKE</th>
+          <th colSpan={showOI + showVolume + showIV + showGreeks + 1} className="pe-heading">PUTS (PE)</th>
+         </tr>
+         <tr>
+          <th>LTP</th>
+          {showOI && <th>OI</th>}
+          {showVolume && <th>VOL</th>}
+          {showIV && <th>IV</th>}
+          {showGreeks && <th>DELTA</th>}
+          <th>PRICE</th>
+          {showGreeks && <th>DELTA</th>}
+          {showIV && <th>IV</th>}
+          {showVolume && <th>VOL</th>}
+          {showOI && <th>OI</th>}
+          <th>LTP</th>
+         </tr>
+        </thead>
+        <tbody>
+         {rows.map(({strike,ce,pe}) => (
+          <tr key={strike} className={strike === atmStrike ? 'atm-row' : ''}>
+           <td className="ce-value">{fmt(ce?.ltp)}</td>
+           {showOI && <td>{fmtCompact(ce?.oi)}</td>}
+           {showVolume && <td>{fmtCompact(ce?.volume)}</td>}
+           {showIV && <td>{fmt(ce?.iv)}</td>}
+           {showGreeks && <td>{fmt(ce?.delta)}</td>}
+
+           <td className="strike-value">
+            {fmt(strike)}
+            {strike === atmStrike && <small> ATM</small>}
+           </td>
+
+           {showGreeks && <td>{fmt(pe?.delta)}</td>}
+           {showIV && <td>{fmt(pe?.iv)}</td>}
+           {showVolume && <td>{fmtCompact(pe?.volume)}</td>}
+           {showOI && <td>{fmtCompact(pe?.oi)}</td>}
+           <td className="pe-value">{fmt(pe?.ltp)}</td>
+          </tr>
+         ))}
+        </tbody>
+       </table>
+      </div>
+     </div>
+
+     <aside className="oc-side-analytics">
+      <div className="oc-side-card">
+       <div className="oc-side-title">OI POSITIONING</div>
+       <div className="oc-side-stat ce-value">
+        CALL OI <strong>{fmtCompact(totalCE)}</strong>
+       </div>
+       <div className="oc-side-stat pe-value">
+        PUT OI <strong>{fmtCompact(totalPE)}</strong>
+       </div>
+       <div className="oc-side-stat">
+        PCR <strong>{fmt(pcr)}</strong>
+       </div>
+       <div className="oc-side-stat">
+        MAX PAIN <strong>{fmt(maxPain?.strike)}</strong>
+       </div>
+       <div className="oc-side-note">
+        Live open interest totals
+       </div>
+      </div>
+
+      <div className="oc-side-card">
+       <div className="oc-side-title">IV SNAPSHOT</div>
+       <div className="oc-side-stat">
+        ATM CALL IV
+        <strong>{fmt(greekMap[`${atmStrike}:CE`]?.iv)}</strong>
+       </div>
+       <div className="oc-side-stat">
+        ATM PUT IV
+        <strong>{fmt(greekMap[`${atmStrike}:PE`]?.iv)}</strong>
+       </div>
+       <div className="oc-side-note">
+        Actual IV from loaded option Greeks
+       </div>
+      </div>
+
+      <div className="oc-side-card">
+       <div className="oc-side-title">OI BUILDUP</div>
+       <div className="oc-side-note">
+        Buildup classifications will be displayed when reliable previous OI and price-change data are available.
+       </div>
+      </div>
+     </aside>
+    </div>
+   )}
    {/* OI analytics */}
    {tab === 'oi' && (
     <div className="oi-analytics-layout">
