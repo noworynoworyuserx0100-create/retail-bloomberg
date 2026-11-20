@@ -1674,3 +1674,107 @@ h1 {
 .support-zone strong {
   color: #16c784;
 }
+
+/* ===== STRIKE OI HEATMAP ===== */
+
+.oi-heatmap-row {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 75px minmax(0,1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+}
+
+.oi-heatmap-cell {
+  position: relative;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 5px;
+  background: #111a24;
+}
+
+.oi-heatmap-cell span {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 0 7px;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.call-heat span {
+  text-align: right;
+}
+
+.put-heat span {
+  text-align: left;
+}
+
+.oi-heat-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  opacity: .30;
+  transition: width .25s ease;
+}
+
+.call-fill {
+  right: 0;
+  background: #16c784;
+}
+
+.put-fill {
+  left: 0;
+  background: #ea596b;
+}
+
+.oi-heat-strike {
+  text-align: center;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #dce7e9;
+}
+
+.oi-heat-strike small {
+  display: block;
+  font-size: 8px;
+  color: #64b5ff;
+}
+
+.oi-heatmap-row.atm-row {
+  background: rgba(56,145,255,.08);
+  border-radius: 6px;
+  outline: 1px solid rgba(56,145,255,.22);
+}
+
+.oi-distribution-title {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 75px minmax(0,1fr);
+  text-align: center;
+  font-size: 10px;
+  color: #94a3b8;
+  gap: 8px;
+}
+
+.oi-distribution-title span:first-child {
+  text-align: right;
+  color: #16c784;
+}
+
+.oi-distribution-title span:last-child {
+  text-align: left;
+  color: #ea596b;
+}
+
+@media(max-width:760px) {
+  .oi-heatmap-row {
+    grid-template-columns: minmax(0,1fr) 65px minmax(0,1fr);
+    gap: 5px;
+  }
+
+  .oi-heatmap-cell {
+    height: 25px;
+  }
+}
