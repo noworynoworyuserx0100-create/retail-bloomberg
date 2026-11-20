@@ -900,20 +900,60 @@ function OptionChain({ ticks }) {
       <small>Estimated from available contract OI</small>
      </div>
 
-     <div className="oi-distribution">
-      <div className="oi-distribution-title">OI DISTRIBUTION</div>
-      {rows.map(({strike,ce,pe}) => (
-       <div key={strike} className={`oi-distribution-row ${strike === atmStrike ? 'atm-row' : ''}`}>
-        <div className="oi-ce-bar">
-         <span style={{width:`${totalCE?Math.min(100,(Number(ce?.oi||0)/totalCE)*100):0}%`}}/>
-        </div>
-        <b>{fmt(strike)}</b>
-        <div className="oi-pe-bar">
-         <span style={{width:`${totalPE?Math.min(100,(Number(pe?.oi||0)/totalPE)*100):0}%`}}/>
-        </div>
-       </div>
-      ))}
+
+<div className="oi-distribution">
+  <div className="oi-distribution-title">
+   <span>CALL OI</span>
+   <span>STRIKE</span>
+   <span>PUT OI</span>
+  </div>
+
+  {rows.map(({strike,ce,pe}) => {
+   const callOI = Number(ce?.oi) || 0;
+   const putOI = Number(pe?.oi) || 0;
+
+   const maxCallOI = Math.max(
+    ...rows.map(row => Number(row.ce?.oi) || 0),
+    1
+   );
+
+   const maxPutOI = Math.max(
+    ...rows.map(row => Number(row.pe?.oi) || 0),
+    1
+   );
+
+   const callIntensity = (callOI / maxCallOI) * 100;
+   const putIntensity = (putOI / maxPutOI) * 100;
+
+   return (
+    <div
+     key={strike}
+     className={`oi-heatmap-row ${strike === atmStrike ? 'atm-row' : ''}`}
+    >
+     <div className="oi-heatmap-cell call-heat">
+      <div
+       className="oi-heat-fill call-fill"
+       style={{width:`${callIntensity}%`}}
+      />
+      <span>{fmtCompact(callOI)}</span>
      </div>
+
+     <b className="oi-heat-strike">
+      {fmt(strike)}
+      {strike === atmStrike && <small> ATM</small>}
+     </b>
+
+     <div className="oi-heatmap-cell put-heat">
+      <div
+       className="oi-heat-fill put-fill"
+       style={{width:`${putIntensity}%`}}
+      />
+      <span>{fmtCompact(putOI)}</span>
+     </div>
+    </div>
+   );
+  })}
+ </div>
 
      <div className="option-chain-message">
       OI Change and buildup classifications require a reliable previous-OI and price baseline.
