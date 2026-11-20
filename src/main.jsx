@@ -324,6 +324,7 @@ function Chart({
  </div>;
 }
 
+
 function OptionChain({ ticks }) {
  const API = 'https://retail-bloomberg-2.onrender.com';
 
@@ -333,24 +334,48 @@ function OptionChain({ ticks }) {
  const [contracts, setContracts] = useState([]);
  const [greeks, setGreeks] = useState([]);
  const [tab, setTab] = useState('chain');
+ const [range, setRange] = useState(20);
  const [loading, setLoading] = useState(false);
- const [message, setMessage] = useState('Loading option chain...');
- const [greekStatus, setGreekStatus] = useState('');
+ const [message, setMessage] = useState('Loading...');
+ const [lastUpdated, setLastUpdated] = useState(null);
+ const [showOI, setShowOI] = useState(true);
+ const [showVolume, setShowVolume] = useState(true);
+ const [showIV, setShowIV] = useState(true);
+ const [showGreeks, setShowGreeks] = useState(false);
+ const [refreshKey, setRefreshKey] = useState(0);
 
  const indexToken = underlying === 'NIFTY'
   ? '99926000'
   : '99926009';
 
- const indexTick = ticks[indexToken];
- const indexPrice = Number(indexTick?.price) || 0;
+ const indexPrice = Number(ticks[indexToken]?.price) || 0;
 
- // Load available expiries
+ const fmt = value => {
+  if (value === null || value === undefined || !Number.isFinite(Number(value))) {
+   return '—';
+  }
+  return Number(value).toLocaleString('en-IN', {
+   maximumFractionDigits: 2
+  });
+ };
+
+ const fmtCompact = value => {
+  if (value === null || value === undefined || !Number.isFinite(Number(value))) {
+   return '—';
+  }
+  const n = Number(value);
+  if (Math.abs(n) >= 10000000) return (n / 10000000).toFixed(2) + 'Cr';
+  if (Math.abs(n) >= 100000) return (n / 100000).toFixed(2) + 'L';
+  if (Math.abs(n) >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return fmt(n);
+ };
+
+ // Load expiry list
  useEffect(() => {
   let cancelled = false;
 
   async function loadExpiries() {
    setExpiry('');
-   setExpiries([]);
    setContracts([]);
    setGreeks([]);
    setMessage('Loading expiries...');
@@ -360,64 +385,48 @@ function OptionChain({ ticks }) {
      `${API}/api/v1/options/expiries?underlying=${underlying}`
     );
 
-    if (!response.ok) {
-     throw new Error(`Expiry API ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`Expiry API ${response.status}`);
 
     const result = await response.json();
-
     const list = Array.isArray(result)
      ? result
      : result.expiries || [];
-
-    if (cancelled) return;
 
     const valid = list
      .map(item => typeof item === 'string' ? item : item.expiry)
      .filter(Boolean)
      .sort();
 
-    setExpiries(valid);
+    if (cancelled) return;
 
-    if (valid.length) {
-     setExpiry(valid[0]);
-    } else {
-     setMessage('No expiries available');
-    }
+    setExpiries(valid);
+    if (valid.length) setExpiry(valid[0]);
+    else setMessage('No expiries available');
    } catch (error) {
-    if (!cancelled) {
-     setMessage(error.message);
-    }
+    if (!cancelled) setMessage(error.message);
    }
   }
 
   loadExpiries();
+  return () => { cancelled = true; };
+ }, [underlying, refreshKey]);
 
-  return () => {
-   cancelled = true;
-  };
- }, [underlying]);
-
- // Load contracts and Greeks for selected expiry
+ // Load contracts and Greeks
  useEffect(() => {
   if (!expiry) return;
 
   let cancelled = false;
 
-  async function loadChain() {
+  async function loadData() {
    setLoading(true);
    setContracts([]);
    setGreeks([]);
-   setMessage('Loading contracts...');
+   setMessage('Loading contracts and Greeks...');
 
    try {
     const [contractResponse, greekResponse] = await Promise.all([
-     fetch(
-      `${API}/api/v1/options/contracts?underlying=${underlying}&expiry=${expiry}`
-     ),
-     fetch(
-      `${API}/api/v1/options/greeks?underlying=${underlying}&expiry=${expiry}`
-     )
+     fetch(`${API}/api/v1/options/contracts?underlying=${underlying}&expiry=${expiry}`),
+     fetch(`${API}/api/v1/options/greeks?underlying=${underlying}&expiry=${expiry}`)
     ]);
 
     if (!contractResponse.ok) {
@@ -432,76 +441,58 @@ function OptionChain({ ticks }) {
     if (cancelled) return;
 
     setContracts(contractList);
-    setMessage(
-     contractList.length
-      ? `${contractList.length} contracts loaded`
-      : 'No contracts found'
-    );
+    setMessage(`${contractList.length} contracts loaded`);
 
     if (greekResponse.ok) {
      const greekResult = await greekResponse.json();
-     if (!cancelled) {
-      setGreeks(greekResult.greeks || []);
-      setGreekStatus('Greeks available');
-     }
-    } else {
-     setGreekStatus('Greeks unavailable');
+     if (!cancelled) setGreeks(greekResult.greeks || []);
     }
 
+    if (!cancelled) setLastUpdated(new Date());
    } catch (error) {
-    if (!cancelled) {
-     setMessage(error.message);
-     setGreekStatus('Greeks unavailable');
-    }
+    if (!cancelled) setMessage(error.message);
    } finally {
     if (!cancelled) setLoading(false);
    }
   }
 
-  loadChain();
-
-  return () => {
-   cancelled = true;
-  };
- }, [underlying, expiry]);
+  loadData();
+  return () => { cancelled = true; };
+ }, [underlying, expiry, refreshKey]);
 
  const strikes = [...new Set(
   contracts.map(item => Number(item.strike))
  )].filter(Number.isFinite).sort((a, b) => a - b);
 
- // Find the nearest strike to the live index price
  const atmStrike = indexPrice && strikes.length
   ? strikes.reduce((closest, strike) =>
      Math.abs(strike - indexPrice) < Math.abs(closest - indexPrice)
-      ? strike
-      : closest
+      ? strike : closest
     , strikes[0])
   : null;
 
- const atmIndex = atmStrike === null
-  ? -1
-  : strikes.indexOf(atmStrike);
+ const atmIndex = atmStrike === null ? -1 : strikes.indexOf(atmStrike);
 
  const visibleStrikes = atmIndex >= 0
   ? strikes.slice(
-     Math.max(0, atmIndex - 20),
-     atmIndex + 21
+     Math.max(0, atmIndex - range),
+     atmIndex + range + 1
     )
   : [];
 
  const visibleContracts = contracts.filter(item =>
   visibleStrikes.includes(Number(item.strike))
  );
-const visibleTokenKey = visibleContracts
+
+ const visibleTokenKey = visibleContracts
   .map(item => String(item.token))
   .join(',');
- // Subscribe to visible CE and PE contracts
+
+ // Subscribe to visible option tokens
  useEffect(() => {
-  if (!visibleContracts.length || atmStrike === null) return;
+  if (!visibleTokenKey || atmStrike === null) return;
 
   const tokens = visibleTokenKey.split(',').filter(Boolean);
-
-  if (!tokens.length) return;
 
   fetch(`${API}/api/v1/market/subscribe`, {
    method: 'POST',
@@ -513,17 +504,11 @@ const visibleTokenKey = visibleContracts
    })
   })
    .then(response => {
-    if (!response.ok) {
-     throw new Error(`Subscription API ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`Subscription API ${response.status}`);
     return response.json();
    })
-   .then(result => {
-    console.log('Option chain subscription:', result);
-   })
-   .catch(error => {
-    console.error('Option subscription failed:', error);
-   });
+   .then(result => console.log('Option chain subscription:', result))
+   .catch(error => console.error('Option subscription failed:', error));
 
  }, [visibleTokenKey, atmStrike]);
 
@@ -537,7 +522,7 @@ const visibleTokenKey = visibleContracts
   greekMap[`${Number(item.strike)}:${item.option_type}`] = item;
  });
 
- function getOptionData(strike, type) {
+ function getData(strike, type) {
   const contract = contractMap[`${strike}:${type}`];
   if (!contract) return null;
 
@@ -546,30 +531,98 @@ const visibleTokenKey = visibleContracts
   const greek = greekMap[`${strike}:${type}`] || {};
 
   return {
-   ltp: tick?.price ?? null,
+   token: contract.token,
+   ltp: tick?.price ?? raw.last_traded_price ?? null,
    oi: raw.open_interest ?? raw.openInterest ?? null,
    volume: raw.volume_trade_for_the_day ?? raw.volume ?? null,
    iv: greek.iv ?? null,
-   delta: greek.delta ?? null
+   delta: greek.delta ?? null,
+   gamma: greek.gamma ?? null,
+   theta: greek.theta ?? null,
+   vega: greek.vega ?? null
   };
  }
 
- const number = value =>
-  value === null || value === undefined || !Number.isFinite(Number(value))
-   ? '—'
-   : Number(value).toLocaleString('en-IN', {
-      maximumFractionDigits: 2
+ const rows = visibleStrikes.map(strike => ({
+  strike,
+  ce: getData(strike, 'CE'),
+  pe: getData(strike, 'PE')
+ }));
+
+ const totalCE = contracts
+  .filter(item => item.option_type === 'CE')
+  .reduce((sum, item) => {
+   const data = getData(Number(item.strike), 'CE');
+   return sum + (Number(data?.oi) || 0);
+  }, 0);
+
+ const totalPE = contracts
+  .filter(item => item.option_type === 'PE')
+  .reduce((sum, item) => {
+   const data = getData(Number(item.strike), 'PE');
+   return sum + (Number(data?.oi) || 0);
+  }, 0);
+
+ const pcr = totalCE > 0 ? totalPE / totalCE : null;
+
+ // Max Pain estimation from available live OI
+ const maxPain = strikes.length
+  ? strikes.map(candidate => {
+     let pain = 0;
+     contracts.forEach(item => {
+      const strike = Number(item.strike);
+      const data = getData(strike, item.option_type);
+      const oi = Number(data?.oi) || 0;
+
+      if (item.option_type === 'CE') {
+       pain += Math.max(0, candidate - strike) * oi;
+      } else {
+       pain += Math.max(0, strike - candidate) * oi;
+      }
      });
+     return { strike: candidate, pain };
+    }).reduce((best, item) => item.pain < best.pain ? item : best, {pain:Infinity})
+  : null;
+
+ const ceMaxOI = contracts
+  .filter(item => item.option_type === 'CE')
+  .map(item => ({strike:Number(item.strike), oi:Number(getData(Number(item.strike),'CE')?.oi)||0}))
+  .reduce((best,item)=>item.oi>best.oi?item:best,{oi:0});
+
+ const peMaxOI = contracts
+  .filter(item => item.option_type === 'PE')
+  .map(item => ({strike:Number(item.strike), oi:Number(getData(Number(item.strike),'PE')?.oi)||0}))
+  .reduce((best,item)=>item.oi>best.oi?item:best,{oi:0});
+
+ const tabButton = (id, label) => (
+  <button
+   key={id}
+   className={tab === id ? 'active' : ''}
+   onClick={() => setTab(id)}
+  >
+   {label}
+  </button>
+ );
+
+ const toggleButton = (value, setter, label) => (
+  <button
+   className={value ? 'active' : ''}
+   onClick={() => setter(!value)}
+  >
+   {label}
+  </button>
+ );
 
  return (
   <section className="panel option-chain-panel">
 
+   {/* Header */}
    <div className="option-chain-heading">
     <div>
-     <span className="eyebrow">DERIVATIVES MARKET</span>
+     <span className="eyebrow">PULSE DERIVATIVES TERMINAL</span>
      <h2>Option Chain</h2>
      <div className="option-chain-subtitle">
-      Live options market data · Angel One
+      Live derivatives analytics · Angel One
      </div>
     </div>
 
@@ -579,10 +632,10 @@ const visibleTokenKey = visibleContracts
     </div>
    </div>
 
+   {/* Instrument and expiry */}
    <div className="option-chain-toolbar">
-
     <div className="option-chain-underlying">
-     {['NIFTY', 'BANKNIFTY'].map(name => (
+     {['NIFTY','BANKNIFTY'].map(name => (
       <button
        key={name}
        className={underlying === name ? 'active' : ''}
@@ -603,124 +656,180 @@ const visibleTokenKey = visibleContracts
      ))}
     </select>
 
+    <button onClick={() => setRefreshKey(value => value + 1)}>
+     ↻ Refresh
+    </button>
    </div>
 
+   {/* Overview cards */}
    <div className="option-chain-summary">
-    <div>
-     <span>UNDERLYING</span>
-     <b>{underlying}</b>
-    </div>
-    <div>
+    <div className="oc-metric">
      <span>INDEX LTP</span>
-     <b>{indexPrice ? number(indexPrice) : '—'}</b>
+     <b>{fmt(indexPrice || null)}</b>
     </div>
-    <div>
+    <div className="oc-metric">
      <span>ATM STRIKE</span>
-     <b>{atmStrike === null ? '—' : number(atmStrike)}</b>
+     <b>{fmt(atmStrike)}</b>
     </div>
-    <div>
-     <span>VISIBLE STRIKES</span>
-     <b>{visibleStrikes.length}</b>
+    <div className="oc-metric">
+     <span>PCR (OI)</span>
+     <b>{fmt(pcr)}</b>
+    </div>
+    <div className="oc-metric">
+     <span>MAX PAIN</span>
+     <b>{fmt(maxPain?.strike)}</b>
+    </div>
+    <div className="oc-metric ce-metric">
+     <span>TOTAL CE OI</span>
+     <b>{fmtCompact(totalCE)}</b>
+    </div>
+    <div className="oc-metric pe-metric">
+     <span>TOTAL PE OI</span>
+     <b>{fmtCompact(totalPE)}</b>
     </div>
    </div>
 
+   {/* Tabs */}
    <div className="option-chain-tabs">
-    <button
-     className={tab === 'chain' ? 'active' : ''}
-     onClick={() => setTab('chain')}
-    >
-     Option Chain
-    </button>
-    <button
-     className={tab === 'oi' ? 'active' : ''}
-     onClick={() => setTab('oi')}
-    >
-     OI Analytics
-    </button>
-    <button
-     className={tab === 'greeks' ? 'active' : ''}
-     onClick={() => setTab('greeks')}
-    >
-     Greeks & IV
-    </button>
-    <button
-     className={tab === 'strategy' ? 'active' : ''}
-     onClick={() => setTab('strategy')}
-    >
-     Strategy Builder
-    </button>
+    {tabButton('chain','Option Chain')}
+    {tabButton('oi','OI Analytics')}
+    {tabButton('greeks','Greeks & IV')}
+    {tabButton('strategy','Strategy Builder')}
    </div>
 
-   {loading && (
-    <div className="option-chain-message">Loading market data...</div>
-   )}
+   {loading && <div className="option-chain-message">Loading market data...</div>}
 
-   {!loading && !contracts.length && (
+   {!loading && contracts.length === 0 && (
     <div className="option-chain-message">{message}</div>
    )}
 
+   {/* Chain */}
    {tab === 'chain' && visibleStrikes.length > 0 && (
-    <div className="option-chain-scroll">
-     <table className="option-chain-table">
-      <thead>
-       <tr>
-        <th colSpan="4" className="ce-heading">CALL OPTIONS (CE)</th>
-        <th className="strike-heading">STRIKE</th>
-        <th colSpan="4" className="pe-heading">PUT OPTIONS (PE)</th>
-       </tr>
-       <tr>
-        <th>LTP</th>
-        <th>OI</th>
-        <th>VOLUME</th>
-        <th>IV</th>
-        <th>PRICE</th>
-        <th>IV</th>
-        <th>VOLUME</th>
-        <th>OI</th>
-        <th>LTP</th>
-       </tr>
-      </thead>
+    <>
+     <div className="option-chain-controls">
+      <div className="strike-range-control">
+       <span>STRIKES</span>
+       {[10,20,30,50].map(value => (
+        <button
+         key={value}
+         className={range === value ? 'active' : ''}
+         onClick={() => setRange(value)}
+        >
+         ±{value}
+        </button>
+       ))}
+      </div>
 
-      <tbody>
-       {visibleStrikes.map(strike => {
-        const ce = getOptionData(strike, 'CE');
-        const pe = getOptionData(strike, 'PE');
-        const isATM = strike === atmStrike;
+      <div className="data-toggle-control">
+       {toggleButton(showOI,setShowOI,'OI')}
+       {toggleButton(showVolume,setShowVolume,'Volume')}
+       {toggleButton(showIV,setShowIV,'IV')}
+       {toggleButton(showGreeks,setShowGreeks,'Greeks')}
+      </div>
+     </div>
 
-        return (
-         <tr key={strike} className={isATM ? 'atm-row' : ''}>
-          <td className="ce-value">{number(ce?.ltp)}</td>
-          <td>{number(ce?.oi)}</td>
-          <td>{number(ce?.volume)}</td>
-          <td>{number(ce?.iv)}</td>
+     <div className="option-chain-scroll">
+      <table className="option-chain-table">
+       <thead>
+        <tr>
+         <th colSpan={showGreeks?5:showIV?4:showVolume?3:showOI?2:1} className="ce-heading">
+          CALL OPTIONS · CE
+         </th>
+         <th className="strike-heading">STRIKE</th>
+         <th colSpan={showGreeks?5:showIV?4:showVolume?3:showOI?2:1} className="pe-heading">
+          PUT OPTIONS · PE
+         </th>
+        </tr>
+        <tr>
+         <th>LTP</th>
+         {showOI && <th>OI</th>}
+         {showVolume && <th>VOL</th>}
+         {showIV && <th>IV</th>}
+         {showGreeks && <th>DELTA</th>}
+         <th>PRICE</th>
+         {showIV && <th>IV</th>}
+         {showVolume && <th>VOL</th>}
+         {showOI && <th>OI</th>}
+         {showGreeks && <th>DELTA</th>}
+         <th>LTP</th>
+        </tr>
+       </thead>
+       <tbody>
+        {rows.map(({strike,ce,pe}) => (
+         <tr key={strike} className={strike === atmStrike ? 'atm-row' : ''}>
+          <td className="ce-value">{fmt(ce?.ltp)}</td>
+          {showOI && <td>{fmtCompact(ce?.oi)}</td>}
+          {showVolume && <td>{fmtCompact(ce?.volume)}</td>}
+          {showIV && <td>{fmt(ce?.iv)}</td>}
+          {showGreeks && <td>{fmt(ce?.delta)}</td>}
 
           <td className="strike-value">
-           {number(strike)}
-           {isATM && <small>ATM</small>}
+           {fmt(strike)}
+           {strike === atmStrike && <small> ATM</small>}
           </td>
 
-          <td>{number(pe?.iv)}</td>
-          <td>{number(pe?.volume)}</td>
-          <td>{number(pe?.oi)}</td>
-          <td className="pe-value">{number(pe?.ltp)}</td>
+          {showIV && <td>{fmt(pe?.iv)}</td>}
+          {showVolume && <td>{fmtCompact(pe?.volume)}</td>}
+          {showOI && <td>{fmtCompact(pe?.oi)}</td>}
+          {showGreeks && <td>{fmt(pe?.delta)}</td>}
+          <td className="pe-value">{fmt(pe?.ltp)}</td>
          </tr>
-        );
-       })}
-      </tbody>
-     </table>
-    </div>
+        ))}
+       </tbody>
+      </table>
+     </div>
+    </>
    )}
 
+   {/* OI analytics */}
    {tab === 'oi' && (
-    <div className="option-chain-message">
-     OI Analytics — live OI values are shown in the option chain.
-     OI change requires a reliable previous-OI baseline.
+    <div className="oi-analytics-layout">
+     <div className="oi-analytics-card">
+      <span>CALL OI</span>
+      <strong className="ce-value">{fmtCompact(totalCE)}</strong>
+      <small>Highest OI strike: {ceMaxOI.oi ? fmt(ceMaxOI.strike) : '—'}</small>
+     </div>
+     <div className="oi-analytics-card">
+      <span>PUT OI</span>
+      <strong className="pe-value">{fmtCompact(totalPE)}</strong>
+      <small>Highest OI strike: {peMaxOI.oi ? fmt(peMaxOI.strike) : '—'}</small>
+     </div>
+     <div className="oi-analytics-card">
+      <span>PCR (OI)</span>
+      <strong>{fmt(pcr)}</strong>
+      <small>Put OI divided by Call OI</small>
+     </div>
+     <div className="oi-analytics-card">
+      <span>MAX PAIN</span>
+      <strong>{fmt(maxPain?.strike)}</strong>
+      <small>Estimated from available contract OI</small>
+     </div>
+
+     <div className="oi-distribution">
+      <div className="oi-distribution-title">OI DISTRIBUTION</div>
+      {rows.map(({strike,ce,pe}) => (
+       <div key={strike} className={`oi-distribution-row ${strike === atmStrike ? 'atm-row' : ''}`}>
+        <div className="oi-ce-bar">
+         <span style={{width:`${totalCE?Math.min(100,(Number(ce?.oi||0)/totalCE)*100):0}%`}}/>
+        </div>
+        <b>{fmt(strike)}</b>
+        <div className="oi-pe-bar">
+         <span style={{width:`${totalPE?Math.min(100,(Number(pe?.oi||0)/totalPE)*100):0}%`}}/>
+        </div>
+       </div>
+      ))}
+     </div>
+
+     <div className="option-chain-message">
+      OI Change and buildup classifications require a reliable previous-OI and price baseline.
+      They are not estimated without that baseline.
+     </div>
     </div>
    )}
 
+   {/* Greeks */}
    {tab === 'greeks' && (
     <div className="option-chain-scroll">
-     <div className="option-chain-message">{greekStatus}</div>
      <table className="option-chain-table">
       <thead>
        <tr>
@@ -734,17 +843,16 @@ const visibleTokenKey = visibleContracts
        </tr>
       </thead>
       <tbody>
-       {greeks
-        .filter(item => visibleStrikes.includes(Number(item.strike)))
-        .map((item, index) => (
+       {greeks.filter(item => visibleStrikes.includes(Number(item.strike)))
+        .map((item,index) => (
          <tr key={`${item.strike}-${item.option_type}-${index}`}>
-          <td>{number(item.strike)}</td>
+          <td>{fmt(item.strike)}</td>
           <td>{item.option_type}</td>
-          <td>{number(item.delta)}</td>
-          <td>{number(item.gamma)}</td>
-          <td>{number(item.theta)}</td>
-          <td>{number(item.vega)}</td>
-          <td>{number(item.iv)}</td>
+          <td>{fmt(item.delta)}</td>
+          <td>{fmt(item.gamma)}</td>
+          <td>{fmt(item.theta)}</td>
+          <td>{fmt(item.vega)}</td>
+          <td>{fmt(item.iv)}</td>
          </tr>
         ))}
       </tbody>
@@ -752,15 +860,20 @@ const visibleTokenKey = visibleContracts
     </div>
    )}
 
+   {/* Strategy builder */}
    {tab === 'strategy' && (
     <div className="option-chain-message">
-     Strategy Builder integration is the next stage.
+     Strategy Builder workspace — strategy payoff integration is the next development stage.
     </div>
    )}
 
+   {/* Footer */}
    <div className="option-chain-footer">
     <span>{message}</span>
-    <span>{greekStatus}</span>
+    <span>{greeks.length ? 'Greeks loaded' : 'Greeks unavailable'}</span>
+    <span>
+     Updated: {lastUpdated ? lastUpdated.toLocaleTimeString('en-IN') : '—'}
+    </span>
    </div>
 
   </section>
