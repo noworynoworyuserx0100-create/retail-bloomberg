@@ -782,18 +782,7 @@ function OptionChain({ ticks }) {
        </div>
       </div>
 
-         </button>
-        ))}
-       </div>
-
-       <div className="data-toggle-control">
-        {toggleButton(showOI,setShowOI,'OI')}
-        {toggleButton(showVolume,setShowVolume,'Volume')}
-        {toggleButton(showIV,setShowIV,'IV')}
-        {toggleButton(showGreeks,setShowGreeks,'Greeks')}
-       </div>
-      </div>
-
+        
       <div className="option-chain-scroll">
        <table className="option-chain-table">
         <thead>
