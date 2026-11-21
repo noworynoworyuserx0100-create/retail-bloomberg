@@ -662,11 +662,33 @@ function OptionChain({ ticks }) {
       <button
        key={name}
        className={underlying === name ? 'active' : ''}
-       onClick={() => setUnderlying(name)}
+      
+    <div className="oc-metric oc-index-metric">
+     <div className="oc-index-value">
+      <div>
+       <span>INDEX LTP</span>
+       <b>{fmt(indexPrice || null)}</b>
+      </div>
+
+      <svg
+       className="oc-index-sparkline"
+       viewBox="0 0 100 34"
+       preserveAspectRatio="none"
       >
-       {name}
-      </button>
-     ))}
+       {sparklinePoints && (
+        <polyline
+         points={sparklinePoints}
+         fill="none"
+         stroke="#16c784"
+         strokeWidth="2"
+         strokeLinecap="round"
+         strokeLinejoin="round"
+        />
+       )}
+      </svg>
+     </div>
+    </div>
+
     </div>
 
     <select
