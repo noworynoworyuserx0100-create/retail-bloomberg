@@ -637,28 +637,28 @@ function OptionChain({ ticks }) {
  );
 
  return (
-  <section className="panel option-chain-panel">
+ 
+   <section className="panel option-chain-panel">
 
-   {/* Header */}
-   <div className="option-chain-heading">
-    <div>
-     <span className="eyebrow">PULSE DERIVATIVES TERMINAL</span>
-     <h2>Option Chain</h2>
-     <div className="option-chain-subtitle">
-      Live derivatives analytics · Angel One
+    {/* Header */}
+    <div className="option-chain-heading">
+     <div>
+      <span className="eyebrow">PULSE DERIVATIVES TERMINAL</span>
+      <h2>Option Chain</h2>
+      <div className="option-chain-subtitle">
+       Live derivatives analytics · Angel One
+      </div>
+     </div>
+
+     <div className="option-chain-status">
+      <span className={indexPrice ? 'dot live' : 'dot'} />
+      {indexPrice ? 'INDEX LIVE' : 'WAITING FOR INDEX'}
      </div>
     </div>
-{['NIFTY','BANKNIFTY'].map(name => (
-      <but
-    <div className="option-chain-status">
-     <span className={indexPrice ? 'dot live' : 'dot'} />
-     {indexPrice ? 'INDEX LIVE' : 'WAITING FOR INDEX'}
-    </div>
-   </div>
 
-   {/* Instrument and expiry */}
-   <div className="option-chain-toolbar">
-   
+    {/* Instrument and expiry */}
+    <div className="option-chain-toolbar">
+     <div className="option-chain-underlying">
       {['NIFTY','BANKNIFTY'].map(name => (
        <button
         key={name}
@@ -670,20 +670,20 @@ function OptionChain({ ticks }) {
       ))}
      </div>
 
-    <select
-     value={expiry}
-     onChange={event => setExpiry(event.target.value)}
-     disabled={!expiries.length}
-    >
-     {expiries.map(date => (
-      <option key={date} value={date}>{date}</option>
-     ))}
-    </select>
+     <select
+      value={expiry}
+      onChange={event => setExpiry(event.target.value)}
+      disabled={!expiries.length}
+     >
+      {expiries.map(date => (
+       <option key={date} value={date}>{date}</option>
+      ))}
+     </select>
 
-    <button onClick={() => setRefreshKey(value => value + 1)}>
-     ↻ Refresh
-    </button>
-   </div>
+     <button onClick={() => setRefreshKey(value => value + 1)}>
+      ↻ Refresh
+     </button>
+    </div>
 
    {/* Overview cards */}
    <div className="option-chain-summary">
