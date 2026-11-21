@@ -2055,3 +2055,61 @@ h1 {
     font-size: 13px;
   }
 }
+
+/* ===== REFERENCE OPTION CHAIN CONTROL BAR ===== */
+
+.oc-chain-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.oc-main-layout .option-chain-scroll {
+  height: 440px;
+  min-height: 440px;
+  max-height: 440px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.oc-main-layout .option-chain-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 5px;
+  border-top: 1px solid #1d303a;
+  min-width: 0;
+}
+
+.oc-main-layout .strike-range-control,
+.oc-main-layout .data-toggle-control {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+.oc-main-layout .data-toggle-control {
+  overflow-x: auto;
+}
+
+.oc-main-layout .option-chain-controls button {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media(max-width:600px) {
+  .oc-main-layout .option-chain-scroll {
+    height: 400px;
+    min-height: 400px;
+    max-height: 400px;
+  }
+
+  .oc-main-layout .option-chain-controls {
+    overflow-x: auto;
+  }
+}
