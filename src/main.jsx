@@ -758,7 +758,7 @@ function OptionChain({ ticks }) {
 
 
    {loading && <div className="option-chain-message">Loading market data...</div>}
-
+{tab === 'chain' && (
    <div className="oc-main-layout">
       <div className="option-chain-controls">
        <div className="strike-range-control">
