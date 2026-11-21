@@ -1778,3 +1778,238 @@ h1 {
     height: 25px;
   }
 }
+
+/* ===== PULSE OPTION CHAIN - COMPACT REFERENCE FIT ===== */
+
+.option-chain-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Compact heading */
+.option-chain-heading {
+  margin-bottom: 8px;
+  gap: 10px;
+}
+
+.option-chain-heading h2 {
+  font-size: 20px;
+  margin: 3px 0;
+}
+
+.option-chain-subtitle {
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+/* Compact underlying and expiry toolbar */
+.option-chain-toolbar {
+  margin: 8px 0;
+  gap: 8px;
+}
+
+.option-chain-underlying {
+  gap: 4px;
+}
+
+.option-chain-underlying button,
+.option-chain-toolbar button,
+.option-chain-toolbar select {
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
+/* Compact horizontal summary */
+.option-chain-summary {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.5fr) repeat(5, minmax(85px, 1fr));
+  gap: 6px;
+  margin: 8px 0;
+  align-items: stretch;
+}
+
+.oc-metric {
+  padding: 9px 10px;
+  border-radius: 8px;
+  min-width: 0;
+}
+
+.oc-metric span {
+  display: block;
+  font-size: 9px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+.oc-metric b {
+  display: block;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* Compact tabs */
+.option-chain-tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 5px;
+  margin: 8px 0;
+  padding-bottom: 3px;
+  scrollbar-width: thin;
+}
+
+.option-chain-tabs button {
+  padding: 7px 10px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Main layout */
+.oc-main-layout {
+  grid-template-columns: minmax(0, 1fr) 205px;
+  gap: 9px;
+}
+
+/* Compact toolbar */
+.oc-main-layout .option-chain-controls {
+  margin: 7px 0;
+  gap: 6px;
+}
+
+.oc-main-layout .option-chain-controls button {
+  padding: 5px 8px;
+  font-size: 10px;
+}
+
+.oc-main-layout .strike-range-control span {
+  font-size: 9px;
+}
+
+/* Fixed-height vertical strike scrolling */
+.oc-main-layout .option-chain-scroll {
+  height: 440px;
+  max-height: 440px;
+  overflow-y: auto;
+  overflow-x: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* Compact table */
+.oc-main-layout .option-chain-table {
+  min-width: 700px;
+  font-size: 10px;
+}
+
+.oc-main-layout .option-chain-table tbody tr {
+  height: 36px;
+}
+
+.oc-main-layout .option-chain-table td,
+.oc-main-layout .option-chain-table th {
+  padding: 5px 4px;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+/* Sticky headers */
+.oc-main-layout .option-chain-table thead th {
+  position: sticky;
+  z-index: 5;
+}
+
+.oc-main-layout .option-chain-table thead tr:first-child th {
+  top: 0;
+  height: 32px;
+}
+
+.oc-main-layout .option-chain-table thead tr:nth-child(2) th {
+  top: 32px;
+  height: 30px;
+}
+
+/* Center strike column */
+.oc-main-layout .option-chain-table .strike-value,
+.oc-main-layout .option-chain-table .strike-heading {
+  position: sticky;
+  z-index: 3;
+  background: #101923;
+}
+
+/* Compact right-side analytics */
+.oc-side-analytics {
+  gap: 8px;
+}
+
+.oc-side-card {
+  padding: 10px;
+  border-radius: 9px;
+}
+
+.oc-side-title {
+  font-size: 11px;
+  margin-bottom: 9px;
+}
+
+.oc-side-stat {
+  margin: 7px 0;
+  font-size: 10px;
+}
+
+.oc-side-stat strong {
+  font-size: 11px;
+}
+
+.oc-side-note {
+  font-size: 9px;
+  margin-top: 7px;
+}
+
+.oc-zone-card {
+  padding: 9px;
+  gap: 4px;
+}
+
+.oc-zone-card strong {
+  font-size: 16px;
+}
+
+.oc-zone-card small {
+  font-size: 9px;
+}
+
+/* Tablet / mobile adjustments */
+@media(max-width:1000px) {
+  .option-chain-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .oc-main-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .oc-side-analytics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+}
+
+@media(max-width:600px) {
+  .option-chain-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .oc-main-layout .option-chain-scroll {
+    height: 400px;
+    max-height: 400px;
+  }
+
+  .oc-side-analytics {
+    grid-template-columns: 1fr;
+  }
+
+  .oc-main-layout .option-chain-table {
+    min-width: 700px;
+  }
+}
