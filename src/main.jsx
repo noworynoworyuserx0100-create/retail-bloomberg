@@ -671,7 +671,7 @@ function OptionChain({ ticks }) {
      </div>
 
   
-     </select>
+     
 
      <button onClick={() => setRefreshKey(value => value + 1)}>
       ↻ Refresh
