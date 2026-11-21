@@ -759,7 +759,7 @@ function OptionChain({ ticks }) {
 
    {loading && <div className="option-chain-message">Loading market data...</div>}
 
-   
+   <div className="oc-main-layout">
       <div className="option-chain-controls">
        <div className="strike-range-control">
         <span>STRIKES</span>
@@ -794,6 +794,7 @@ function OptionChain({ ticks }) {
          <tr>
           <th>LTP</th>
           {showOI && <th>OI</th>}
+          
           {showVolume && <th>VOL</th>}
           {showIV && <th>IV</th>}
           {showGreeks && <th>DELTA</th>}
