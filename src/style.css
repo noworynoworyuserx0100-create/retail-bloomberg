@@ -1389,14 +1389,29 @@ h1 {
 .option-chain-tabs button:hover {
   border-color: #36a3ff;
 }
-
 /* Main structure */
 .oc-main-layout {
   display: grid;
   grid-template-columns: minmax(0,1fr) 205px;
+  grid-template-rows: auto auto;
   gap: 10px;
   align-items: start;
   width: 100%;
+}
+
+.option-chain-controls {
+  grid-column: 1 / -1;
+}
+
+.oc-main-layout .option-chain-scroll {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+}
+
+.oc-main-layout .oc-side-analytics {
+  grid-column: 2;
+  grid-row: 2;
 }
 
 .oc-chain-main {
