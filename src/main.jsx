@@ -759,14 +759,7 @@ function OptionChain({ ticks }) {
 
    {loading && <div className="option-chain-message">Loading market data...</div>}
 
-   {!loading && contracts.length === 0 && (
-    <div className="option-chain-message">{message}</div>
-   )}
-
-   {/* Chain */}
-   {tab === 'chain' && visibleStrikes.length > 0 && (
-    <div className="oc-main-layout">
-     <div className="oc-chain-main">
+   
       <div className="option-chain-controls">
        <div className="strike-range-control">
         <span>STRIKES</span>
@@ -777,6 +770,18 @@ function OptionChain({ ticks }) {
           onClick={() => setRange(value)}
          >
           ±{value}
+         </button>
+        ))}
+       </div>
+
+       <div className="data-toggle-control">
+        {toggleButton(showOI,setShowOI,'OI')}
+        {toggleButton(showVolume,setShowVolume,'Volume')}
+        {toggleButton(showIV,setShowIV,'IV')}
+        {toggleButton(showGreeks,setShowGreeks,'Greeks')}
+       </div>
+      </div>
+
          </button>
         ))}
        </div>
