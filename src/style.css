@@ -1206,17 +1206,31 @@ h1 {
   }
 }
 /* ===== PULSE TERMINAL OPTION CHAIN V2 ===== */
+/* =====================================================
+   PULSE TERMINAL — CONSOLIDATED OPTION CHAIN STYLES
+===================================================== */
 
+/* Metrics */
 .oc-metric {
   min-width: 0;
-  padding: 15px;
+  padding: 10px;
   border: 1px solid rgba(148,163,184,.13);
-  border-radius: 12px;
+  border-radius: 9px;
   background: linear-gradient(145deg,#111a24,#0b1118);
 }
 
-.oc-metric > * {
-  margin-bottom: 5px;
+.oc-metric span {
+  display: block;
+  font-size: 9px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  color: #94a3b8;
+}
+
+.oc-metric b {
+  display: block;
+  font: 600 13px 'JetBrains Mono', monospace;
+  white-space: nowrap;
 }
 
 .ce-metric {
@@ -1227,302 +1241,274 @@ h1 {
   border-left: 2px solid #ea596b;
 }
 
-.option-chain-controls {
+.oc-index-metric {
+  min-width: 0;
+}
+
+.oc-index-value {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.oc-index-value > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.oc-index-value b {
+  font: 600 15px 'JetBrains Mono', monospace;
+}
+
+.oc-index-sparkline {
+  width: 90px;
+  min-width: 55px;
+  height: 34px;
+  overflow: visible;
+}
+
+/* Header */
+.option-chain-panel {
+  width: 100%;
+  min-width: 0;
   margin: 14px 0;
+  padding: 14px;
+  overflow: hidden;
 }
 
-.strike-range-control,
-.data-toggle-control {
+.option-chain-heading {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
-.option-chain-controls button,
+.option-chain-heading h2 {
+  font-size: 20px;
+  margin: 3px 0;
+}
+
+.option-chain-subtitle {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.option-chain-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.option-chain-status .dot {
+  width: 7px;
+  height: 7px;
+  background: #78858a;
+  border-radius: 50%;
+}
+
+.option-chain-status .dot.live {
+  background: #25c995;
+  box-shadow: 0 0 7px rgba(37,201,149,.6);
+}
+
+/* Instrument and expiry */
+.option-chain-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.option-chain-underlying {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.option-chain-underlying button,
+.option-chain-toolbar button,
+.option-chain-toolbar select {
+  padding: 6px 10px;
+  font-size: 11px;
+  border-radius: 7px;
+}
+
+.option-chain-toolbar select {
+  background: #111a24;
+  color: #dce7e9;
+  border: 1px solid rgba(148,163,184,.2);
+}
+
+/* Summary metrics */
+.option-chain-summary {
+  display: grid;
+  grid-template-columns: minmax(140px,1.5fr) repeat(5,minmax(85px,1fr));
+  gap: 7px;
+  margin: 9px 0;
+  align-items: stretch;
+}
+
+/* Tabs */
+.option-chain-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 5px;
+  margin: 9px 0;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
 .option-chain-tabs button {
+  flex-shrink: 0;
+  padding: 7px 10px;
+  font-size: 11px;
+  white-space: nowrap;
+  border-radius: 7px;
   background: #111a24;
   color: #a8b7c7;
   border: 1px solid rgba(148,163,184,.16);
-  border-radius: 7px;
-  padding: 7px 11px;
-  cursor: pointer;
 }
 
-.option-chain-controls button:hover,
-.option-chain-tabs button:hover {
-  border-color: #36a3ff;
-  color: #fff;
-}
-
-.option-chain-controls button.active,
 .option-chain-tabs button.active {
   background: rgba(56,145,255,.15);
   border-color: #3891ff;
   color: #64b5ff;
 }
 
-.option-chain-controls select {
-  background: #111a24;
-  color: #dce7e9;
-  border: 1px solid rgba(148,163,184,.2);
-  border-radius: 7px;
-  padding: 8px;
+.option-chain-tabs button:hover {
+  border-color: #36a3ff;
 }
 
-.oi-analytics-layout {
-  display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: 12px;
-  margin: 15px 0;
-}
-
-.oi-analytics-card {
-  background: #0e1620;
-  border: 1px solid rgba(148,163,184,.13);
-  border-radius: 12px;
-  padding: 15px;
-  min-width: 0;
-}
-
-.oi-distribution {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.oi-distribution-title {
-  font-weight: 700;
-  color: #dce7e9;
-  margin-bottom: 10px;
-}
-
-.oi-distribution-row {
-  display: grid;
-  grid-template-columns: 1fr 65px 1fr;
-  align-items: center;
-  gap: 8px;
-}
-
-.oi-ce-bar {
-  height: 8px;
-  border-radius: 4px;
-  background: #16c784;
-  justify-self: end;
-}
-
-.oi-pe-bar {
-  height: 8px;
-  border-radius: 4px;
-  background: #ea596b;
-  justify-self: start;
-}
-
-.option-chain-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-.option-chain-table th,
-.option-chain-table td {
-  padding: 9px 7px;
-  border-bottom: 1px solid rgba(148,163,184,.09);
-  text-align: right;
-  white-space: nowrap;
-}
-
-.option-chain-table th {
-  color: #92a4b8;
-  background: #111a24;
-  font-weight: 600;
-}
-
-.option-chain-table td {
-  color: #dce7e9;
-}
-
-.option-chain-table tbody tr:hover {
-  background: rgba(255,255,255,.035);
-}
-
-.option-chain-table .atm-row {
-  background: rgba(56,145,255,.09);
-  border-top: 1px solid rgba(56,145,255,.35);
-  border-bottom: 1px solid rgba(56,145,255,.35);
-}
-
-.option-chain-table .ce-value {
-  color: #16c784;
-}
-
-.option-chain-table .pe-value {
-  color: #ea596b;
-}
-
-.option-chain-table .strike-value {
-  color: #e4edf5;
-  font-weight: 700;
-  text-align: center;
-}
-
-.option-chain-scroll {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.option-chain-tabs {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 15px 0;
-}
-
-.option-chain-footer {
-  color: #8495a8;
-  font-size: 11px;
-  padding: 12px 0;
-}
-
-.option-chain-message {
-  padding: 20px;
-  text-align: center;
-  color: #91a3b7;
-}
-
-.option-chain-status {
-  font-size: 11px;
-  color: #94a3b8;
-}
-
-.option-chain-panel {
-  min-width: 0;
-}
-
-@media(max-width:760px) {
-  .oi-analytics-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .option-chain-table th,
-  .option-chain-table td {
-    padding: 7px 5px;
-    font-size: 11px;
-  }
-
-  .option-chain-controls {
-    gap: 7px;
-  }
-}
-/* ===== OPTION CHAIN REFERENCE LAYOUT ===== */
-
+/* Main structure */
 .oc-main-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 225px;
-  gap: 12px;
+  grid-template-columns: minmax(0,1fr) 205px;
+  gap: 10px;
   align-items: start;
   width: 100%;
 }
 
 .oc-chain-main {
-  min-width: 0;
-}
-
-.oc-side-analytics {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.oc-side-card {
-  background: #0b121a;
-  border: 1px solid rgba(148,163,184,.15);
-  border-radius: 12px;
-  padding: 14px;
   min-width: 0;
 }
 
-.oc-side-title {
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 14px;
-  color: #dce7e9;
-}
-
-.oc-side-stat {
+/* Controls */
+.option-chain-controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: nowrap;
   gap: 8px;
-  margin: 11px 0;
-  font-size: 12px;
-  color: #a8b7c7;
+  margin: 8px 0;
+  padding: 8px 5px;
+  border-top: 1px solid #1d303a;
+  min-width: 0;
 }
 
-.oc-side-stat strong {
-  color: #e5edf5;
-  font-size: 13px;
+.strike-range-control,
+.data-toggle-control {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 5px;
+  min-width: 0;
 }
 
-.oc-side-note {
-  color: #788b9d;
-  font-size: 10px;
-  line-height: 1.5;
-  margin-top: 12px;
+.strike-range-control span {
+  font-size: 9px;
+  color: #94a3b8;
 }
 
-.oc-main-layout .option-chain-scroll {
-  height: 440px;
-  max-height: 440px;
-  overflow-y: auto;
+.data-toggle-control {
   overflow-x: auto;
+}
+
+.option-chain-controls button {
+  padding: 5px 8px;
+  font-size: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: #111a24;
+  color: #a8b7c7;
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: 7px;
+}
+
+.option-chain-controls button.active {
+  background: rgba(56,145,255,.15);
+  border-color: #3891ff;
+  color: #64b5ff;
+}
+
+.option-chain-controls button:hover {
+  border-color: #36a3ff;
+}
+
+/* Scroll container */
+.oc-main-layout .option-chain-scroll {
+  width: 100%;
+  height: 440px;
+  min-height: 440px;
+  max-height: 440px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: #263849 #0b1118;
-  overscroll-behavior: contain;
 }
 
+/* Chain table */
 .oc-main-layout .option-chain-table {
   width: 100%;
-  min-width: 720px;
+  min-width: 700px;
   border-collapse: separate;
   border-spacing: 0;
+  font-family: 'JetBrains Mono',monospace;
+  font-size: 10px;
+}
+
+.oc-main-layout .option-chain-table th,
+.oc-main-layout .option-chain-table td {
+  padding: 5px 4px;
+  font-size: 10px;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(148,163,184,.09);
+}
+
+.oc-main-layout .option-chain-table tbody tr {
+  height: 36px;
 }
 
 .oc-main-layout .option-chain-table thead th {
   position: sticky;
   z-index: 5;
   background: #101923;
+  color: #92a4b8;
 }
 
 .oc-main-layout .option-chain-table thead tr:first-child th {
   top: 0;
-  height: 36px;
+  height: 32px;
 }
 
 .oc-main-layout .option-chain-table thead tr:nth-child(2) th {
-  top: 36px;
-  height: 35px;
-}
-
-.oc-main-layout .option-chain-table tbody tr {
-  height: 42px;
-}
-
-.oc-main-layout .option-chain-table td,
-.oc-main-layout .option-chain-table th {
-  padding: 8px 5px;
-  font-size: 11px;
-  text-align: center;
-}
-
-.oc-main-layout .option-chain-table .strike-value {
-  background: #101923;
-  font-weight: 700;
+  top: 32px;
+  height: 30px;
 }
 
 .oc-main-layout .option-chain-table .ce-heading {
@@ -1539,6 +1525,23 @@ h1 {
   background: #121c27;
 }
 
+.oc-main-layout .option-chain-table .ce-value {
+  color: #16c784;
+}
+
+.oc-main-layout .option-chain-table .pe-value {
+  color: #ea596b;
+}
+
+.oc-main-layout .option-chain-table .strike-value {
+  position: sticky;
+  z-index: 3;
+  background: #101923;
+  color: #e4edf5;
+  font-weight: 700;
+  text-align: center;
+}
+
 .oc-main-layout .option-chain-table tr.atm-row td {
   background: rgba(56,145,255,.10);
 }
@@ -1548,49 +1551,56 @@ h1 {
   color: #fff;
 }
 
-.oc-main-layout .option-chain-controls {
+.oc-main-layout .option-chain-table tbody tr:hover {
+  background: rgba(255,255,255,.035);
+}
+
+/* Side analytics */
+.oc-side-analytics {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.oc-side-card {
+  background: #0b121a;
+  border: 1px solid rgba(148,163,184,.15);
+  border-radius: 9px;
+  padding: 10px;
+  min-width: 0;
+}
+
+.oc-side-title {
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 9px;
+  color: #dce7e9;
+}
+
+.oc-side-stat {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin: 10px 0;
+  gap: 8px;
+  margin: 7px 0;
+  font-size: 10px;
+  color: #a8b7c7;
 }
 
-.oc-main-layout .strike-range-control span {
-  font-size: 11px;
-  color: #94a3b8;
-}
-
-.oc-main-layout .option-chain-controls button {
-  padding: 6px 9px;
+.oc-side-stat strong {
+  color: #e5edf5;
   font-size: 11px;
 }
 
-.oc-main-layout .data-toggle-control button {
-  padding: 6px 9px;
-  font-size: 11px;
+.oc-side-note {
+  color: #788b9d;
+  font-size: 9px;
+  line-height: 1.5;
+  margin-top: 7px;
 }
 
-@media(max-width:1000px) {
-  .oc-main-layout {
-    grid-template-columns: minmax(0,1fr);
-  }
-
-  .oc-side-analytics {
-    display: grid;
-    grid-template-columns: repeat(2,minmax(0,1fr));
-  }
-}
-
-@media(max-width:600px) {
-  .oc-side-analytics {
-    grid-template-columns: 1fr;
-  }
-
-  .oc-main-layout .option-chain-scroll {
-    height: 400px;
-    max-height: 400px;
-  }
-}
-/* ===== OI COMPARISON VISUAL ===== */
-
+/* OI comparison */
 .oc-oi-comparison {
   margin-top: 14px;
 }
@@ -1624,8 +1634,8 @@ h1 {
   font-size: 10px;
   color: #94a3b8;
 }
-/* ===== OI SUPPORT / RESISTANCE ZONES ===== */
 
+/* OI support/resistance */
 .oc-strike-zones {
   display: grid;
   grid-template-columns: 1fr;
@@ -1636,8 +1646,8 @@ h1 {
 .oc-zone-card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px;
+  gap: 4px;
+  padding: 9px;
   border-radius: 9px;
   background: #101923;
   border: 1px solid rgba(148,163,184,.14);
@@ -1650,12 +1660,12 @@ h1 {
 }
 
 .oc-zone-card strong {
-  font-size: 20px;
-  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-family: 'JetBrains Mono',monospace;
 }
 
 .oc-zone-card small {
-  font-size: 10px;
+  font-size: 9px;
   color: #8394a6;
 }
 
@@ -1675,8 +1685,48 @@ h1 {
   color: #16c784;
 }
 
-/* ===== STRIKE OI HEATMAP ===== */
+/* OI Analytics cards */
+.oi-analytics-layout {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 12px;
+  margin: 15px 0;
+}
 
+.oi-analytics-card {
+  background: #0e1620;
+  border: 1px solid rgba(148,163,184,.13);
+  border-radius: 12px;
+  padding: 15px;
+  min-width: 0;
+}
+
+.oi-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.oi-distribution-title {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 75px minmax(0,1fr);
+  gap: 8px;
+  text-align: center;
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.oi-distribution-title span:first-child {
+  text-align: right;
+  color: #16c784;
+}
+
+.oi-distribution-title span:last-child {
+  text-align: left;
+  color: #ea596b;
+}
+
+/* OI Heatmap */
 .oi-heatmap-row {
   display: grid;
   grid-template-columns: minmax(0,1fr) 75px minmax(0,1fr);
@@ -1701,7 +1751,7 @@ h1 {
   width: 100%;
   padding: 0 7px;
   font-size: 10px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono',monospace;
 }
 
 .call-heat span {
@@ -1733,7 +1783,7 @@ h1 {
 .oi-heat-strike {
   text-align: center;
   font-size: 11px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono',monospace;
   color: #dce7e9;
 }
 
@@ -1749,26 +1799,83 @@ h1 {
   outline: 1px solid rgba(56,145,255,.22);
 }
 
-.oi-distribution-title {
-  display: grid;
-  grid-template-columns: minmax(0,1fr) 75px minmax(0,1fr);
+/* Messages and footer */
+.option-chain-message {
+  padding: 20px;
   text-align: center;
+  color: #91a3b7;
+  font-size: 12px;
+}
+
+.option-chain-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 12px 0;
+  color: #8495a8;
   font-size: 10px;
-  color: #94a3b8;
-  gap: 8px;
 }
 
-.oi-distribution-title span:first-child {
-  text-align: right;
-  color: #16c784;
+/* Tablet */
+@media(max-width:1000px) {
+  .option-chain-summary {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+  }
+
+  .oc-main-layout {
+    grid-template-columns: minmax(0,1fr);
+  }
+
+  .oc-side-analytics {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 8px;
+  }
 }
 
-.oi-distribution-title span:last-child {
-  text-align: left;
-  color: #ea596b;
-}
+/* Mobile */
+@media(max-width:600px) {
+  .option-chain-panel {
+    padding: 10px;
+  }
 
-@media(max-width:760px) {
+  .option-chain-heading {
+    align-items: flex-start;
+  }
+
+  .option-chain-toolbar {
+    gap: 6px;
+  }
+
+  .option-chain-summary {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 6px;
+  }
+
+  .oc-main-layout .option-chain-scroll {
+    height: 400px;
+    min-height: 400px;
+    max-height: 400px;
+  }
+
+  .oc-main-layout .option-chain-table {
+    min-width: 700px;
+  }
+
+  .option-chain-controls {
+    overflow-x: auto;
+  }
+
+  .oc-side-analytics {
+    grid-template-columns: 1fr;
+  }
+
+  .oi-analytics-layout {
+    grid-template-columns: 1fr;
+  }
+
   .oi-heatmap-row {
     grid-template-columns: minmax(0,1fr) 65px minmax(0,1fr);
     gap: 5px;
@@ -1777,339 +1884,12 @@ h1 {
   .oi-heatmap-cell {
     height: 25px;
   }
-}
 
-/* ===== PULSE OPTION CHAIN - COMPACT REFERENCE FIT ===== */
-
-.option-chain-panel {
-  min-width: 0;
-  overflow: hidden;
-}
-
-/* Compact heading */
-.option-chain-heading {
-  margin-bottom: 8px;
-  gap: 10px;
-}
-
-.option-chain-heading h2 {
-  font-size: 20px;
-  margin: 3px 0;
-}
-
-.option-chain-subtitle {
-  font-size: 10px;
-  margin-top: 2px;
-}
-
-/* Compact underlying and expiry toolbar */
-.option-chain-toolbar {
-  margin: 8px 0;
-  gap: 8px;
-}
-
-.option-chain-underlying {
-  gap: 4px;
-}
-
-.option-chain-underlying button,
-.option-chain-toolbar button,
-.option-chain-toolbar select {
-  padding: 6px 10px;
-  font-size: 11px;
-}
-
-/* Compact horizontal summary */
-.option-chain-summary {
-  display: grid;
-  grid-template-columns: minmax(140px, 1.5fr) repeat(5, minmax(85px, 1fr));
-  gap: 6px;
-  margin: 8px 0;
-  align-items: stretch;
-}
-
-.oc-metric {
-  padding: 9px 10px;
-  border-radius: 8px;
-  min-width: 0;
-}
-
-.oc-metric span {
-  display: block;
-  font-size: 9px;
-  margin-bottom: 4px;
-  white-space: nowrap;
-}
-
-.oc-metric b {
-  display: block;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
-/* Compact tabs */
-.option-chain-tabs {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  gap: 5px;
-  margin: 8px 0;
-  padding-bottom: 3px;
-  scrollbar-width: thin;
-}
-
-.option-chain-tabs button {
-  padding: 7px 10px;
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-/* Main layout */
-.oc-main-layout {
-  grid-template-columns: minmax(0, 1fr) 205px;
-  gap: 9px;
-}
-
-/* Compact toolbar */
-.oc-main-layout .option-chain-controls {
-  margin: 7px 0;
-  gap: 6px;
-}
-
-.oc-main-layout .option-chain-controls button {
-  padding: 5px 8px;
-  font-size: 10px;
-}
-
-.oc-main-layout .strike-range-control span {
-  font-size: 9px;
-}
-
-/* Fixed-height vertical strike scrolling */
-.oc-main-layout .option-chain-scroll {
-  height: 440px;
-  max-height: 440px;
-  overflow-y: auto;
-  overflow-x: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-}
-
-/* Compact table */
-.oc-main-layout .option-chain-table {
-  min-width: 700px;
-  font-size: 10px;
-}
-
-.oc-main-layout .option-chain-table tbody tr {
-  height: 36px;
-}
-
-.oc-main-layout .option-chain-table td,
-.oc-main-layout .option-chain-table th {
-  padding: 5px 4px;
-  font-size: 10px;
-  line-height: 1.2;
-}
-
-/* Sticky headers */
-.oc-main-layout .option-chain-table thead th {
-  position: sticky;
-  z-index: 5;
-}
-
-.oc-main-layout .option-chain-table thead tr:first-child th {
-  top: 0;
-  height: 32px;
-}
-
-.oc-main-layout .option-chain-table thead tr:nth-child(2) th {
-  top: 32px;
-  height: 30px;
-}
-
-/* Center strike column */
-.oc-main-layout .option-chain-table .strike-value,
-.oc-main-layout .option-chain-table .strike-heading {
-  position: sticky;
-  z-index: 3;
-  background: #101923;
-}
-
-/* Compact right-side analytics */
-.oc-side-analytics {
-  gap: 8px;
-}
-
-.oc-side-card {
-  padding: 10px;
-  border-radius: 9px;
-}
-
-.oc-side-title {
-  font-size: 11px;
-  margin-bottom: 9px;
-}
-
-.oc-side-stat {
-  margin: 7px 0;
-  font-size: 10px;
-}
-
-.oc-side-stat strong {
-  font-size: 11px;
-}
-
-.oc-side-note {
-  font-size: 9px;
-  margin-top: 7px;
-}
-
-.oc-zone-card {
-  padding: 9px;
-  gap: 4px;
-}
-
-.oc-zone-card strong {
-  font-size: 16px;
-}
-
-.oc-zone-card small {
-  font-size: 9px;
-}
-
-/* Tablet / mobile adjustments */
-@media(max-width:1000px) {
-  .option-chain-summary {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .oc-main-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .oc-side-analytics {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-}
-
-@media(max-width:600px) {
-  .option-chain-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .oc-main-layout .option-chain-scroll {
-    height: 400px;
-    max-height: 400px;
-  }
-
-  .oc-side-analytics {
-    grid-template-columns: 1fr;
-  }
-
-  .oc-main-layout .option-chain-table {
-    min-width: 700px;
-  }
-}
-
-/* ===== LIVE INDEX MINI SPARKLINE ===== */
-
-.oc-index-metric {
-  min-width: 0;
-}
-
-.oc-index-value {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.oc-index-value > div {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.oc-index-value b {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 15px;
-}
-
-.oc-index-sparkline {
-  width: 100px;
-  min-width: 65px;
-  height: 34px;
-  overflow: visible;
-}
-
-@media(max-width:600px) {
   .oc-index-sparkline {
     width: 75px;
-    min-width: 55px;
   }
 
   .oc-index-value b {
     font-size: 13px;
-  }
-}
-
-/* ===== REFERENCE OPTION CHAIN CONTROL BAR ===== */
-
-.oc-chain-main {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.oc-main-layout .option-chain-scroll {
-  height: 440px;
-  min-height: 440px;
-  max-height: 440px;
-  overflow: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
-.oc-main-layout .option-chain-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: nowrap;
-  gap: 8px;
-  margin-top: 8px;
-  padding: 8px 5px;
-  border-top: 1px solid #1d303a;
-  min-width: 0;
-}
-
-.oc-main-layout .strike-range-control,
-.oc-main-layout .data-toggle-control {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-wrap: nowrap;
-}
-
-.oc-main-layout .data-toggle-control {
-  overflow-x: auto;
-}
-
-.oc-main-layout .option-chain-controls button {
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-@media(max-width:600px) {
-  .oc-main-layout .option-chain-scroll {
-    height: 400px;
-    min-height: 400px;
-    max-height: 400px;
-  }
-
-  .oc-main-layout .option-chain-controls {
-    overflow-x: auto;
   }
 }
