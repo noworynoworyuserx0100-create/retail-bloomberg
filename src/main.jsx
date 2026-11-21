@@ -685,30 +685,11 @@ function OptionChain({ ticks }) {
      </button>
     </div>
 
-   {/* Overview cards */}
-   <div className="option-chain-summary">
-    <div className="oc-metric">
-     <span>INDEX LTP</span>
-     <b>{fmt(indexPrice || null)}</b>
-    </div>
-    <div className="oc-metric">
-     <span>ATM STRIKE</span>
-     <b>{fmt(atmStrike)}</b>
-    </div>
-    <div className="oc-metric">
-     <span>PCR (OI)</span>
-     <b>{fmt(pcr)}</b>
-    </div>
-    <div className="oc-metric">
-     <span>MAX PAIN</span>
-     <b>{fmt(maxPain?.strike)}</b>
-    </div>
-    <div className="oc-metric ce-metric">
-     <span>TOTAL CE OI</span>
-     <b>{fmtCompact(totalCE)}</b>
-    </div>
-    <div className="oc-metric pe-metric">
-     
+   
+    {/* Overview cards */}
+    <div className="option-chain-summary">
+
+     {/* Index LTP + mini chart */}
      <div className="oc-metric oc-index-metric">
       <div className="oc-index-value">
        <div>
@@ -735,13 +716,46 @@ function OptionChain({ ticks }) {
       </div>
      </div>
 
-   {/* Tabs */}
-   <div className="option-chain-tabs">
-    {tabButton('chain','Option Chain')}
-    {tabButton('oi','OI Analytics')}
-    {tabButton('greeks','Greeks & IV')}
-    {tabButton('strategy','Strategy Builder')}
-   </div>
+     {/* ATM Strike */}
+     <div className="oc-metric">
+      <span>ATM STRIKE</span>
+      <b>{fmt(atmStrike)}</b>
+     </div>
+
+     {/* PCR */}
+     <div className="oc-metric">
+      <span>PCR (OI)</span>
+      <b>{fmt(pcr)}</b>
+     </div>
+
+     {/* Max Pain */}
+     <div className="oc-metric">
+      <span>MAX PAIN</span>
+      <b>{fmt(maxPain?.strike)}</b>
+     </div>
+
+     {/* Call OI */}
+     <div className="oc-metric ce-metric">
+      <span>TOTAL CE OI</span>
+      <b>{fmtCompact(totalCE)}</b>
+     </div>
+
+     {/* Put OI */}
+     <div className="oc-metric pe-metric">
+      <span>TOTAL PE OI</span>
+      <b>{fmtCompact(totalPE)}</b>
+     </div>
+
+    </div>
+
+    {/* Tabs */}
+    <div className="option-chain-tabs">
+     {tabButton('chain','Option Chain')}
+     {tabButton('oi','OI Analytics')}
+     {tabButton('greeks','Greeks & IV')}
+     {tabButton('strategy','Strategy Builder')}
+    </div>
+
 
    {loading && <div className="option-chain-message">Loading market data...</div>}
 
