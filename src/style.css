@@ -1713,7 +1713,54 @@ h1 {
 .support-zone strong {
   color: #16c784;
 }
+/* OI positioning visual refinement */
+.oc-side-card {
+  box-shadow: 0 4px 14px rgba(0,0,0,.12);
+}
 
+.oc-oi-comparison {
+  margin-top: 16px;
+}
+
+.oc-oi-bar {
+  height: 12px;
+  border-radius: 8px;
+}
+
+.oc-oi-legend {
+  font-weight: 600;
+  letter-spacing: .2px;
+}
+
+.oc-strike-zones {
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.oc-zone-card {
+  padding: 12px 10px;
+  gap: 6px;
+  transition: border-color .2s ease;
+}
+
+.resistance-zone {
+  border-left-width: 4px;
+  background: linear-gradient(90deg, rgba(234,89,107,.08), #101923 45%);
+}
+
+.support-zone {
+  border-left-width: 4px;
+  background: linear-gradient(90deg, rgba(22,199,132,.08), #101923 45%);
+}
+
+.oc-zone-card strong {
+  font-size: 18px;
+  letter-spacing: .3px;
+}
+
+.oc-zone-card small {
+  line-height: 1.4;
+}
 /* OI Analytics cards */
 .oi-analytics-layout {
   display: grid;
