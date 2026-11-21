@@ -2013,3 +2013,45 @@ h1 {
     min-width: 700px;
   }
 }
+
+/* ===== LIVE INDEX MINI SPARKLINE ===== */
+
+.oc-index-metric {
+  min-width: 0;
+}
+
+.oc-index-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.oc-index-value > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.oc-index-value b {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+}
+
+.oc-index-sparkline {
+  width: 100px;
+  min-width: 65px;
+  height: 34px;
+  overflow: visible;
+}
+
+@media(max-width:600px) {
+  .oc-index-sparkline {
+    width: 75px;
+    min-width: 55px;
+  }
+
+  .oc-index-value b {
+    font-size: 13px;
+  }
+}
