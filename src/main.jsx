@@ -670,14 +670,7 @@ function OptionChain({ ticks }) {
       ))}
      </div>
 
-     <select
-      value={expiry}
-      onChange={event => setExpiry(event.target.value)}
-      disabled={!expiries.length}
-     >
-      {expiries.map(date => (
-       <option key={date} value={date}>{date}</option>
-      ))}
+  
      </select>
 
      <button onClick={() => setRefreshKey(value => value + 1)}>
@@ -833,13 +826,25 @@ function OptionChain({ ticks }) {
    
 
      <aside className="oc-side-analytics">
-            <div className="oc-side-card">
+        <div className="oc-side-card oc-expiry-card">
+  <div className="oc-side-title">EXPIRY</div>
+  <select
+    value={expiry}
+    onChange={event => setExpiry(event.target.value)}
+    disabled={!expiries.length}
+  >
+    {expiries.map(date => (
+      <option key={date} value={date}>{date}</option>
+    ))}
+  </select>
+</div>   
+      <div className="oc-side-card">
        <div className="oc-side-title">OI POSITIONING</div>
 
        <div className="oc-side-stat ce-value">
         CALL OI <strong>{fmtCompact(totalCE)}</strong>
        </div>
-
+     
        <div className="oc-side-stat pe-value">
         PUT OI <strong>{fmtCompact(totalPE)}</strong>
        </div>
