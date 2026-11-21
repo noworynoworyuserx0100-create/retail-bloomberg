@@ -1585,7 +1585,21 @@ h1 {
   padding: 10px;
   min-width: 0;
 }
+/* Reference-style expiry selector */
+.oc-expiry-card select {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 10px;
+  background: #111a24;
+  color: #dce7e9;
+  border: 1px solid rgba(148,163,184,.2);
+  border-radius: 7px;
+  font-size: 11px;
+}
 
+.oc-expiry-card select:disabled {
+  opacity: .55;
+}
 .oc-side-title {
   font-size: 11px;
   font-weight: 700;
