@@ -348,7 +348,30 @@ function OptionChain({ ticks }) {
   ? '99926000'
   : '99926009';
 
+
  const indexPrice = Number(ticks[indexToken]?.price) || 0;
+
+ const [indexHistory, setIndexHistory] = useState([]);
+
+ useEffect(() => {
+  if (!indexPrice) return;
+
+  setIndexHistory(previous => {
+   const next = [...previous, indexPrice].slice(-30);
+   return next;
+  });
+ }, [indexPrice, underlying]);
+
+ const sparklinePoints = indexHistory.length > 1
+  ? indexHistory.map((price, i) => {
+     const min = Math.min(...indexHistory);
+     const max = Math.max(...indexHistory);
+     const spread = max - min || 1;
+     const x = (i / (indexHistory.length - 1)) * 100;
+     const y = 30 - ((price - min) / spread) * 26;
+     return `${x},${y}`;
+    }).join(' ')
+  : '';
 
  const fmt = value => {
   if (value === null || value === undefined || !Number.isFinite(Number(value))) {
