@@ -830,7 +830,7 @@ function OptionChain({ ticks }) {
         </tbody>
        </table>
       </div>
-     </div>
+   
 
      <aside className="oc-side-analytics">
             <div className="oc-side-card">
