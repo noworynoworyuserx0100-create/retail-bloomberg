@@ -648,7 +648,8 @@ function OptionChain({ ticks }) {
       Live derivatives analytics · Angel One
      </div>
     </div>
-
+{['NIFTY','BANKNIFTY'].map(name => (
+      <but
     <div className="option-chain-status">
      <span className={indexPrice ? 'dot live' : 'dot'} />
      {indexPrice ? 'INDEX LIVE' : 'WAITING FOR INDEX'}
@@ -657,39 +658,17 @@ function OptionChain({ ticks }) {
 
    {/* Instrument and expiry */}
    <div className="option-chain-toolbar">
-    <div className="option-chain-underlying">
-     {['NIFTY','BANKNIFTY'].map(name => (
-      <button
-       key={name}
-       className={underlying === name ? 'active' : ''}
-      
-    <div className="oc-metric oc-index-metric">
-     <div className="oc-index-value">
-      <div>
-       <span>INDEX LTP</span>
-       <b>{fmt(indexPrice || null)}</b>
-      </div>
-
-      <svg
-       className="oc-index-sparkline"
-       viewBox="0 0 100 34"
-       preserveAspectRatio="none"
-      >
-       {sparklinePoints && (
-        <polyline
-         points={sparklinePoints}
-         fill="none"
-         stroke="#16c784"
-         strokeWidth="2"
-         strokeLinecap="round"
-         strokeLinejoin="round"
-        />
-       )}
-      </svg>
+   
+      {['NIFTY','BANKNIFTY'].map(name => (
+       <button
+        key={name}
+        className={underlying === name ? 'active' : ''}
+        onClick={() => setUnderlying(name)}
+       >
+        {name}
+       </button>
+      ))}
      </div>
-    </div>
-
-    </div>
 
     <select
      value={expiry}
@@ -729,10 +708,32 @@ function OptionChain({ ticks }) {
      <b>{fmtCompact(totalCE)}</b>
     </div>
     <div className="oc-metric pe-metric">
-     <span>TOTAL PE OI</span>
-     <b>{fmtCompact(totalPE)}</b>
-    </div>
-   </div>
+     
+     <div className="oc-metric oc-index-metric">
+      <div className="oc-index-value">
+       <div>
+        <span>INDEX LTP</span>
+        <b>{fmt(indexPrice || null)}</b>
+       </div>
+
+       <svg
+        className="oc-index-sparkline"
+        viewBox="0 0 100 34"
+        preserveAspectRatio="none"
+       >
+        {sparklinePoints && (
+         <polyline
+          points={sparklinePoints}
+          fill="none"
+          stroke="#16c784"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+         />
+        )}
+       </svg>
+      </div>
+     </div>
 
    {/* Tabs */}
    <div className="option-chain-tabs">
