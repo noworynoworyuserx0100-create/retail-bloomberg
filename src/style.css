@@ -1104,6 +1104,35 @@ h1 {
   margin: 0;
   padding: 10px;
 }
+/* Compact reference header alignment */
+.oc-reference-top {
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.oc-reference-title {
+  flex-shrink: 0;
+}
+
+.oc-reference-actions {
+  flex-wrap: nowrap;
+  min-width: 0;
+  gap: 6px;
+}
+
+.oc-reference-actions .option-chain-tabs {
+  flex-wrap: nowrap;
+  overflow: visible;
+}
+
+.oc-reference-actions .option-chain-underlying button,
+.oc-reference-actions .option-chain-tabs button {
+  white-space: nowrap;
+}
+
+.oc-reference-header {
+  overflow-x: auto;
+}
 .oc-expiry-summary {
   min-width: 150px;
 }
