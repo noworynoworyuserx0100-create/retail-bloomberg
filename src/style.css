@@ -1048,7 +1048,62 @@ h1 {
   font-size: 11px;
   margin-top: 4px;
 }
+/* Reference Option Chain header layout */
+.oc-reference-header {
+  width: 100%;
+  border: 1px solid rgba(148,163,184,.14);
+  border-radius: 10px;
+  overflow: hidden;
+}
 
+.oc-reference-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid rgba(148,163,184,.12);
+  flex-wrap: wrap;
+}
+
+.oc-reference-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.oc-reference-title h2 {
+  margin: 0;
+}
+
+.oc-reference-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.oc-reference-actions .option-chain-underlying {
+  flex-shrink: 0;
+}
+
+.oc-reference-actions .option-chain-tabs {
+  margin: 0;
+  padding: 0;
+}
+
+.oc-header-refresh {
+  flex-shrink: 0;
+  padding: 7px 10px;
+  border-radius: 7px;
+}
+
+.oc-reference-header .option-chain-summary {
+  margin: 0;
+  padding: 10px;
+}
 .option-chain-status {
   display: flex;
   align-items: center;
