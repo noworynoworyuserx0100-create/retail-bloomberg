@@ -783,11 +783,11 @@ function OptionChain({ ticks }) {
       <div className="option-chain-scroll">
        <table className="option-chain-table">
         <thead>
-         <tr>
-          <th colSpan={showOI + showVolume + showIV + showGreeks + 1} className="ce-heading">CALLS (CE)</th>
-          <th className="strike-heading">STRIKE</th>
-          <th colSpan={showOI + showVolume + showIV + showGreeks + 1} className="pe-heading">PUTS (PE)</th>
-         </tr>
+                <tr>
+         <th colSpan={showOI + showVolume + showIV + showGreeks + 1} className="ce-heading">CALLS (CE)</th>
+         <th className="strike-heading">STRIKE</th>
+         <th colSpan={showOI + showVolume + showIV + showGreeks + 1} className="pe-heading">PUTS (PE)</th>
+        </tr> 
          <tr>
           <th>LTP</th>
           {showOI && <th>OI</th>}
