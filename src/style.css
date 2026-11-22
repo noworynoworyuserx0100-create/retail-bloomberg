@@ -1422,7 +1422,7 @@ h1 {
 /* Summary metrics */
 .option-chain-summary {
   display: grid;
-  grid-template-columns: minmax(140px,1.5fr) repeat(5,minmax(85px,1fr));
+ grid-template-columns: minmax(150px,1.5fr) repeat(6,minmax(85px,1fr));
   gap: 7px;
   margin: 9px 0;
   align-items: stretch;
