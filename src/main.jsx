@@ -830,102 +830,73 @@ function OptionChain({ ticks }) {
    
 
      <aside className="oc-side-analytics">
-      <div className="oc-side-card">
-       <div className="oc-side-title">OI POSITIONING</div>
 
-       <div className="oc-side-stat ce-value">
-        CALL OI <strong>{fmtCompact(totalCE)}</strong>
-       </div>
-     
-       <div className="oc-side-stat pe-value">
-        PUT OI <strong>{fmtCompact(totalPE)}</strong>
-       </div>
+  <div className="oc-side-card reference-buildup">
+    <div className="oc-side-title">OI Buildup</div>
 
-       <div className="oc-side-stat">
-        PCR <strong>{fmt(pcr)}</strong>
-       </div>
+    <div className="buildup-row">
+      <span><i className="buildup-dot green" />Long Buildup</span>
+      <strong>—</strong>
+    </div>
 
-       <div className="oc-side-stat">
-        MAX PAIN <strong>{fmt(maxPain?.strike)}</strong>
-       </div>
+    <div className="buildup-row">
+      <span><i className="buildup-dot green" />Short Covering</span>
+      <strong>—</strong>
+    </div>
 
-       <div className="oc-oi-comparison">
-        <div className="oc-oi-bar">
-         <div
-          className="oc-oi-ce-fill"
-          style={{
-           width: `${totalCE + totalPE > 0
-            ? (totalCE / (totalCE + totalPE)) * 100
-            : 50}%`
-          }}
-         />
+    <div className="buildup-row">
+      <span><i className="buildup-dot red" />Short Buildup</span>
+      <strong>—</strong>
+    </div>
 
-         <div
-          className="oc-oi-pe-fill"
-          style={{
-           width: `${totalCE + totalPE > 0
-            ? (totalPE / (totalCE + totalPE)) * 100
-            : 50}%`
-          }}
-         />
-        </div>
+    <div className="buildup-row">
+      <span><i className="buildup-dot red" />Long Unwinding</span>
+      <strong>—</strong>
+    </div>
+  </div>
 
-        <div className="oc-oi-legend">
-         <span>
-          CALL {totalCE + totalPE > 0
-           ? ((totalCE / (totalCE + totalPE)) * 100).toFixed(1)
-           : '0'}%
-         </span>
+  <div className="oc-side-card reference-iv">
+    <div className="oc-side-title">IV</div>
 
-         <span>
-          PUT {totalCE + totalPE > 0
-           ? ((totalPE / (totalCE + totalPE)) * 100).toFixed(1)
-           : '0'}%
-         </span>
-        </div>
-       </div>
+    <div className="reference-iv-value">
+      <strong>
+        {fmt(
+          (
+            Number(greekMap[`${atmStrike}:CE`]?.iv || 0) +
+            Number(greekMap[`${atmStrike}:PE`]?.iv || 0)
+          ) / 2 || null
+        )}%
+      </strong>
+      <span>ATM</span>
+    </div>
 
-             <div className="oc-strike-zones">
-        <div className="oc-zone-card resistance-zone">
-         <span>CALL OI RESISTANCE</span>
-         <strong>{ceMaxOI.oi ? fmt(ceMaxOI.strike) : '—'}</strong>
-         <small>Highest Call OI strike</small>
-        </div>
+    <div className="reference-iv-chart">
+      <svg viewBox="0 0 200 55" preserveAspectRatio="none">
+        <polyline
+          points="0,40 15,32 30,36 45,20 60,26 75,16 90,24 105,18 120,30 135,23 150,27 165,17 180,22 200,14"
+          fill="none"
+          stroke="#16c784"
+          strokeWidth="2"
+        />
+      </svg>
+    </div>
 
-        <div className="oc-zone-card support-zone">
-         <span>PUT OI SUPPORT</span>
-         <strong>{peMaxOI.oi ? fmt(peMaxOI.strike) : '—'}</strong>
-         <small>Highest Put OI strike</small>
-        </div>
-       </div>
+    <small>ATM implied volatility</small>
+  </div>
 
-       <div className="oc-side-note">
-        OI-based potential zones · Not confirmed support/resistance
-       </div> 
-      </div>
+  <div className="reference-updated">
+    <span className="dot live" />
+    Last updated: {lastUpdated ? lastUpdated.toLocaleTimeString('en-IN') : '—'}
 
-      <div className="oc-side-card">
-       <div className="oc-side-title">IV SNAPSHOT</div>
-       <div className="oc-side-stat">
-        ATM CALL IV
-        <strong>{fmt(greekMap[`${atmStrike}:CE`]?.iv)}</strong>
-       </div>
-       <div className="oc-side-stat">
-        ATM PUT IV
-        <strong>{fmt(greekMap[`${atmStrike}:PE`]?.iv)}</strong>
-       </div>
-       <div className="oc-side-note">
-        Actual IV from loaded option Greeks
-       </div>
-      </div>
+    <button
+      onClick={() => setRefreshKey(value => value + 1)}
+      title="Refresh"
+    >
+      ↻
+    </button>
+  </div>
 
-      <div className="oc-side-card">
-       <div className="oc-side-title">OI BUILDUP</div>
-       <div className="oc-side-note">
-        Buildup classifications will be displayed when reliable previous OI and price-change data are available.
-       </div>
-      </div>
-     </aside>
+</aside>
     </div>
    )}
    {/* OI analytics */}
