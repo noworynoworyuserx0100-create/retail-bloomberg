@@ -739,7 +739,18 @@ function OptionChain({ ticks }) {
        <b>{fmtCompact(totalPE)}</b>
       </div>
 
-     </div>
+           <div className="oc-metric oc-expiry-summary">
+       <span>EXPIRY</span>
+       <select
+        value={expiry}
+        onChange={event => setExpiry(event.target.value)}
+        disabled={!expiries.length}
+       >
+        {expiries.map(date => (
+         <option key={date} value={date}>{date}</option>
+        ))}
+       </select>
+      </div></div>
 
     </div>
 
@@ -818,19 +829,7 @@ function OptionChain({ ticks }) {
       </div>
    
 
-     <aside className="oc-side-analytics">
-        <div className="oc-side-card oc-expiry-card">
-  <div className="oc-side-title">EXPIRY</div>
-  <select
-    value={expiry}
-    onChange={event => setExpiry(event.target.value)}
-    disabled={!expiries.length}
-  >
-    {expiries.map(date => (
-      <option key={date} value={date}>{date}</option>
-    ))}
-  </select>
-</div>   
+     
       <div className="oc-side-card">
        <div className="oc-side-title">OI POSITIONING</div>
 
