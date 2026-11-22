@@ -640,115 +640,108 @@ function OptionChain({ ticks }) {
  
    <section className="panel option-chain-panel">
 
-    {/* Header */}
-    <div className="option-chain-heading">
-     <div>
-      <span className="eyebrow">PULSE DERIVATIVES TERMINAL</span>
-      <h2>Option Chain</h2>
-      <div className="option-chain-subtitle">
-       Live derivatives analytics · Angel One
+       {/* Redesigned Option Chain Header */}
+    <div className="oc-reference-header">
+
+     <div className="oc-reference-top">
+
+      <div className="oc-reference-title">
+       <span className="eyebrow">PULSE DERIVATIVES TERMINAL</span>
+       <h2>Option Chain</h2>
+       <span className="option-chain-status">
+        <span className={indexPrice ? 'dot live' : 'dot'} />
+        {indexPrice ? 'LIVE' : 'WAITING'}
+       </span>
       </div>
-     </div>
 
-     <div className="option-chain-status">
-      <span className={indexPrice ? 'dot live' : 'dot'} />
-      {indexPrice ? 'INDEX LIVE' : 'WAITING FOR INDEX'}
-     </div>
-    </div>
+      <div className="oc-reference-actions">
 
-    {/* Instrument and expiry */}
-    <div className="option-chain-toolbar">
-     <div className="option-chain-underlying">
-      {['NIFTY','BANKNIFTY'].map(name => (
-       <button
-        key={name}
-        className={underlying === name ? 'active' : ''}
-        onClick={() => setUnderlying(name)}
-       >
-        {name}
-       </button>
-      ))}
-     </div>
-
-  
-     
-
-     <button onClick={() => setRefreshKey(value => value + 1)}>
-      ↻ Refresh
-     </button>
-    </div>
-
-   
-    {/* Overview cards */}
-    <div className="option-chain-summary">
-
-     {/* Index LTP + mini chart */}
-     <div className="oc-metric oc-index-metric">
-      <div className="oc-index-value">
-       <div>
-        <span>INDEX LTP</span>
-        <b>{fmt(indexPrice || null)}</b>
+       <div className="option-chain-underlying">
+        {['NIFTY','BANKNIFTY'].map(name => (
+         <button
+          key={name}
+          className={underlying === name ? 'active' : ''}
+          onClick={() => setUnderlying(name)}
+         >
+          {name === 'NIFTY' ? 'NIFTY 50' : name}
+         </button>
+        ))}
        </div>
 
-       <svg
-        className="oc-index-sparkline"
-        viewBox="0 0 100 34"
-        preserveAspectRatio="none"
+       <div className="option-chain-tabs">
+        {tabButton('chain','Option Chain')}
+        {tabButton('oi','OI Analysis')}
+        {tabButton('greeks','Greeks')}
+        {tabButton('strategy','Strategy')}
+       </div>
+
+       <button
+        className="oc-header-refresh"
+        onClick={() => setRefreshKey(value => value + 1)}
        >
-        {sparklinePoints && (
-         <polyline
-          points={sparklinePoints}
-          fill="none"
-          stroke="#16c784"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-         />
-        )}
-       </svg>
+        ↻
+       </button>
+
       </div>
      </div>
 
-     {/* ATM Strike */}
-     <div className="oc-metric">
-      <span>ATM STRIKE</span>
-      <b>{fmt(atmStrike)}</b>
-     </div>
+     {/* Overview metrics */}
+     <div className="option-chain-summary">
 
-     {/* PCR */}
-     <div className="oc-metric">
-      <span>PCR (OI)</span>
-      <b>{fmt(pcr)}</b>
-     </div>
+      <div className="oc-metric oc-index-metric">
+       <div className="oc-index-value">
+        <div>
+         <span>INDEX LTP</span>
+         <b>{fmt(indexPrice || null)}</b>
+        </div>
 
-     {/* Max Pain */}
-     <div className="oc-metric">
-      <span>MAX PAIN</span>
-      <b>{fmt(maxPain?.strike)}</b>
-     </div>
+        <svg
+         className="oc-index-sparkline"
+         viewBox="0 0 100 34"
+         preserveAspectRatio="none"
+        >
+         {sparklinePoints && (
+          <polyline
+           points={sparklinePoints}
+           fill="none"
+           stroke="#16c784"
+           strokeWidth="2"
+           strokeLinecap="round"
+           strokeLinejoin="round"
+          />
+         )}
+        </svg>
+       </div>
+      </div>
 
-     {/* Call OI */}
-     <div className="oc-metric ce-metric">
-      <span>TOTAL CE OI</span>
-      <b>{fmtCompact(totalCE)}</b>
-     </div>
+      <div className="oc-metric">
+       <span>ATM STRIKE</span>
+       <b>{fmt(atmStrike)}</b>
+      </div>
 
-     {/* Put OI */}
-     <div className="oc-metric pe-metric">
-      <span>TOTAL PE OI</span>
-      <b>{fmtCompact(totalPE)}</b>
+      <div className="oc-metric">
+       <span>PCR (OI)</span>
+       <b>{fmt(pcr)}</b>
+      </div>
+
+      <div className="oc-metric">
+       <span>MAX PAIN</span>
+       <b>{fmt(maxPain?.strike)}</b>
+      </div>
+
+      <div className="oc-metric ce-metric">
+       <span>TOTAL CE OI</span>
+       <b>{fmtCompact(totalCE)}</b>
+      </div>
+
+      <div className="oc-metric pe-metric">
+       <span>TOTAL PE OI</span>
+       <b>{fmtCompact(totalPE)}</b>
+      </div>
+
      </div>
 
     </div>
-
-    {/* Tabs */}
-    <div className="option-chain-tabs">
-     {tabButton('chain','Option Chain')}
-     {tabButton('oi','OI Analytics')}
-     {tabButton('greeks','Greeks & IV')}
-     {tabButton('strategy','Strategy Builder')}
-    </div>
-
 
    {loading && <div className="option-chain-message">Loading market data...</div>}
 {tab === 'chain' && (
