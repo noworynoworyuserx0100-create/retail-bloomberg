@@ -1104,6 +1104,21 @@ h1 {
   margin: 0;
   padding: 10px;
 }
+.oc-expiry-summary {
+  min-width: 150px;
+}
+
+.oc-expiry-summary select {
+  width: 100%;
+  min-width: 130px;
+  margin-top: 6px;
+  padding: 7px 10px;
+  border: 1px solid rgba(148,163,184,.2);
+  border-radius: 8px;
+  background: var(--panel, #0d151d);
+  color: var(--text, #dce7e9);
+  font-size: 11px;
+}
 .option-chain-status {
   display: flex;
   align-items: center;
