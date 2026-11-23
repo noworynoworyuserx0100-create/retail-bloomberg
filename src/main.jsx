@@ -1,7 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react';
 import{createRoot}from'react-dom/client';
 import{createChart,ColorType,CandlestickSeries}from'lightweight-charts';
-import{Activity,Bell,BookOpen,BriefcaseBusiness,CalendarDays,ChartNoAxesCombined,ChevronDown,ChevronRight,Code2,Compass,Filter,Globe,Grid2X2,Layers3,LayoutDashboard,Menu,Moon,MoreHorizontal,Newspaper,Search,SlidersHorizontal,Sun,TrendingDown,TrendingUp,Zap}from'lucide-react';
+import{Activity,Bell,BookOpen,BriefcaseBusiness,CalendarDays,ChartNoAxesCombined,ChevronDown,ChevronRight,Code2,Compass,Filter,Globe,Grid2X2,Layers3,LayoutDashboard,Maximize2,Minimize2,Menu,Moon,MoreHorizontal,Newspaper,Search,SlidersHorizontal,Sun,TrendingDown,TrendingUp,Zap}from'lucide-react';
 import './style.css';
 import StrategyStudio from './strategy/StrategyStudio';
 import { generateDailyLevels } from './strategy/dailyLevelsEngine';
@@ -1040,6 +1040,7 @@ function OptionChain({ ticks }) {
 function App(){
  const [active,setActive]=useState('Dashboard');
  const [dark,setDark]=useState(true);
+ const [chartFullscreen,setChartFullscreen]=useState(false);
  const [search,setSearch]=useState('');
  const [feedStatus,setFeedStatus]=useState('Connecting...');
  const [ticks,setTicks]=useState({});
@@ -1336,9 +1337,17 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
 
      
 
-     <div className="dashboard-grid">
+          <div className={`dashboard-grid ${chartFullscreen?'charts-expanded':''}`}>
   
 <section className="panel chart-panel">
+ <button
+ className="chart-expand-button"
+ onClick={()=>setChartFullscreen(v=>!v)}
+ title={chartFullscreen?'Restore dashboard layout':'Expand charts'}
+>
+ {chartFullscreen?<Minimize2 size={18}/>:<Maximize2 size={18}/>}
+ {chartFullscreen?'Restore layout':'Expand charts'}
+</button>
 <div style={{
   display:'grid',
   gridTemplateColumns:'repeat(2,minmax(0,1fr))',
@@ -1398,7 +1407,7 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
 </section>
 
 
-      <section className="panel news-panel">
+            <section className={`panel news-panel ${chartFullscreen?'news-hidden':''}`}>
        <div className="panel-heading">
         <div><span className="eyebrow">MARKET PULSE</span><h2>Latest headlines</h2></div>
         <button className="text-button" onClick={()=>setActive('News')}>View all <ChevronRight size={14}/></button>
