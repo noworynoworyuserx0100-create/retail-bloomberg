@@ -1117,12 +1117,13 @@ h1 {
 .oc-reference-actions {
   flex-wrap: nowrap;
   min-width: 0;
-  gap: 6px;
+  gap: 28px;
 }
 
 .oc-reference-actions .option-chain-tabs {
   flex-wrap: nowrap;
   overflow: visible;
+  margin-left: 20px;
 }
 
 .oc-reference-actions .option-chain-underlying button,
