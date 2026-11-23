@@ -2105,3 +2105,44 @@ h1 {
   font-size: 8px;
   white-space: nowrap;
 }
+/* PULSE — EXPAND DUAL CHARTS */
+.charts-expanded {
+  grid-template-columns: minmax(0,1fr) !important;
+}
+
+.charts-expanded .chart-panel {
+  position: relative;
+}
+
+.charts-expanded .news-hidden {
+  display: none !important;
+}
+
+.charts-expanded .chart {
+  height: 75vh !important;
+}
+
+.chart-expand-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 0 0 12px auto;
+  padding: 8px 12px;
+  border: 1px solid #263840;
+  border-radius: 7px;
+  background: #101e25;
+  color: #dce7e9;
+  font-size: 11px;
+}
+
+.chart-expand-button:hover {
+  border-color: #00d68b;
+  color: #00d68b;
+}
+
+@media (max-width: 760px) {
+  .charts-expanded .chart {
+    height: 60vh !important;
+  }
+}
