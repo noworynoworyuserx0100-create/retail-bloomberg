@@ -1130,6 +1130,27 @@ h1 {
   white-space: nowrap;
 }
 
+/* Visible underlying switch buttons */
+.oc-reference-actions .option-chain-underlying button {
+  background: #111a24;
+  color: #a8b7c7;
+  border: 1px solid rgba(148,163,184,.25);
+}
+
+/* Selected underlying */
+.oc-reference-actions .option-chain-underlying button.active {
+  background: rgba(56,145,255,.18);
+  border: 1px solid #3891ff;
+  color: #64b5ff;
+}
+
+/* Header refresh button */
+.oc-header-refresh {
+  background: #111a24;
+  color: #64b5ff;
+  border: 1px solid rgba(56,145,255,.45);
+}
+
 .oc-reference-header {
   overflow-x: auto;
 }
