@@ -645,8 +645,7 @@ function OptionChain({ ticks }) {
 
      <div className="oc-reference-top">
 
-      <div className="oc-reference-title">
-       <span className="eyebrow">PULSE DERIVATIVES TERMINAL</span>
+           <div className="oc-reference-title">
        <h2>Option Chain</h2>
        <span className="option-chain-status">
         <span className={indexPrice ? 'dot live' : 'dot'} />
