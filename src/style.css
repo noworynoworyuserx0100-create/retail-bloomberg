@@ -1333,13 +1333,12 @@ h1 {
 }
 
 .ce-metric {
-  border-left: 2px solid #16c784;
+  border-left: 1px solid rgba(148,163,184,.13);
 }
 
 .pe-metric {
-  border-left: 2px solid #ea596b;
+  border-left: 1px solid rgba(148,163,184,.13);
 }
-
 .oc-index-metric {
   min-width: 0;
 }
