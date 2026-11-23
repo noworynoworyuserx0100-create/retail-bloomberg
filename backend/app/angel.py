@@ -112,7 +112,7 @@ class AngelFeed:
                     state.feed_status["message"] = (
                         f"Subscription error: {exc}"
                     )
-            self.subscribed.add((exchange, token, mode))
+            
 
     def _on_data(self, wsapp, message):
         # SmartWebSocketV2 SDK parses binary packets into a dictionary.
