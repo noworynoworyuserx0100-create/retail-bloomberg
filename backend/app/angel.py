@@ -10,15 +10,16 @@ from . import config, state
 EXCHANGE_TYPES = {"NSE": 1, "NFO": 2, "BSE": 3, "BFO": 4, "MCX": 5}
 
 class AngelFeed:
-    def __init__(self):
+      def __init__(self):
         self.smart = None
         self.ws = None
         self.thread = None
         self.lock = threading.Lock()
         self.subscribed = set()
+        self.pending = set()
+        self.connected = False
         self.jwt = None
         self.feed_token = None
-
     def start(self):
         if self.thread and self.thread.is_alive():
             return
@@ -55,23 +56,62 @@ class AngelFeed:
         except Exception as exc:
             state.feed_status.update(connected=False, message=f"Authentication/feed error: {exc}")
 
-    def _on_open(self, wsapp):
-        state.feed_status.update(connected=True, message="Angel One WebSocket connected")
-        # NIFTY 50 and BANKNIFTY index tokens; verify current instrument master before use.
+      def _on_open(self, wsapp):
+        self.connected = True
+        state.feed_status.update(
+            connected=True,
+            message="Angel One WebSocket connected"
+        )
+
+        # Index subscriptions
         self.subscribe("NSE", ["99926000", "99926009"], mode=1)
 
+        # Flush pending subscriptions after connection
+        self._flush_pending()
+
     def subscribe(self, exchange: str, tokens: list[str], mode: int = 1):
-        if not self.ws or exchange not in EXCHANGE_TYPES:
+        if exchange not in EXCHANGE_TYPES:
             return
-        fresh = [str(t) for t in tokens if (exchange, str(t), mode) not in self.subscribed]
-        if not fresh:
+
+        with self.lock:
+            for token in tokens:
+                item = (exchange, str(token), mode)
+                if item not in self.subscribed:
+                    self.pending.add(item)
+
+        if self.connected and self.ws:
+            self._flush_pending()
+
+    def _flush_pending(self):
+        if not self.connected or not self.ws:
             return
-        # One subscription mode per token is recommended by Angel One.
-        self.ws.subscribe(
-            "pulse-live", mode,
-            [{"exchangeType": EXCHANGE_TYPES[exchange], "tokens": fresh}]
-        )
-        for token in fresh:
+
+        with self.lock:
+            grouped = {}
+
+            for exchange, token, mode in list(self.pending):
+                grouped.setdefault((exchange, mode), []).append(token)
+
+            for (exchange, mode), tokens in grouped.items():
+                try:
+                    self.ws.subscribe(
+                        "pulse-live",
+                        mode,
+                        [{
+                            "exchangeType": EXCHANGE_TYPES[exchange],
+                            "tokens": tokens
+                        }]
+                    )
+
+                    for token in tokens:
+                        item = (exchange, token, mode)
+                        self.subscribed.add(item)
+                        self.pending.discard(item)
+
+                except Exception as exc:
+                    state.feed_status["message"] = (
+                        f"Subscription error: {exc}"
+                    )
             self.subscribed.add((exchange, token, mode))
 
     def _on_data(self, wsapp, message):
