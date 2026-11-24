@@ -317,9 +317,6 @@ function Chart({
  },[liveTick,symbol,timeframe]);
 
  return <div>
-  <div style={{color:'#00d68b',fontSize:'12px',marginBottom:'8px'}}>
-   {historyStatus}
-  </div>
   <div className="chart" ref={ref} style={{height:260}}/>
  </div>;
 }
