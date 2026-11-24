@@ -2195,3 +2195,49 @@ h1 {
     padding-top: 8px !important;
   }
 }
+/* PULSE — IMMERSIVE CHART WORKSPACE FULLSCREEN */
+
+.page-content:fullscreen,
+.page-content.chart-workspace-fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 8px 10px 24px !important;
+  background: #070c10 !important;
+}
+
+.page-content:fullscreen .charts-expanded,
+.page-content.chart-workspace-fullscreen .charts-expanded {
+  grid-template-columns: minmax(0,1fr) !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.page-content:fullscreen .charts-expanded .chart-panel,
+.page-content.chart-workspace-fullscreen .charts-expanded .chart-panel {
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 8px !important;
+}
+
+.page-content:fullscreen .charts-expanded .chart,
+.page-content.chart-workspace-fullscreen .charts-expanded .chart {
+  height: 72vh !important;
+}
+
+.page-content:fullscreen .charts-expanded .news-hidden,
+.page-content.chart-workspace-fullscreen .charts-expanded .news-hidden {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .page-content:fullscreen .charts-expanded .chart,
+  .page-content.chart-workspace-fullscreen .charts-expanded .chart {
+    height: 62vh !important;
+  }
+}
