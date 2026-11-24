@@ -1364,7 +1364,7 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
     </div>
    </div>
    <div className="chart-price">{nifty?fmt(nifty.price):'Waiting for live tick'}</div>
-   <div className="chart-subtitle">Live {niftyTimeframe} candles · NIFTY 50</div>
+  
    <Chart
   liveTick={nifty}
   symbol="NIFTY 50"
@@ -1387,7 +1387,7 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
     </div>
    </div>
    <div className="chart-price">{banknifty?fmt(banknifty.price):'Waiting for live tick'}</div>
-   <div className="chart-subtitle">Live {bankTimeframe} candles · BANKNIFTY</div>
+  
    <Chart
   liveTick={banknifty}
   symbol="BANKNIFTY"
