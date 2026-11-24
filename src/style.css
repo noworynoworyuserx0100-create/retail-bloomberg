@@ -2177,15 +2177,14 @@ h1 {
 .chart-panel {
   position: relative !important;
 }
-
 .chart-panel .chart-expand-button {
   position: absolute !important;
-  top: 8px !important;
+  bottom: 10px !important;
   right: 10px !important;
+  top: auto !important;
   z-index: 20 !important;
   margin: 0 !important;
 }
-
 /* REDUCE THE EXTRA SPACE IN THE CHART PANEL */
 .chart-panel {
   padding-top: 8px !important;
