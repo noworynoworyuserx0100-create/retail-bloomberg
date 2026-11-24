@@ -1038,6 +1038,30 @@ function App(){
  const [active,setActive]=useState('Dashboard');
  const [dark,setDark]=useState(true);
  const [chartFullscreen,setChartFullscreen]=useState(false);
+  const pageContentRef=useRef(null);
+
+ useEffect(()=>{
+  const syncFullscreen=()=>setChartFullscreen(Boolean(document.fullscreenElement));
+  document.addEventListener('fullscreenchange',syncFullscreen);
+  return()=>document.removeEventListener('fullscreenchange',syncFullscreen);
+ },[]);
+
+ const toggleChartFullscreen=async()=>{
+  const target=pageContentRef.current;
+  if(!target)return;
+  try{
+   if(document.fullscreenElement){
+    await document.exitFullscreen();
+   }else if(target.requestFullscreen){
+    await target.requestFullscreen();
+   }else{
+    setChartFullscreen(v=>!v);
+   }
+  }catch(error){
+   console.error('Fullscreen toggle failed:',error);
+   setChartFullscreen(v=>!v);
+  }
+ };
  const [search,setSearch]=useState('');
  const [feedStatus,setFeedStatus]=useState('Connecting...');
  const [ticks,setTicks]=useState({});
@@ -1326,7 +1350,7 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
   );
  })}
 </section>
-   <div className="page-content">
+   <div ref={pageContentRef} className={`page-content ${chartFullscreen ? "chart-workspace-fullscreen" : ""}`}>
     
 
     {active==='Dashboard'?<>
@@ -1339,7 +1363,7 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
 <section className="panel chart-panel">
  <button
  className="chart-expand-button"
- onClick={()=>setChartFullscreen(v=>!v)}
+ onClick={toggleChartFullscreen}
  title={chartFullscreen?'Restore dashboard layout':'Expand charts'}
 >
  {chartFullscreen?<Minimize2 size={18}/>:<Maximize2 size={18}/>}
