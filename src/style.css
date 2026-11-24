@@ -2146,3 +2146,18 @@ h1 {
     height: 60vh !important;
   }
 }
+/* EXPANDED CHART LAYOUT — REMOVE TOP GAP */
+.charts-expanded {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  align-items: start !important;
+}
+
+.charts-expanded .chart-panel {
+  margin-top: 0 !important;
+  padding-top: 10px !important;
+}
+
+.charts-expanded .chart-expand-button {
+  margin-bottom: 5px !important;
+}
