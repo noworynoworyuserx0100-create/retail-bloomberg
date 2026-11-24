@@ -2146,7 +2146,7 @@ h1 {
     height: 60vh !important;
   }
 }
-/* EXPANDED CHART LAYOUT — REMOVE TOP GAP */
+/* EXPANDED CHART LAYOUT — COMPACT TOP SPACE */
 .charts-expanded {
   margin-top: 0 !important;
   padding-top: 0 !important;
@@ -2155,9 +2155,9 @@ h1 {
 
 .charts-expanded .chart-panel {
   margin-top: 0 !important;
-  padding-top: 10px !important;
+  padding-top: 8px !important;
 }
 
 .charts-expanded .chart-expand-button {
-  margin-bottom: 5px !important;
+  margin: 0 0 0 auto !important;
 }
