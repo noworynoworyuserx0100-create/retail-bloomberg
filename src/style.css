@@ -2161,3 +2161,38 @@ h1 {
 .charts-expanded .chart-expand-button {
   margin: 0 0 0 auto !important;
 }
+
+/* PULSE — REMOVE EXCESS SPACE ABOVE CHARTS */
+@media (min-width: 761px) {
+  .page-content {
+    padding-top: 4px !important;
+  }
+
+  .index-ticker {
+    margin-bottom: 4px !important;
+  }
+}
+
+/* MOVE EXPAND/RESTORE CONTROL TO PANEL CORNER */
+.chart-panel {
+  position: relative !important;
+}
+
+.chart-panel .chart-expand-button {
+  position: absolute !important;
+  top: 8px !important;
+  right: 10px !important;
+  z-index: 20 !important;
+  margin: 0 !important;
+}
+
+/* REDUCE THE EXTRA SPACE IN THE CHART PANEL */
+.chart-panel {
+  padding-top: 8px !important;
+}
+
+@media (max-width: 760px) {
+  .page-content {
+    padding-top: 8px !important;
+  }
+}
