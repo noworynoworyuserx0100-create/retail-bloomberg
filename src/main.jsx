@@ -1713,7 +1713,7 @@ const [bankTimeframe,setBankTimeframe]=useState('1m');
 
    
 
-    </>:active==='Strategy Studio'?<StrategyStudio/>:<section className="panel section-placeholder">
+    </>:active==='Premarket'?<PremarketUI/>:active==='Strategy Studio'?<StrategyStudio/>:<section className="panel section-placeholder">
       <div className="placeholder-icon"><Activity size={28}/></div>
       <h2>{active}</h2>
       <p>This workspace section is being connected to verified market data.</p>
