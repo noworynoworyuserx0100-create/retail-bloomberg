@@ -1178,49 +1178,98 @@ function PremarketUI(){
     </div>
    </section>
 
-   <section className="premarket-panel premarket-wide">
-    <span className="eyebrow">DERIVATIVES POSITIONING</span>
-    <h3>NIFTY &amp; BANKNIFTY</h3>
+     <section className="premarket-panel premarket-wide premarket-news-intel">
+    <span className="eyebrow">GLOBAL CUES</span>
+    <h3>Global developments influencing India</h3>
 
-    <div className="premarket-derivatives">
-     <div>
-      <span>PCR (OI)</span>
-      <strong>—</strong>
+    <div className="premarket-trigger-list">
+     <div className="premarket-trigger-item">
+      <div className="premarket-trigger-top">
+       <span className="premarket-trigger-category">GLOBAL MARKETS</span>
+       <span className="premarket-impact">Impact pending</span>
+      </div>
+      <strong>Overnight market developments</strong>
+      <p>Global indices, overnight risk sentiment and major market moves.</p>
      </div>
-     <div>
-      <span>MAX PAIN</span>
-      <strong>—</strong>
+
+     <div className="premarket-trigger-item">
+      <div className="premarket-trigger-top">
+       <span className="premarket-trigger-category">MACRO &amp; CENTRAL BANKS</span>
+       <span className="premarket-impact">Impact pending</span>
+      </div>
+      <strong>Fed, yields and economic releases</strong>
+      <p>Rate expectations, inflation, bond yields and macroeconomic signals.</p>
      </div>
-     <div>
-      <span>CALL OI</span>
-      <strong>—</strong>
+
+     <div className="premarket-trigger-item">
+      <div className="premarket-trigger-top">
+       <span className="premarket-trigger-category">COMMODITIES &amp; FX</span>
+       <span className="premarket-impact">Impact pending</span>
+      </div>
+      <strong>Oil, gold, dollar and currency movements</strong>
+      <p>Commodity and currency moves with potential impact on Indian sectors.</p>
      </div>
-     <div>
-      <span>PUT OI</span>
-      <strong>—</strong>
+
+     <div className="premarket-trigger-item">
+      <div className="premarket-trigger-top">
+       <span className="premarket-trigger-category">GEOPOLITICS &amp; TRADE</span>
+       <span className="premarket-impact">Impact pending</span>
+      </div>
+      <strong>Global policy and geopolitical developments</strong>
+      <p>Trade, conflict, sanctions, tariffs and major international events.</p>
      </div>
     </div>
 
-    <p style={muted}>
-     Strike positioning, OI concentration, volume and
-     volatility analysis will be connected later.
-    </p>
+    <div className="premarket-trigger-footer">
+     Global news feed not connected · No live headlines displayed
+    </div>
    </section>
 
-   <section className="premarket-panel">
-    <span className="eyebrow">KEY LEVELS</span>
-    <h3>Market Structure</h3>
+   <section className="premarket-panel premarket-wide premarket-news-intel">
+    <span className="eyebrow">DOMESTIC TRIGGERS</span>
+    <h3>India developments influencing today's market</h3>
 
-    {levels.map(([name,...items])=>(
-     <div key={name} className="premarket-level-group">
-      <strong>{name}</strong>
-      <div className="premarket-levels">
-       {items.map((item,i)=>(
-        <span key={i}>{item}</span>
-       ))}
+    <div className="premarket-trigger-list">
+     <div className="premarket-trigger-item">
+      <div className="premarket-trigger-top">
+       <span className="premarket-trigger-category">ECONOMY &amp; POLICY</span>
+       <span className="premarket-impact">Impact pending</span>
       </div>
+      <strong>Economic data and government announcements</strong>
+      <p>Inflation, GDP, fiscal policy, taxation and government decisions.</p>
      </div>
-    ))}
+
+     <div className="premarket-trigger-item">
+      <div className="premarket-trigger-top">
+       <span className="premarket-trigger-category">CORPORATE</span>
+       <span className="premarket-impact">Impact pending</span>
+      </div>
+      <strong>Major corporate announcements</strong>
+      <p>Results, orders, mergers, management updates and material disclosures.</p>
+     </div>
+
+     <div className="premarket-trigger-item">
+      <div className="premarket-trigger-top">
+       <span className="premarket-trigger-category">REGULATORY</span>
+       <span className="premarket-impact">Impact pending</span>
+      </div>
+      <strong>RBI, SEBI and regulatory developments</strong>
+      <p>Policy changes, circulars, regulations and regulatory decisions.</p>
+     </div>
+
+     <div className="premarket-trigger-item">
+      <div className="premarket-trigger-top">
+       <span className="premarket-trigger-category">FLOWS &amp; MARKET EVENTS</span>
+       <span className="premarket-impact">Impact pending</span>
+      </div>
+      <strong>Institutional flows and India-specific events</strong>
+      <p>FII/DII activity, major domestic events and market-specific catalysts.</p>
+     </div>
+    </div>
+
+    <div className="premarket-trigger-footer">
+     India news feed not connected · No live headlines displayed
+    </div>
    </section>
 
    <section className="premarket-panel">
