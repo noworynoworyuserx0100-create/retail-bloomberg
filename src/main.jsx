@@ -1033,7 +1033,244 @@ function OptionChain({ ticks }) {
   </section>
  );
 }
+function PremarketUI(){
+ const panel={
+  background:'linear-gradient(145deg,#0d171d,#0a1116)',
+  border:'1px solid #20323a',
+  borderRadius:14,
+  padding:16
+ };
+ const muted={color:'#91a2a9',fontSize:11};
+ const green={color:'#00d68b'};
+ const red={color:'#ff6572'};
 
+ const markets=[
+  ['🇺🇸','S&P 500','+0.74%'],
+  ['🇺🇸','NASDAQ','+0.92%'],
+  ['🇺🇸','DOW JONES','+0.61%'],
+  ['🇯🇵','NIKKEI','+0.68%'],
+  ['🇭🇰','HANG SENG','+0.39%'],
+  ['🇪🇺','DAX','+0.32%']
+ ];
+
+ const indicators=[
+  ['INDIA VIX','—'],
+  ['USD / INR','—'],
+  ['CRUDE OIL','—'],
+  ['GOLD','—'],
+  ['DXY','—'],
+  ['US 10Y','—']
+ ];
+
+ const levels=[
+  ['NIFTY 50','R1','—','R2','—','S1','—','S2','—'],
+  ['BANKNIFTY','R1','—','R2','—','S1','—','S2','—']
+ ];
+
+ return <div className="premarket-workspace">
+
+  <div className="premarket-heading">
+   <div>
+    <span className="eyebrow">PULSE INTELLIGENCE</span>
+    <h1>Pre-Market Intelligence</h1>
+    <p style={muted}>
+     Evidence-driven market outlook before the opening bell
+    </p>
+   </div>
+   <div className="premarket-tag">
+    PRE-MARKET ANALYSIS
+   </div>
+  </div>
+
+  <div className="premarket-grid">
+
+   <section className="premarket-bias-card">
+    <div className="eyebrow">OVERALL MARKET BIAS</div>
+    <h2>Awaiting data</h2>
+    <p>
+     Market outlook will be generated after data
+     integration and signal analysis.
+    </p>
+
+    <div className="premarket-scenarios">
+     <div>
+      <span style={green}>▲ Bullish</span>
+      <strong>—</strong>
+     </div>
+     <div>
+      <span style={{color:'#f5c451'}}>↔ Range</span>
+      <strong>—</strong>
+     </div>
+     <div>
+      <span style={red}>▼ Bearish</span>
+      <strong>—</strong>
+     </div>
+    </div>
+   </section>
+
+   <section className="premarket-panel">
+    <div className="eyebrow">EXPECTED OPENING</div>
+    <h3>NIFTY 50</h3>
+    <div className="premarket-value">—</div>
+    <p style={muted}>Expected opening range</p>
+   </section>
+
+   <section className="premarket-panel">
+    <div className="eyebrow">EXPECTED OPENING</div>
+    <h3>BANKNIFTY</h3>
+    <div className="premarket-value">—</div>
+    <p style={muted}>Expected opening range</p>
+   </section>
+
+   <section className="premarket-panel premarket-wide">
+    <div className="panel-heading">
+     <div>
+      <span className="eyebrow">GLOBAL MARKETS</span>
+      <h3>Overnight performance</h3>
+     </div>
+    </div>
+
+    <div className="premarket-market-list">
+     {markets.map(([flag,name,value])=>(
+      <div className="premarket-market-row" key={name}>
+       <span>{flag} {name}</span>
+       <strong className={value.startsWith('-')?'negative':'positive'}>
+        {value}
+       </strong>
+      </div>
+     ))}
+    </div>
+    <div className="demo-note">
+     UI preview · Live data not connected
+    </div>
+   </section>
+
+   <section className="premarket-panel">
+    <span className="eyebrow">GLOBAL TRANSMISSION</span>
+    <h3>Risk indicators</h3>
+
+    {indicators.map(([name,value])=>(
+     <div className="premarket-market-row" key={name}>
+      <span>{name}</span>
+      <strong>{value}</strong>
+     </div>
+    ))}
+   </section>
+
+   <section className="premarket-panel">
+    <span className="eyebrow">INSTITUTIONAL ACTIVITY</span>
+    <h3>FII / DII</h3>
+
+    <div className="premarket-flow-row">
+     <span>FII Cash</span>
+     <strong>—</strong>
+    </div>
+    <div className="premarket-flow-row">
+     <span>DII Cash</span>
+     <strong>—</strong>
+    </div>
+    <div className="premarket-flow-row">
+     <span>FII F&amp;O</span>
+     <strong>—</strong>
+    </div>
+    <div className="demo-note">
+     Awaiting verified data
+    </div>
+   </section>
+
+   <section className="premarket-panel premarket-wide">
+    <span className="eyebrow">DERIVATIVES POSITIONING</span>
+    <h3>NIFTY &amp; BANKNIFTY</h3>
+
+    <div className="premarket-derivatives">
+     <div>
+      <span>PCR (OI)</span>
+      <strong>—</strong>
+     </div>
+     <div>
+      <span>MAX PAIN</span>
+      <strong>—</strong>
+     </div>
+     <div>
+      <span>CALL OI</span>
+      <strong>—</strong>
+     </div>
+     <div>
+      <span>PUT OI</span>
+      <strong>—</strong>
+     </div>
+    </div>
+
+    <p style={muted}>
+     Strike positioning, OI concentration, volume and
+     volatility analysis will be connected later.
+    </p>
+   </section>
+
+   <section className="premarket-panel">
+    <span className="eyebrow">KEY LEVELS</span>
+    <h3>Market Structure</h3>
+
+    {levels.map(([name,...items])=>(
+     <div key={name} className="premarket-level-group">
+      <strong>{name}</strong>
+      <div className="premarket-levels">
+       {items.map((item,i)=>(
+        <span key={i}>{item}</span>
+       ))}
+      </div>
+     </div>
+    ))}
+   </section>
+
+   <section className="premarket-panel">
+    <span className="eyebrow">SECTOR INTELLIGENCE</span>
+    <h3>Sector outlook</h3>
+    <div className="premarket-empty">
+     Sector strength, relative performance and
+     rotation analysis
+    </div>
+   </section>
+
+   <section className="premarket-panel">
+    <span className="eyebrow">EVENT RISK</span>
+    <h3>Economic Calendar</h3>
+    <div className="premarket-empty">
+     Today's macro events, forecasts and risk windows
+    </div>
+   </section>
+
+   <section className="premarket-panel">
+    <span className="eyebrow">OVERNIGHT DEVELOPMENTS</span>
+    <h3>Pre-Market News</h3>
+    <div className="premarket-empty">
+     Verified news and market-impact analysis
+    </div>
+   </section>
+
+   <section className="premarket-ai-card">
+    <span className="eyebrow">✦ PULSE INTELLIGENCE</span>
+    <h3>Pre-Market Outlook</h3>
+    <p>
+     The analysis engine will synthesize global markets,
+     institutional positioning, derivatives, macro events,
+     volatility and market structure into a scenario-based
+     outlook after verified data sources are connected.
+    </p>
+    <div className="demo-note">
+     Analysis engine not connected
+    </div>
+   </section>
+
+  </div>
+
+  <div className="premarket-disclaimer">
+   UI preview only · No live market data or predictions
+   are currently generated in this workspace.
+  </div>
+
+ </div>;
+     }
 function App(){
  const [active,setActive]=useState('Dashboard');
  const [dark,setDark]=useState(true);
