@@ -9,8 +9,9 @@ import httpx
 
 CACHE_SECONDS = 300
 _cache = {}
+
 HEADERS = {
-    "User-Agent": "PulseTerminal/1.0 (Market Intelligence)"
+    "User-Agent": "PulseTerminal/1.0"
 }
 
 FEED_QUERIES = {
@@ -31,34 +32,35 @@ FEED_QUERIES = {
 GLOBAL_RELEVANCE = [
     "federal reserve", "fed", "treasury yield", "us bond",
     "wall street", "s&p 500", "nasdaq", "dow jones",
-    "china", "pbo c", "boj", "bank of japan",
-    "europe", "european central bank", "ecb",
-    "crude oil", "oil price", "opec", "gold",
-    "dollar", "usd", "geopolitical", "war", "tariff",
-    "trade war", "sanctions", "global market",
-    "inflation", "interest rate", "bond yield",
-    "vix", "volatility", "risk sentiment",
+    "china", "boj", "bank of japan", "europe",
+    "european central bank", "ecb", "crude oil",
+    "oil price", "opec", "gold", "dollar", "usd",
+    "geopolitical", "war", "tariff", "trade war",
+    "sanctions", "global market", "inflation",
+    "interest rate", "bond yield", "vix",
+    "volatility", "risk sentiment",
 ]
 
 DOMESTIC_RELEVANCE = [
-    "india", "indian", "nifty", "bank nifty", "banknifty",
-    "sensex", "nse", "bse", "rbi", "reserve bank",
-    "sebi", "government", "finance ministry",
-    "budget", "inflation", "gdp", "rupee",
-    "fii", "fpi", "dii", "earnings",
-    "corporate", "ipo", "policy", "tax",
-    "banking", "infrastructure", "india vix",
+    "india", "indian", "nifty", "bank nifty",
+    "banknifty", "sensex", "nse", "bse", "rbi",
+    "reserve bank", "sebi", "government",
+    "finance ministry", "budget", "inflation",
+    "gdp", "rupee", "fii", "fpi", "dii",
+    "earnings", "corporate", "ipo", "policy",
+    "tax", "banking", "infrastructure", "india vix",
 ]
 
 CATALYST_TERMS = {
     "MONETARY_POLICY": [
         "interest rate", "rate cut", "rate hike",
-        "federal reserve", "fed", "rbi", "monetary policy",
-        "policy rate", "repo rate",
+        "federal reserve", "fed", "rbi",
+        "monetary policy", "policy rate", "repo rate",
     ],
     "MACRO_DATA": [
-        "inflation", "cpi", "ppi", "gdp", "employment",
-        "jobs data", "manufacturing", "pmi", "economic data",
+        "inflation", "cpi", "ppi", "gdp",
+        "employment", "jobs data", "manufacturing",
+        "pmi", "economic data",
     ],
     "GEOPOLITICS": [
         "war", "conflict", "sanctions", "tariff",
@@ -86,12 +88,12 @@ CATALYST_TERMS = {
 
 SECTOR_KEYWORDS = {
     "BANKING": [
-        "bank", "rbi", "credit", "loan", "finance",
-        "nbfc", "interest rate",
+        "bank", "rbi", "credit", "loan",
+        "finance", "nbfc", "interest rate",
     ],
     "IT": [
         "software", "technology", "it services",
-        "artificial intelligence", "ai",
+        "artificial intelligence",
     ],
     "ENERGY": [
         "oil", "crude", "gas", "energy", "opec",
@@ -146,7 +148,7 @@ def _parse_datetime(value):
 
 
 def _clean_text(text):
-    text = text.lower()
+    text = str(text).lower()
     text = re.sub(r"[^a-z0-9\s]", " ", text)
     return re.sub(r"\s+", " ", text).strip()
 
@@ -165,13 +167,13 @@ def _keyword_matches(text, keywords):
 
 
 def _relevance_score(title, category):
-    if category == "global":
-        keywords = GLOBAL_RELEVANCE
-    else:
-        keywords = DOMESTIC_RELEVANCE
+    keywords = (
+        GLOBAL_RELEVANCE
+        if category == "global"
+        else DOMESTIC_RELEVANCE
+    )
 
     matched = _keyword_matches(title, keywords)
-
     score = min(40, len(matched) * 8)
 
     return score, matched
@@ -189,20 +191,16 @@ def _catalyst_analysis(title):
             matched_categories[catalyst] = matches
             total_matches += len(matches)
 
-    catalyst_score = min(30, total_matches * 10)
+    score = min(30, total_matches * 10)
 
-    if catalyst_score >= 20:
-        catalyst_level = "HIGH"
-    elif catalyst_score >= 10:
-        catalyst_level = "MEDIUM"
+    if score >= 20:
+        level = "HIGH"
+    elif score >= 10:
+        level = "MEDIUM"
     else:
-        catalyst_level = "LOW"
+        level = "LOW"
 
-    return (
-        catalyst_score,
-        catalyst_level,
-        matched_categories,
-    )
+    return score, level, matched_categories
 
 
 def _recency_score(published_at, now):
@@ -281,56 +279,18 @@ def _parse_feed(xml_text, category, query, now):
             else None
         )
 
-def _deduplicate(articles):
-    unique = []
+        source = (
+            source_node.text.strip()
+            if source_node is not None and source_node.text
+            else "Google News RSS"
+        )
 
-    for article in articles:
-        title = _clean_text(article["title"])
-
-        if not title:
-            continue
-
-        title_tokens = set(title.split())
-        duplicate_index = None
-
-        for index, existing in enumerate(unique):
-            existing_tokens = set(
-                _clean_text(existing["title"]).split()
-            )
-
-            if not title_tokens or not existing_tokens:
-                continue
-
-            overlap = len(title_tokens & existing_tokens)
-
-            similarity = overlap / max(
-                len(title_tokens | existing_tokens), 1
-            )
-
-            if (
-                title == _clean_text(existing["title"])
-                or similarity >= 0.72
-            ):
-                duplicate_index = index
-                break
-
-        if duplicate_index is None:
-            unique.append(article)
-        elif (
-            article["priority_score"]
-            > unique[duplicate_index]["priority_score"]
-        ):
-            unique[duplicate_index] = article
-
-    return unique
-
-        # STRICT NEWS FRESHNESS FILTER 
+        # Strict freshness validation.
         if not title or not link or not published_at:
             continue
 
         age_seconds = (now - published_at).total_seconds()
 
-        # Reject future-dated and stale articles.
         if age_seconds < -21600 or age_seconds > 48 * 3600:
             continue
 
@@ -354,11 +314,7 @@ def _deduplicate(articles):
         items.append({
             "title": title,
             "link": link,
-            "published_at": (
-                published_at.isoformat()
-                if published_at
-                else None
-            ),
+            "published_at": published_at.isoformat(),
             "age_hours": age_hours,
             "source": source,
             "category": category,
@@ -374,16 +330,16 @@ def _deduplicate(articles):
             "affected_sectors": _sector_matches(title),
             "impact_direction": "UNASSESSED",
             "direction_note": (
-                "Priority score measures relevance, catalyst "
-                "keywords and recency. It does not predict "
-                "price direction."
+                "Priority measures relevance, catalyst "
+                "keywords and recency. It is not a "
+                "price-direction prediction."
             ),
         })
 
     return items
 
 
-  def _deduplicate(articles):
+def _deduplicate(articles):
     unique = []
 
     for article in articles:
@@ -396,34 +352,34 @@ def _deduplicate(articles):
         duplicate_index = None
 
         for index, existing in enumerate(unique):
-            existing_tokens = set(
-                _clean_text(existing["title"]).split()
+            existing_title = _clean_text(
+                existing["title"]
             )
+            existing_tokens = set(existing_title.split())
 
             if not title_tokens or not existing_tokens:
                 continue
 
-            overlap = len(
-                title_tokens & existing_tokens
+            similarity = (
+                len(title_tokens & existing_tokens)
+                / max(len(title_tokens | existing_tokens), 1)
             )
 
-            similarity = overlap / max(
-                len(title_tokens | existing_tokens), 1
-            )
-
-            if title == _clean_text(existing["title"]) or similarity >= 0.72:
+            if title == existing_title or similarity >= 0.72:
                 duplicate_index = index
                 break
 
         if duplicate_index is None:
             unique.append(article)
+
         elif (
             article["priority_score"]
             > unique[duplicate_index]["priority_score"]
         ):
             unique[duplicate_index] = article
 
-    return unique     
+    return unique
+
 
 def get_premarket_news(category="all"):
     category = str(category).lower().strip()
@@ -484,7 +440,6 @@ def get_premarket_news(category="all"):
 
     result = _deduplicate(articles)
 
-    # Prioritize the highest scoring stories.
     result.sort(
         key=lambda item: (
             item["priority_score"],
@@ -493,25 +448,22 @@ def get_premarket_news(category="all"):
         reverse=True,
     )
 
-    # Retain a large set for API consumers.
-    # UI can later request a top-ranked subset.
     payload = {
         "category": category,
         "generated_at": now.isoformat(),
         "source_type": "Google News RSS aggregation",
         "scoring_model": (
-            "Relevance 0-40 + catalyst 0-30 + "
-            "recency 0-30"
+            "Relevance 0-40 + catalyst 0-30 + recency 0-30"
         ),
         "article_count": len(result),
         "articles": result,
         "errors": errors,
         "limitations": [
-            "News discovery currently uses Google News RSS.",
+            "News discovery uses Google News RSS.",
             "Priority scores are rule-based, not predictive.",
-            "Headline-only classification may miss article context.",
+            "Headline classification may miss article context.",
             "Impact direction has not been independently assessed.",
-            "RSS timestamps and availability may be delayed.",
+            "RSS availability and timestamps may be delayed.",
         ],
     }
 
