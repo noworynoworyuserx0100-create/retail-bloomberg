@@ -287,7 +287,7 @@ source = (
             else "Google News RSS"
         )       
 
-        # STRICT NEWS FRESHNESS FILTER
+        # STRICT NEWS FRESHNESS FILTER 
         if not title or not link or not published_at:
             continue
 
