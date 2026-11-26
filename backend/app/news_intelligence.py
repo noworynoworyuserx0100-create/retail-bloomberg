@@ -281,13 +281,20 @@ def _parse_feed(xml_text, category, query, now):
             else None
         )
 
-        source = (
+               source = (
             source_node.text.strip()
             if source_node is not None and source_node.text
             else "Google News RSS"
         )
 
-        if not title or not link:
+        # STRICT NEWS FRESHNESS FILTER
+        if not title or not link or not published_at:
+            continue
+
+        age_seconds = (now - published_at).total_seconds()
+
+        # Reject future-dated and stale articles.
+        if age_seconds < -21600 or age_seconds > 48 * 3600:
             continue
 
         relevance, relevance_matches = _relevance_score(
