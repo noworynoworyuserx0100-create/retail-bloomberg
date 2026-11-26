@@ -50,7 +50,19 @@ DOMESTIC_RELEVANCE = [
     "earnings", "corporate", "ipo", "policy",
     "tax", "banking", "infrastructure", "india vix",
 ]
-
+DOMESTIC_GATE_KEYWORDS = [
+    "india", "indian", "nifty", "bank nifty",
+    "banknifty", "sensex", "nse", "bse",
+    "rbi", "reserve bank of india", "sebi",
+    "rupee", "inr", "fii", "fpi", "dii",
+    "india vix", "national stock exchange",
+    "bombay stock exchange",
+    "reliance", "tata", "infosys", "tcs",
+    "hdfc", "icici", "sbi", "bharti airtel",
+    "adani", "wipro", "larsen", "lt",
+    "hindustan unilever", "maruti", "bajaj",
+    "kotak", "axis bank", "indusind",
+]
 CATALYST_TERMS = {
     "MONETARY_POLICY": [
         "interest rate", "rate cut", "rate hike",
@@ -164,7 +176,13 @@ def _keyword_matches(text, keywords):
             matched.append(keyword)
 
     return matched
-
+def _is_domestic_relevant(title):
+    return bool(
+        _keyword_matches(
+            title,
+            DOMESTIC_GATE_KEYWORDS
+        )
+    )
 
 def _relevance_score(title, category):
     keywords = (
@@ -293,7 +311,8 @@ def _parse_feed(xml_text, category, query, now):
 
         if age_seconds < -21600 or age_seconds > 48 * 3600:
             continue
-
+        if category == "domestic" and not _is_domestic_relevant(title):
+            continue
         relevance, relevance_matches = _relevance_score(
             title, category
         )
