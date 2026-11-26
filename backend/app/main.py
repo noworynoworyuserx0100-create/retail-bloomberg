@@ -13,7 +13,7 @@ from .instrument_master import (
     get_available_expiries,
     get_option_contracts,
 )
-
+from .news_intelligence import get_premarket_news
 
 IST = ZoneInfo("Asia/Kolkata")
 
@@ -444,3 +444,31 @@ async def option_greeks(
             detail="Unable to retrieve option Greeks from Angel One"
         )
 
+@app.get("/api/v1/premarket/news")
+async def premarket_news(category: str = "all"):
+    category = category.strip().lower()
+
+    if category not in {"all", "global", "domestic"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Category must be all, global or domestic"
+        )
+
+    try:
+        result = await run_in_threadpool(
+            get_premarket_news,
+            category
+        )
+        return result
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc)
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to retrieve pre-market news"
+        )
