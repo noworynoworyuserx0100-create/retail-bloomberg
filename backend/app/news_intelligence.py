@@ -281,11 +281,48 @@ def _parse_feed(xml_text, category, query, now):
             else None
         )
 
-source = (
-            source_node.text.strip()
-            if source_node is not None and source_node.text
-            else "Google News RSS"
-        )       
+def _deduplicate(articles):
+    unique = []
+
+    for article in articles:
+        title = _clean_text(article["title"])
+
+        if not title:
+            continue
+
+        title_tokens = set(title.split())
+        duplicate_index = None
+
+        for index, existing in enumerate(unique):
+            existing_tokens = set(
+                _clean_text(existing["title"]).split()
+            )
+
+            if not title_tokens or not existing_tokens:
+                continue
+
+            overlap = len(title_tokens & existing_tokens)
+
+            similarity = overlap / max(
+                len(title_tokens | existing_tokens), 1
+            )
+
+            if (
+                title == _clean_text(existing["title"])
+                or similarity >= 0.72
+            ):
+                duplicate_index = index
+                break
+
+        if duplicate_index is None:
+            unique.append(article)
+        elif (
+            article["priority_score"]
+            > unique[duplicate_index]["priority_score"]
+        ):
+            unique[duplicate_index] = article
+
+    return unique
 
         # STRICT NEWS FRESHNESS FILTER 
         if not title or not link or not published_at:
