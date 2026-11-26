@@ -50,18 +50,28 @@ DOMESTIC_RELEVANCE = [
     "earnings", "corporate", "ipo", "policy",
     "tax", "banking", "infrastructure", "india vix",
 ]
-DOMESTIC_GATE_KEYWORDS = [
+DOMESTIC_STRONG_ANCHORS = [
     "india", "indian", "nifty", "bank nifty",
     "banknifty", "sensex", "nse", "bse",
     "rbi", "reserve bank of india", "sebi",
     "rupee", "inr", "fii", "fpi", "dii",
     "india vix", "national stock exchange",
     "bombay stock exchange",
+]
+
+DOMESTIC_COMPANY_ANCHORS = [
     "reliance", "tata", "infosys", "tcs",
     "hdfc", "icici", "sbi", "bharti airtel",
-    "adani", "wipro", "larsen", "lt",
-    "hindustan unilever", "maruti", "bajaj",
-    "kotak", "axis bank", "indusind",
+    "adani", "wipro", "larsen", "hindustan unilever",
+    "maruti", "bajaj", "kotak", "axis bank",
+    "indusind",
+]
+
+FOREIGN_MACRO_TERMS = [
+    "us pce", "pce inflation", "us gdp",
+    "us cpi", "fed rate", "federal reserve",
+    "treasury yields", "wall street",
+    "american economy", "united states inflation",
 ]
 CATALYST_TERMS = {
     "MONETARY_POLICY": [
@@ -176,13 +186,47 @@ def _keyword_matches(text, keywords):
             matched.append(keyword)
 
     return matched
-def _is_domestic_relevant(title):
-    return bool(
-        _keyword_matches(
-            title,
-            DOMESTIC_GATE_KEYWORDS
-        )
+def _is_domestic_relevant(title, source=""):
+    cleaned_title = _clean_text(title)
+
+    # Remove the publisher suffix if present in the headline.
+    cleaned_source = _clean_text(source)
+
+    if cleaned_source:
+        cleaned_title = re.sub(
+            r"\s*-\s*" + re.escape(cleaned_source) + r"$",
+            "",
+            cleaned_title,
+        ).strip()
+
+    strong_matches = _keyword_matches(
+        cleaned_title,
+        DOMESTIC_STRONG_ANCHORS,
     )
+
+    company_matches = _keyword_matches(
+        cleaned_title,
+        DOMESTIC_COMPANY_ANCHORS,
+    )
+
+    foreign_macro_matches = _keyword_matches(
+        cleaned_title,
+        FOREIGN_MACRO_TERMS,
+    )
+
+    # Explicit Indian market context takes priority.
+    if strong_matches:
+        return True
+
+    # Reject US/global macro headlines without Indian context.
+    if foreign_macro_matches:
+        return False
+
+    # Company anchor alone is not sufficient.
+    if company_matches:
+        return True
+
+    return False
 
 def _relevance_score(title, category):
     keywords = (
@@ -311,7 +355,7 @@ def _parse_feed(xml_text, category, query, now):
 
         if age_seconds < -21600 or age_seconds > 48 * 3600:
             continue
-        if category == "domestic" and not _is_domestic_relevant(title):
+        if category == "domestic" and not _is_domestic_relevant(title, source):
             continue
         relevance, relevance_matches = _relevance_score(
             title, category
