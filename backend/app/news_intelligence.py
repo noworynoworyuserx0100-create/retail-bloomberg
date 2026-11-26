@@ -346,25 +346,47 @@ def _parse_feed(xml_text, category, query, now):
     return items
 
 
-def _deduplicate(articles):
-    unique = {}
+  def _deduplicate(articles):
+    unique = []
 
     for article in articles:
-        key = _clean_text(article["title"])
+        title = _clean_text(article["title"])
 
-        if not key:
+        if not title:
             continue
 
-        existing = unique.get(key)
+        title_tokens = set(title.split())
+        duplicate_index = None
 
-        if existing is None or (
+        for index, existing in enumerate(unique):
+            existing_tokens = set(
+                _clean_text(existing["title"]).split()
+            )
+
+            if not title_tokens or not existing_tokens:
+                continue
+
+            overlap = len(
+                title_tokens & existing_tokens
+            )
+
+            similarity = overlap / max(
+                len(title_tokens | existing_tokens), 1
+            )
+
+            if title == _clean_text(existing["title"]) or similarity >= 0.72:
+                duplicate_index = index
+                break
+
+        if duplicate_index is None:
+            unique.append(article)
+        elif (
             article["priority_score"]
-            > existing["priority_score"]
+            > unique[duplicate_index]["priority_score"]
         ):
-            unique[key] = article
+            unique[duplicate_index] = article
 
-    return list(unique.values())
-
+    return unique     
 
 def get_premarket_news(category="all"):
     category = str(category).lower().strip()
