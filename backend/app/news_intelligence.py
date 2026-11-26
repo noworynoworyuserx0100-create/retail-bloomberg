@@ -281,7 +281,7 @@ def _parse_feed(xml_text, category, query, now):
             else None
         )
 
-               source = (
+source = (
             source_node.text.strip()
             if source_node is not None and source_node.text
             else "Google News RSS"
