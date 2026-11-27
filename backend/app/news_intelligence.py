@@ -10,9 +10,7 @@ import httpx
 CACHE_SECONDS = 300
 _cache = {}
 
-HEADERS = {
-    "User-Agent": "PulseTerminal/1.0"
-}
+HEADERS = {"User-Agent": "PulseTerminal/2.0"}
 
 FEED_QUERIES = {
     "global": [
@@ -156,12 +154,44 @@ SECTOR_KEYWORDS = {
     ],
 }
 
+POSITIVE_TERMS = [
+    "beats estimates", "beat estimates", "profit rises",
+    "profit increased", "revenue rises", "revenue increased",
+    "record profit", "strong earnings", "strong growth",
+    "rate cut", "cuts rates", "lower interest rates",
+    "approval granted", "wins order", "order win",
+    "contract awarded", "debt reduced", "upgrade",
+    "upgraded", "buyback", "dividend announced",
+    "bullish", "surges", "rally", "rallies",
+    "inflation falls", "inflation eased",
+    "positive outlook", "strong demand",
+]
+
+NEGATIVE_TERMS = [
+    "misses estimates", "missed estimates",
+    "profit falls", "profit declined", "profit drops",
+    "revenue falls", "revenue declined",
+    "loss widens", "weak earnings", "downgrade",
+    "downgraded", "default", "fraud", "investigation",
+    "penalty", "fine imposed", "ban imposed",
+    "rate hike", "raises rates", "higher interest rates",
+    "bearish", "crash", "selloff", "sell-off",
+    "inflation rises", "inflation surged",
+    "negative outlook", "debt crisis",
+    "layoffs", "job cuts", "sanctions",
+]
+
+AMBIGUOUS_TERMS = [
+    "tariff", "trade war", "war", "conflict",
+    "geopolitical", "uncertainty", "volatility",
+    "mixed signals", "mixed results",
+]
+
 
 def _google_news_url(query):
-    encoded = quote(query)
     return (
         "https://news.google.com/rss/search?q="
-        f"{encoded}&hl=en-IN&gl=IN&ceid=IN:en"
+        f"{quote(query)}&hl=en-IN&gl=IN&ceid=IN:en"
     )
 
 
@@ -212,7 +242,6 @@ def _classify_market_news(title, source=""):
     cleaned_title = _clean_text(title)
     cleaned_source = _clean_text(source)
 
-    # Remove publisher suffix if present.
     if cleaned_source:
         cleaned_title = re.sub(
             r"\s*-\s*" + re.escape(cleaned_source) + r"$",
@@ -235,15 +264,9 @@ def _classify_market_news(title, source=""):
         GLOBAL_IMPACT_TERMS,
     )
 
-    # Direct Indian-market context.
-    if india_matches:
+    if india_matches or company_matches:
         return "INDIA"
 
-    # Indian company-specific headlines.
-    if company_matches:
-        return "INDIA"
-
-    # Global events with potential Indian-market relevance.
     if global_matches:
         return "GLOBAL_IMPACT"
 
@@ -325,12 +348,42 @@ def _sector_matches(title):
     return matched
 
 
+def _assess_direction(title):
+    text = _clean_text(title)
+
+    positive = _keyword_matches(text, POSITIVE_TERMS)
+    negative = _keyword_matches(text, NEGATIVE_TERMS)
+    ambiguous = _keyword_matches(text, AMBIGUOUS_TERMS)
+
+    if ambiguous:
+        direction = "MIXED"
+    elif positive and negative:
+        direction = "MIXED"
+    elif positive:
+        direction = "POTENTIALLY_POSITIVE"
+    elif negative:
+        direction = "POTENTIALLY_NEGATIVE"
+    else:
+        direction = "UNCLEAR"
+
+    return {
+        "impact_direction": direction,
+        "positive_evidence": positive,
+        "negative_evidence": negative,
+        "ambiguity_flags": ambiguous,
+        "direction_note": (
+            "Headline keyword assessment only. "
+            "Not verified causal analysis or a price prediction."
+        ),
+    }
+
+
 def _priority_label(score):
-    if score >= 70:
+    if score >= 75:
         return "TOP PRIORITY"
-    elif score >= 50:
+    elif score >= 55:
         return "HIGH"
-    elif score >= 30:
+    elif score >= 35:
         return "MEDIUM"
     return "LOW"
 
@@ -369,7 +422,6 @@ def _parse_feed(xml_text, category, query, now):
             else "Google News RSS"
         )
 
-        # Strict freshness validation.
         if not title or not link or not published_at:
             continue
 
@@ -378,20 +430,23 @@ def _parse_feed(xml_text, category, query, now):
         if age_seconds < -21600 or age_seconds > 48 * 3600:
             continue
 
-        # Classify market relevance.
-        market_classification = _classify_market_news(
+        classification = _classify_market_news(
             title,
             source,
         )
 
-        # Reject irrelevant headlines.
-        if market_classification == "IRRELEVANT":
+        if classification == "IRRELEVANT":
             continue
 
-        # Reject non-Indian news from domestic feeds.
         if (
             category == "domestic"
-            and market_classification == "GLOBAL_IMPACT"
+            and classification == "GLOBAL_IMPACT"
+        ):
+            continue
+
+        if (
+            category == "global"
+            and classification == "INDIA"
         ):
             continue
 
@@ -409,10 +464,7 @@ def _parse_feed(xml_text, category, query, now):
             now,
         )
 
-        total_score = min(
-            100,
-            relevance + catalyst_score + recency,
-        )
+        direction = _assess_direction(title)
 
         items.append({
             "title": title,
@@ -421,7 +473,7 @@ def _parse_feed(xml_text, category, query, now):
             "age_hours": age_hours,
             "source": source,
             "category": category,
-            "market_classification": market_classification,
+            "market_classification": classification,
             "query": query,
             "relevance_score": relevance,
             "relevance_keywords": relevance_matches,
@@ -429,15 +481,15 @@ def _parse_feed(xml_text, category, query, now):
             "catalyst_level": catalyst_level,
             "catalysts": catalysts,
             "recency_score": recency,
-            "priority_score": total_score,
-            "priority": _priority_label(total_score),
-            "affected_sectors": _sector_matches(title),
-            "impact_direction": "UNASSESSED",
-            "direction_note": (
-                "Priority measures relevance, catalyst "
-                "keywords and recency. It is not a "
-                "price-direction prediction."
+            "priority_score": min(
+                100,
+                relevance + catalyst_score + recency,
             ),
+            "priority": "LOW",
+            "affected_sectors": _sector_matches(title),
+            **direction,
+            "_queries": [query],
+            "_sources": [source],
         })
 
     return items
@@ -452,7 +504,7 @@ def _deduplicate(articles):
         if not title:
             continue
 
-        title_tokens = set(title.split())
+        tokens = set(title.split())
         duplicate_index = None
 
         for index, existing in enumerate(unique):
@@ -461,12 +513,12 @@ def _deduplicate(articles):
             )
             existing_tokens = set(existing_title.split())
 
-            if not title_tokens or not existing_tokens:
+            if not tokens or not existing_tokens:
                 continue
 
             similarity = (
-                len(title_tokens & existing_tokens)
-                / max(len(title_tokens | existing_tokens), 1)
+                len(tokens & existing_tokens)
+                / max(len(tokens | existing_tokens), 1)
             )
 
             if title == existing_title or similarity >= 0.72:
@@ -475,12 +527,64 @@ def _deduplicate(articles):
 
         if duplicate_index is None:
             unique.append(article)
+            continue
 
-        elif (
-            article["priority_score"]
-            > unique[duplicate_index]["priority_score"]
-        ):
+        existing = unique[duplicate_index]
+
+        existing["_queries"] = list(set(
+            existing.get("_queries", [])
+            + article.get("_queries", [])
+        ))
+
+        existing["_sources"] = list(set(
+            existing.get("_sources", [])
+            + article.get("_sources", [])
+        ))
+
+        # Retain the better original headline record.
+        if article["priority_score"] > existing["priority_score"]:
+            queries = existing["_queries"]
+            sources = existing["_sources"]
+
             unique[duplicate_index] = article
+
+            unique[duplicate_index]["_queries"] = queries
+            unique[duplicate_index]["_sources"] = sources
+
+    for article in unique:
+        query_count = len(article.get("_queries", []))
+        source_count = len(article.get("_sources", []))
+
+        corroboration_score = min(
+            10,
+            max(0, (source_count - 1) * 5)
+            + max(0, (query_count - 1) * 2),
+        )
+
+        article["feed_count"] = query_count
+        article["publisher_count"] = source_count
+        article["corroboration_score"] = corroboration_score
+
+        article["priority_score"] = min(
+            100,
+            article["relevance_score"]
+            + article["catalyst_score"]
+            + article["recency_score"]
+            + corroboration_score,
+        )
+
+        article["priority"] = _priority_label(
+            article["priority_score"]
+        )
+
+        article["corroboration"] = (
+            "MULTIPLE_FEEDS"
+            if query_count > 1 or source_count > 1
+            else "SINGLE_FEED"
+        )
+
+        article.pop("_queries", None)
+        article.pop("_sources", None)
 
     return unique
 
@@ -547,7 +651,7 @@ def get_premarket_news(category="all"):
     result.sort(
         key=lambda item: (
             item["priority_score"],
-            item["published_at"] or "",
+            item["published_at"],
         ),
         reverse=True,
     )
@@ -557,16 +661,18 @@ def get_premarket_news(category="all"):
         "generated_at": now.isoformat(),
         "source_type": "Google News RSS aggregation",
         "scoring_model": (
-            "Relevance 0-40 + catalyst 0-30 + recency 0-30"
+            "Relevance 0-40 + catalyst 0-30 "
+            "+ recency 0-30 + corroboration 0-10"
         ),
         "article_count": len(result),
         "articles": result,
         "errors": errors,
         "limitations": [
             "News discovery uses Google News RSS.",
-            "Priority scores are rule-based, not predictive.",
+            "Scoring and impact assessments are heuristic.",
+            "Publisher count is based on RSS publisher labels.",
             "Headline classification may miss article context.",
-            "Impact direction has not been independently assessed.",
+            "Impact direction is not a price prediction.",
             "RSS availability and timestamps may be delayed.",
         ],
     }
