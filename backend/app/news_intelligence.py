@@ -50,6 +50,7 @@ DOMESTIC_RELEVANCE = [
     "earnings", "corporate", "ipo", "policy",
     "tax", "banking", "infrastructure", "india vix",
 ]
+
 DOMESTIC_STRONG_ANCHORS = [
     "india", "indian", "nifty", "bank nifty",
     "banknifty", "sensex", "nse", "bse",
@@ -67,12 +68,22 @@ DOMESTIC_COMPANY_ANCHORS = [
     "indusind",
 ]
 
-FOREIGN_MACRO_TERMS = [
-    "us pce", "pce inflation", "us gdp",
-    "us cpi", "fed rate", "federal reserve",
-    "treasury yields", "wall street",
-    "american economy", "united states inflation",
+GLOBAL_IMPACT_TERMS = [
+    "federal reserve", "fed rate", "fed decision",
+    "treasury yield", "treasury yields",
+    "us pce", "pce inflation", "us cpi", "us gdp",
+    "wall street", "s&p 500", "nasdaq", "dow jones",
+    "china economy", "chinese economy", "boj",
+    "bank of japan", "ecb", "european central bank",
+    "crude oil", "oil prices", "opec",
+    "gold prices", "dollar index", "usd",
+    "tariff", "trade war", "sanctions",
+    "geopolitical tensions", "geopolitical risk",
+    "global markets", "global market selloff",
+    "bond yields", "risk aversion", "risk sentiment",
+    "war", "conflict",
 ]
+
 CATALYST_TERMS = {
     "MONETARY_POLICY": [
         "interest rate", "rate cut", "rate hike",
@@ -182,16 +193,26 @@ def _keyword_matches(text, keywords):
     for keyword in keywords:
         normalized = _clean_text(keyword)
 
-        if normalized and normalized in cleaned:
+        if not normalized:
+            continue
+
+        pattern = (
+            r"(?<!\w)"
+            + re.escape(normalized)
+            + r"(?!\w)"
+        )
+
+        if re.search(pattern, cleaned):
             matched.append(keyword)
 
     return matched
-def _is_domestic_relevant(title, source=""):
-    cleaned_title = _clean_text(title)
 
-    # Remove the publisher suffix if present in the headline.
+
+def _classify_market_news(title, source=""):
+    cleaned_title = _clean_text(title)
     cleaned_source = _clean_text(source)
 
+    # Remove publisher suffix if present.
     if cleaned_source:
         cleaned_title = re.sub(
             r"\s*-\s*" + re.escape(cleaned_source) + r"$",
@@ -199,7 +220,7 @@ def _is_domestic_relevant(title, source=""):
             cleaned_title,
         ).strip()
 
-    strong_matches = _keyword_matches(
+    india_matches = _keyword_matches(
         cleaned_title,
         DOMESTIC_STRONG_ANCHORS,
     )
@@ -209,24 +230,25 @@ def _is_domestic_relevant(title, source=""):
         DOMESTIC_COMPANY_ANCHORS,
     )
 
-    foreign_macro_matches = _keyword_matches(
+    global_matches = _keyword_matches(
         cleaned_title,
-        FOREIGN_MACRO_TERMS,
+        GLOBAL_IMPACT_TERMS,
     )
 
-    # Explicit Indian market context takes priority.
-    if strong_matches:
-        return True
+    # Direct Indian-market context.
+    if india_matches:
+        return "INDIA"
 
-    # Reject US/global macro headlines without Indian context.
-    if foreign_macro_matches:
-        return False
-
-    # Company anchor alone is not sufficient.
+    # Indian company-specific headlines.
     if company_matches:
-        return True
+        return "INDIA"
 
-    return False
+    # Global events with potential Indian-market relevance.
+    if global_matches:
+        return "GLOBAL_IMPACT"
+
+    return "IRRELEVANT"
+
 
 def _relevance_score(title, category):
     keywords = (
@@ -355,10 +377,27 @@ def _parse_feed(xml_text, category, query, now):
 
         if age_seconds < -21600 or age_seconds > 48 * 3600:
             continue
-        if category == "domestic" and not _is_domestic_relevant(title, source):
+
+        # Classify market relevance.
+        market_classification = _classify_market_news(
+            title,
+            source,
+        )
+
+        # Reject irrelevant headlines.
+        if market_classification == "IRRELEVANT":
             continue
+
+        # Reject non-Indian news from domestic feeds.
+        if (
+            category == "domestic"
+            and market_classification == "GLOBAL_IMPACT"
+        ):
+            continue
+
         relevance, relevance_matches = _relevance_score(
-            title, category
+            title,
+            category,
         )
 
         catalyst_score, catalyst_level, catalysts = (
@@ -366,7 +405,8 @@ def _parse_feed(xml_text, category, query, now):
         )
 
         recency, age_hours = _recency_score(
-            published_at, now
+            published_at,
+            now,
         )
 
         total_score = min(
@@ -381,6 +421,7 @@ def _parse_feed(xml_text, category, query, now):
             "age_hours": age_hours,
             "source": source,
             "category": category,
+            "market_classification": market_classification,
             "query": query,
             "relevance_score": relevance,
             "relevance_keywords": relevance_matches,
