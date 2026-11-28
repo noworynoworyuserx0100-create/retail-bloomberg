@@ -187,7 +187,36 @@ AMBIGUOUS_TERMS = [
     "mixed signals", "mixed results",
 ]
 
+SOURCE_TIERS = {
+    "tier_1": [
+        "reuters", "bloomberg", "associated press",
+        "ap news", "financial times", "wall street journal",
+        "cnbc", "the economic times",
+    ],
+    "tier_2": [
+        "moneycontrol", "business standard",
+        "mint", "livemint", "ndtv", "the hindu",
+        "indian express", "economies.com",
+    ],
+}
 
+
+def _source_credibility(source):
+    name = _clean_text(source)
+
+    if any(
+        _clean_text(item) in name
+        for item in SOURCE_TIERS["tier_1"]
+    ):
+        return 10, "HIGH"
+
+    if any(
+        _clean_text(item) in name
+        for item in SOURCE_TIERS["tier_2"]
+    ):
+        return 6, "MEDIUM"
+
+    return 2, "LOW"
 def _google_news_url(query):
     return (
         "https://news.google.com/rss/search?q="
